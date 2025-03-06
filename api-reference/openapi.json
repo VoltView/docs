@@ -1184,12 +1184,62 @@
                   "type": "object",
                   "properties": {
                     "project": {
-                      "$ref": "#/components/schemas/Project"
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "string",
+                          "description": "PROJECT_TOKEN for authenticating subsequent API calls"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the project"
+                        },
+                        "callbackUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "Callback URL for notifications"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Unique project identifier"
+                        }
+                      },
+                      "required": ["token", "name", "id"]
                     },
                     "user": {
-                      "$ref": "#/components/schemas/IntegrationUser"
+                      "type": "object",
+                      "properties": {
+                        "email": {
+                          "type": "string",
+                          "format": "email",
+                          "description": "Email of the project admin"
+                        },
+                        "firstName": {
+                          "type": "string",
+                          "description": "First name of the project admin"
+                        },
+                        "lastName": {
+                          "type": "string",
+                          "description": "Last name of the project admin"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "User identifier"
+                        },
+                        "projectId": {
+                          "type": "string",
+                          "description": "Project identifier"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": ["ADMIN", "USER"],
+                          "description": "User role in the project"
+                        }
+                      },
+                      "required": ["email", "firstName", "lastName", "id", "projectId", "role"]
                     }
-                  }
+                  },
+                  "required": ["project", "user"]
                 }
               }
             }
@@ -1206,7 +1256,7 @@
           "Integration"
         ],
         "summary": "Create account",
-        "description": "Creates a new utility account",
+        "description": "Creates a new utility account for automated data scraping from utility websites",
         "operationId": "createAccount",
         "requestBody": {
           "required": true,
@@ -1222,12 +1272,12 @@
                   "email": {
                     "type": "string",
                     "format": "email",
-                    "description": "Email for the account"
+                    "description": "Email for the account (credentials for utility website)"
                   },
                   "password": {
                     "type": "string",
                     "format": "password",
-                    "description": "Password for the account"
+                    "description": "Password for the account (credentials for utility website)"
                   },
                   "supplier": {
                     "type": "string",
@@ -1240,6 +1290,11 @@
                       "SCOTTISH_POWER"
                     ],
                     "description": "Energy supplier"
+                  },
+                  "expiryDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date when the account should expire"
                   }
                 },
                 "required": [
@@ -1258,7 +1313,23 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Account"
+                  "type": "object",
+                  "properties": {
+                    "businessId": {
+                      "type": "string",
+                      "description": "Business identifier"
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Account identifier"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["PASSING", "FAILING"],
+                      "description": "Indicates whether the account credentials are valid and the scraping process was successful"
+                    }
+                  },
+                  "required": ["businessId", "id", "status"]
                 }
               }
             }
@@ -1297,10 +1368,56 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccountDetails"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["PASSING", "FAILING"],
+                      "description": "Indicates whether the account credentials are valid and the scraping process was successful"
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Account identifier"
+                    },
+                    "businessId": {
+                      "type": "string",
+                      "description": "Business identifier"
+                    }
+                  },
+                  "required": ["status", "id", "businessId"]
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Delete account",
+        "description": "Removes an account from the system",
+        "operationId": "deleteAccount",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account identifier to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account successfully deleted"
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
@@ -1338,7 +1455,56 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SiteDetails"
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Site identifier"
+                      },
+                      "accountId": {
+                        "type": "string",
+                        "description": "Account identifier"
+                      },
+                      "organisationId": {
+                        "type": "string",
+                        "description": "Organisation identifier"
+                      },
+                      "bgAccountId": {
+                        "type": "string",
+                        "description": "Background account identifier"
+                      },
+                      "fuelType": {
+                        "type": "string",
+                        "description": "Type of fuel service"
+                      },
+                      "address": {
+                        "type": "string",
+                        "description": "Physical address of the site"
+                      },
+                      "invoices": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Invoice identifier"
+                            },
+                            "filePath": {
+                              "type": "string",
+                              "description": "Path to the invoice file"
+                            },
+                            "extension": {
+                              "type": "string",
+                              "description": "File extension"
+                            }
+                          },
+                          "required": ["id", "filePath", "extension"]
+                        },
+                        "description": "List of invoices associated with the site"
+                      }
+                    },
+                    "required": ["id", "accountId", "fuelType", "address"]
                   }
                 }
               }
@@ -1398,6 +1564,258 @@
         }
       }
     },
+    "/v1/businesses/{businessId}/accounts": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Get business accounts",
+        "description": "Retrieves all accounts associated with a specific business",
+        "operationId": "getBusinessAccounts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "businessId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Business identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Business accounts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Account identifier"
+                      },
+                      "projectId": {
+                        "type": "string",
+                        "description": "Project identifier"
+                      },
+                      "businessId": {
+                        "type": "string",
+                        "description": "Business identifier"
+                      },
+                      "expiryDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Account expiry date"
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Account status"
+                      },
+                      "supplier": {
+                        "type": "string",
+                        "description": "Energy supplier"
+                      },
+                      "sites": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Site identifier"
+                            },
+                            "accountId": {
+                              "type": "string",
+                              "description": "Account identifier"
+                            },
+                            "referenceId": {
+                              "type": "string",
+                              "description": "Reference identifier"
+                            },
+                            "fuelType": {
+                              "type": "string",
+                              "description": "Type of fuel service"
+                            },
+                            "address": {
+                              "type": "string",
+                              "description": "Physical address of the site"
+                            },
+                            "invoices": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "description": "Invoice identifier"
+                                  },
+                                  "filePath": {
+                                    "type": "string",
+                                    "description": "Path to the invoice file"
+                                  },
+                                  "extension": {
+                                    "type": "string",
+                                    "description": "File extension"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "description": "Invoice type"
+                                  }
+                                }
+                              }
+                            },
+                            "contracts": {
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              },
+                              "description": "List of contracts"
+                            },
+                            "tariffs": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "__typename": {
+                                    "type": "string"
+                                  },
+                                  "mpan": {
+                                    "type": "string",
+                                    "description": "Meter Point Administration Number"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "gspGroupId": {
+                                    "type": "string",
+                                    "description": "Grid Supply Point Group ID"
+                                  },
+                                  "meters": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "serialNumber": {
+                                          "type": "string"
+                                        },
+                                        "makeAndType": {
+                                          "type": "string"
+                                        },
+                                        "meterType": {
+                                          "type": "string"
+                                        },
+                                        "importMeter": {
+                                          "type": "object"
+                                        },
+                                        "smartDevices": {
+                                          "type": "array",
+                                          "items": {
+                                            "type": "object"
+                                          }
+                                        },
+                                        "__typename": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "agreements": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "integer"
+                                        },
+                                        "validFrom": {
+                                          "type": "string",
+                                          "format": "date-time"
+                                        },
+                                        "validTo": {
+                                          "type": "string",
+                                          "format": "date-time"
+                                        },
+                                        "isRevoked": {
+                                          "type": "boolean"
+                                        },
+                                        "unitRateUplifts": {
+                                          "type": "array",
+                                          "items": {
+                                            "type": "object"
+                                          }
+                                        },
+                                        "tariff": {
+                                          "type": "object",
+                                          "properties": {
+                                            "__typename": {
+                                              "type": "string"
+                                            },
+                                            "standingCharge": {
+                                              "type": "number"
+                                            },
+                                            "preVatStandingCharge": {
+                                              "type": "number"
+                                            },
+                                            "displayName": {
+                                              "type": "string"
+                                            },
+                                            "fullName": {
+                                              "type": "string"
+                                            },
+                                            "unitRate": {
+                                              "type": "number"
+                                            },
+                                            "preVatUnitRate": {
+                                              "type": "number"
+                                            }
+                                          }
+                                        },
+                                        "__typename": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "enrolment": {
+                                    "type": "object"
+                                  },
+                                  "smartStartDate": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "smartTariffOnboarding": {
+                                    "type": "object"
+                                  },
+                                  "status": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/v1/documents/sign": {
       "get": {
         "tags": [
@@ -1437,9 +1855,10 @@
                     "url": {
                       "type": "string",
                       "format": "uri",
-                      "description": "Signing URL"
+                      "description": "Signing URL for the document"
                     }
-                  }
+                  },
+                  "required": ["url"]
                 }
               }
             }
