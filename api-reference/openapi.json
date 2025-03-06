@@ -44,7 +44,7 @@
       "description": "Energy consumption data endpoints"
     },
     {
-      "name": "Integration",
+      "name": "Supplier Integration",
       "description": "Utilities integration endpoints"
     }
   ],
@@ -1073,7 +1073,7 @@
         }
       }
     },
-    "/v1/projects/": {
+    "/v1/supplierIntegration/projects": {
       "post": {
         "tags": [
           "Integration"
@@ -1218,7 +1218,7 @@
         }
       }
     },
-    "/v1/accounts/": {
+    "/v1/supplierIntegration/createAccount": {
       "post": {
         "tags": [
           "Integration"
@@ -1308,7 +1308,7 @@
         }
       }
     },
-    "/v1/accounts/{accountId}": {
+    "/v1/supplierIntegration/accounts/{accountId}": {
       "get": {
         "tags": [
           "Integration"
@@ -1387,7 +1387,7 @@
         }
       }
     },
-    "/v1/accounts/{accountId}/sites": {
+    "/v1/supplierIntegration/sites/{accountId}": {
       "get": {
         "tags": [
           "Integration"
@@ -1475,7 +1475,7 @@
         }
       }
     },
-    "/v1/business/{businessId}/accounts/count": {
+    "/v1/supplierIntegration/business/{businessId}/accounts/count": {
       "get": {
         "tags": [
           "Integration"
@@ -1517,7 +1517,7 @@
         }
       }
     },
-    "/v1/businesses/{businessId}/accounts": {
+    "/v1/supplierIntegration/business/{businessId}/accounts": {
       "get": {
         "tags": [
           "Integration"
@@ -1766,7 +1766,7 @@
         }
       }
     },
-    "/v1/documents/sign": {
+    "/v1/supplierIntegration/signDocument": {
       "get": {
         "tags": [
           "Integration"
