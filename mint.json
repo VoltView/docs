@@ -2,8 +2,8 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "VoltView",
   "logo": {
-    "dark": "/logo/voltview-logo-dark.png",
-    "light": "/logo/voltview-logo-light.png"
+    "dark": "/logo/voltview-logo.svg",
+    "light": "/logo/voltview-logo.svg"
   },
   "favicon": "/favicon.png",
   "colors": {
