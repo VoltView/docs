@@ -15,10 +15,6 @@
     {
       "url": "https://api.voltview.co.uk",
       "description": "Production server"
-    },
-    {
-      "url": "https://sandbox.voltview.co.uk",
-      "description": "Sandbox server for testing"
     }
   ],
   "security": [
