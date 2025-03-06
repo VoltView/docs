@@ -1078,7 +1078,7 @@
         "tags": [
           "Integration"
         ],
-        "summary": "Create integration project",
+        "summary": "Create a Data Collection Account from Utility Supplier",
         "description": "Creates a new integration project",
         "operationId": "createProject",
         "security": [],
