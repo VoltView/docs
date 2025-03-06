@@ -42,12 +42,6 @@
       ]
     },
     {
-      "group": "Essentials",
-      "pages": [
-        "essentials/settings"
-      ]
-    },
-    {
       "group": "API Documentation",
       "pages": [
         "api-reference/introduction"
