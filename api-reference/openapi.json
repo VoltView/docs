@@ -1,16 +1,24 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.3",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
+    "title": "VoltView API",
+    "description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\n### JWT Authentication\n- Generate a JWT token using your API credentials\n- Include the token in the Authorisation header\n- Tokens expire after 24 hours\n- Invalid tokens return a 401 Unauthorised response\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (£)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
+    "version": "1.0.0",
+    "contact": {
+      "email": "info@voltview.co.uk"
     },
-    "version": "1.0.0"
+    "license": {
+      "name": "Proprietary"
+    }
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.voltview.co.uk",
+      "description": "Production server"
+    },
+    {
+      "url": "https://sandbox.voltview.co.uk",
+      "description": "Sandbox server for testing"
     }
   ],
   "security": [
@@ -18,177 +26,2022 @@
       "bearerAuth": []
     }
   ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints for authentication"
+    },
+    {
+      "name": "User",
+      "description": "User profile management"
+    },
+    {
+      "name": "Sites",
+      "description": "Multi-site management endpoints"
+    },
+    {
+      "name": "Specific Site",
+      "description": "Operations for specific sites"
+    },
+    {
+      "name": "Consumption",
+      "description": "Energy consumption data endpoints"
+    },
+    {
+      "name": "Integration",
+      "description": "Utilities integration endpoints"
+    }
+  ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
+    "/v1/requestToken": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Request authentication token",
+        "description": "Generates a JWT token for API authentication",
+        "operationId": "requestToken",
+        "security": [],
         "parameters": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
+              "type": "string"
+            },
+            "description": "API key for requesting a token"
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Successful token generation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "JWT token for API authentication"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/requestMagicLink": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Request magic link for authentication",
+        "description": "Send a magic link to user's email for authentication",
+        "operationId": "requestMagicLink",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "User's email address"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Magic link sent successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
+    },
+    "/v1/getUser": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Fetch user profile",
+        "description": "Retrieves the authenticated user's profile information",
+        "operationId": "getUser",
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "List all sites",
+        "description": "Retrieves all sites associated with the authenticated user",
+        "operationId": "getSites",
+        "responses": {
+          "200": {
+            "description": "Sites retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Plant"
+                    "$ref": "#/components/schemas/Site"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/addressLookup": {
+      "post": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Address lookup",
+        "description": "Look up addresses by postcode",
+        "operationId": "addressLookup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "postCode": {
+                    "type": "string",
+                    "description": "Postal code to search"
+                  },
+                  "fuelType": {
+                    "type": "string",
+                    "enum": [
+                      "elec",
+                      "gas"
+                    ],
+                    "description": "Type of fuel service"
+                  },
+                  "customerConsent": {
+                    "type": "string",
+                    "enum": [
+                      "Yes",
+                      "No"
+                    ],
+                    "description": "Customer consent for data access"
+                  }
+                },
+                "required": [
+                  "postCode",
+                  "fuelType",
+                  "customerConsent"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Address lookup successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
+            "$ref": "#/components/responses/BadRequest"
           },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
+    "/v1/sites/peakDemand": {
+      "get": {
+        "tags": [
+          "Sites"
         ],
+        "summary": "Peak demand for all sites",
+        "description": "Retrieves peak power demand data across all sites",
+        "operationId": "getSitesPeakDemand",
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "Peak demand data retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PeakDemand"
+                  }
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/annualConsumptionAndEmissions": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Annual consumption and emissions for all sites",
+        "description": "Retrieves annual energy consumption and emissions data across all sites",
+        "operationId": "getSitesAnnualConsumptionAndEmissions",
+        "responses": {
+          "200": {
+            "description": "Annual consumption and emissions data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConsumptionAndEmissions"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/annualSpendAndSavings": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Annual spend and savings for all sites",
+        "description": "Retrieves annual energy spending and cost savings data across all sites",
+        "operationId": "getSitesAnnualSpendAndSavings",
+        "responses": {
+          "200": {
+            "description": "Annual spend and savings data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SpendAndSavings"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/tariffs": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Tariffs for all sites",
+        "description": "Retrieves energy tariff information across all sites",
+        "operationId": "getSitesTariffs",
+        "responses": {
+          "200": {
+            "description": "Tariff information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tariff"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/invoices": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Invoices for all sites",
+        "description": "Retrieves invoice information across all sites",
+        "operationId": "getSitesInvoices",
+        "responses": {
+          "200": {
+            "description": "Invoice information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Invoice"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/reports": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Reports for all sites",
+        "description": "Retrieves energy reports across all sites",
+        "operationId": "getSitesReports",
+        "responses": {
+          "200": {
+            "description": "Reports retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Report"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/cost": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Energy cost data for all sites",
+        "description": "Retrieves energy cost data across all sites",
+        "operationId": "getSitesCost",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/lookback"
+          },
+          {
+            "$ref": "#/components/parameters/granularity"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cost data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CostData"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/emissions": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Emissions data for all sites",
+        "description": "Retrieves carbon emissions data across all sites",
+        "operationId": "getSitesEmissions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/lookback"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Emissions data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmissionsData"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/energyIntensity": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Energy intensity for all sites",
+        "description": "Retrieves energy intensity metrics across all sites",
+        "operationId": "getSitesEnergyIntensity",
+        "responses": {
+          "200": {
+            "description": "Energy intensity data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EnergyIntensity"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/stats": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Statistics for all sites",
+        "description": "Retrieves statistical data across all sites",
+        "operationId": "getSitesStats",
+        "responses": {
+          "200": {
+            "description": "Statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiteStats"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/marginalCarbonIntensity": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Marginal carbon intensity",
+        "description": "Retrieves marginal carbon intensity data",
+        "operationId": "getMarginalCarbonIntensity",
+        "responses": {
+          "200": {
+            "description": "Marginal carbon intensity data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarginalCarbonIntensity"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/energyRecommendation": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Energy recommendations",
+        "description": "Retrieves energy efficiency recommendations",
+        "operationId": "getEnergyRecommendation",
+        "responses": {
+          "200": {
+            "description": "Energy recommendations retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EnergyRecommendation"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/annualConsumptionAndEmissions": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Annual consumption and emissions for a specific site",
+        "description": "Retrieves annual energy consumption and emissions data for a specific site",
+        "operationId": "getSiteSpecificAnnualConsumptionAndEmissions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Annual consumption and emissions data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsumptionAndEmissions"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/annualSpendAndSavings": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Annual spend and savings for a specific site",
+        "description": "Retrieves annual energy spending and savings data for a specific site",
+        "operationId": "getSiteSpecificAnnualSpendAndSavings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Annual spend and savings data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpendAndSavings"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/peakDemand": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Peak demand for a specific site",
+        "description": "Retrieves peak power demand data for a specific site",
+        "operationId": "getSiteSpecificPeakDemand",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peak demand data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeakDemand"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/tariffs": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Tariffs for a specific site",
+        "description": "Retrieves energy tariff information for a specific site",
+        "operationId": "getSiteSpecificTariffs",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "in": "query",
+            "name": "utility",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ELECTRICITY",
+                "GAS"
+              ]
+            },
+            "description": "Filter tariffs by utility type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tariff information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tariff"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/reports": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Reports for a specific site",
+        "description": "Retrieves energy reports for a specific site",
+        "operationId": "getSiteSpecificReports",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reports retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Report"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/stats": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Statistics for a specific site",
+        "description": "Retrieves statistical data for a specific site",
+        "operationId": "getSiteSpecificStats",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteStats"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/siteSpecificEnergyIntensity": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Energy intensity for a specific site",
+        "description": "Retrieves energy intensity metrics for a specific site",
+        "operationId": "getSiteSpecificEnergyIntensity",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Energy intensity data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergyIntensity"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/cost": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Energy cost data for a specific site",
+        "description": "Retrieves energy cost data for a specific site",
+        "operationId": "getSiteSpecificCost",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "$ref": "#/components/parameters/lookback"
+          },
+          {
+            "$ref": "#/components/parameters/granularity"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cost data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CostData"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/emissions": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Emissions data for a specific site",
+        "description": "Retrieves carbon emissions data for a specific site",
+        "operationId": "getSiteSpecificEmissions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "$ref": "#/components/parameters/lookback"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Emissions data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmissionsData"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/loadCurve": {
+      "get": {
+        "tags": [
+          "Consumption"
+        ],
+        "summary": "Load curve for all sites",
+        "description": "Retrieves load curve data across all sites",
+        "operationId": "getSitesLoadCurve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          },
+          {
+            "in": "query",
+            "name": "summaryLevel",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "day",
+                "month"
+              ]
+            },
+            "description": "Level of data aggregation"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Load curve data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LoadCurve"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/loadCurve": {
+      "get": {
+        "tags": [
+          "Consumption"
+        ],
+        "summary": "Load curve for a specific site",
+        "description": "Retrieves load curve data for a specific site",
+        "operationId": "getSiteSpecificLoadCurve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          },
+          {
+            "in": "query",
+            "name": "summaryLevel",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "day",
+                "month"
+              ]
+            },
+            "description": "Level of data aggregation"
+          },
+          {
+            "in": "query",
+            "name": "unit",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "kWh",
+                "kW"
+              ]
+            },
+            "description": "Unit of measurement"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Load curve data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoadCurve"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/sites/timeSeries": {
+      "get": {
+        "tags": [
+          "Consumption"
+        ],
+        "summary": "Time series data for all sites",
+        "description": "Retrieves time series energy data across all sites",
+        "operationId": "getSitesTimeSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/granularity"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          },
+          {
+            "$ref": "#/components/parameters/lookback"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time series data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimeSeries"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/timeSeries": {
+      "get": {
+        "tags": [
+          "Consumption"
+        ],
+        "summary": "Time series data for a specific site",
+        "description": "Retrieves time series energy data for a specific site",
+        "operationId": "getSiteSpecificTimeSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "$ref": "#/components/parameters/granularity"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          },
+          {
+            "in": "query",
+            "name": "unit",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "kWh",
+                "kW"
+              ]
+            },
+            "description": "Unit of measurement"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time series data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeSeries"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/projects/": {
+      "post": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Create integration project",
+        "description": "Creates a new integration project",
+        "operationId": "createProject",
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sandbox",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Create a sandbox project for testing"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string",
+                    "description": "First name of the project admin"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "description": "Last name of the project admin"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Email of the project admin"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Password for the project admin"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the project"
+                  },
+                  "callbackUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Callback URL for webhooks"
+                  }
+                },
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "email",
+                  "password",
+                  "name",
+                  "callbackUrl"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "$ref": "#/components/schemas/Project"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/IntegrationUser"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
+    },
+    "/v1/accounts/": {
+      "post": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Create account",
+        "description": "Creates a new utility account",
+        "operationId": "createAccount",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "businessId": {
+                    "type": "string",
+                    "description": "Business identifier"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Email for the account"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Password for the account"
+                  },
+                  "supplier": {
+                    "type": "string",
+                    "enum": [
+                      "OCTOPUS_ENERGY",
+                      "SSE",
+                      "BRITISH_GAS",
+                      "EDF_ENERGY",
+                      "EON",
+                      "SCOTTISH_POWER"
+                    ],
+                    "description": "Energy supplier"
+                  }
+                },
+                "required": [
+                  "businessId",
+                  "email",
+                  "password",
+                  "supplier"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/accounts/{accountId}": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Get account details",
+        "description": "Retrieves details for a specific account",
+        "operationId": "getAccountDetails",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/accounts/{accountId}/sites": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Get account sites",
+        "description": "Retrieves sites for a specific account",
+        "operationId": "getAccountSites",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account sites retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiteDetails"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/business/{businessId}/accounts/count": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Get business accounts count",
+        "description": "Retrieves the count of accounts for a specific business",
+        "operationId": "getBusinessAccountsCount",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "businessId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Business identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Business accounts count retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "description": "Number of accounts"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/documents/sign": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Get document signing URL",
+        "description": "Retrieves a signing URL for a document",
+        "operationId": "getDocumentSigningUrl",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filePath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path to the file"
+          },
+          {
+            "in": "query",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document signing URL retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "Signing URL"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }
     }
   },
   "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from /v1/requestToken endpoint"
+      }
+    },
+    "parameters": {
+      "siteId": {
+        "in": "path",
+        "name": "siteId",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Site identifier"
+      },
+      "lookback": {
+        "in": "query",
+        "name": "lookback",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+[dwmy]$",
+          "example": "1y"
+        },
+        "description": "Time period to look back (e.g. 1d, 1w, 1m, 1y for day, week, month, year)"
+      },
+      "granularity": {
+        "in": "query",
+        "name": "granularity",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "hour",
+            "day",
+            "month",
+            "year"
+          ]
+        },
+        "description": "Data aggregation granularity"
+      },
+      "from": {
+        "in": "query",
+        "name": "from",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-01-01T00:00:00.000Z"
+        },
+        "description": "Start date and time (ISO 8601)"
+      },
+      "to": {
+        "in": "query",
+        "name": "to",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-12-31T23:59:59.999Z"
+        },
+        "description": "End date and time (ISO 8601)"
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
             }
           }
-        ]
+        }
       },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
           }
         }
       }
     },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User identifier"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User email"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name"
+          },
+          "organization": {
+            "type": "string",
+            "description": "User organization"
+          },
+          "role": {
+            "type": "string",
+            "description": "User role in the organization"
+          }
+        },
+        "required": [
+          "id",
+          "email"
+        ]
+      },
+      "Site": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Site name"
+          },
+          "address": {
+            "type": "string",
+            "description": "Site address"
+          },
+          "postcode": {
+            "type": "string",
+            "description": "Site postcode"
+          },
+          "region": {
+            "type": "string",
+            "description": "Geographic region"
+          },
+          "floorArea": {
+            "type": "number",
+            "description": "Floor area in square meters"
+          },
+          "buildingType": {
+            "type": "string",
+            "description": "Type of building"
+          },
+          "utilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ELECTRICITY",
+                "GAS",
+                "WATER"
+              ]
+            },
+            "description": "Utilities available at the site"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ],
+            "description": "Site status"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "address"
+        ]
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Address identifier"
+          },
+          "address": {
+            "type": "string",
+            "description": "Full address"
+          },
+          "postcode": {
+            "type": "string",
+            "description": "Postal code"
+          },
+          "mpan": {
+            "type": "string",
+            "description": "Meter Point Administration Number for electricity"
+          },
+          "mprn": {
+            "type": "string",
+            "description": "Meter Point Reference Number for gas"
+          }
+        },
+        "required": [
+          "id",
+          "address"
+        ]
+      },
+      "PeakDemand": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "peak": {
+            "type": "number",
+            "description": "Peak power demand in kW"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of peak demand"
+          },
+          "averageDemand": {
+            "type": "number",
+            "description": "Average power demand in kW"
+          },
+          "loadFactor": {
+            "type": "number",
+            "description": "Load factor as a percentage"
+          }
+        },
+        "required": [
+          "siteId",
+          "peak"
+        ]
+      },
+      "ConsumptionAndEmissions": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period"
+          },
+          "consumption": {
+            "type": "number",
+            "description": "Energy consumption in kWh"
+          },
+          "emissions": {
+            "type": "number",
+            "description": "Carbon emissions in kg CO2e"
+          },
+          "emissionsIntensity": {
+            "type": "number",
+            "description": "Emissions intensity in kg CO2e/kWh"
+          },
+          "comparisonPeriod": {
+            "type": "string",
+            "description": "Previous period for comparison"
+          },
+          "previousConsumption": {
+            "type": "number",
+            "description": "Previous period consumption in kWh"
+          },
+          "previousEmissions": {
+            "type": "number",
+            "description": "Previous period emissions in kg CO2e"
+          },
+          "consumptionChange": {
+            "type": "number",
+            "description": "Percentage change in consumption"
+          },
+          "emissionsChange": {
+            "type": "number",
+            "description": "Percentage change in emissions"
+          }
+        },
+        "required": [
+          "siteId",
+          "consumption",
+          "emissions"
+        ]
+      },
+      "SpendAndSavings": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period"
+          },
+          "spend": {
+            "type": "number",
+            "description": "Energy spend in GBP"
+          },
+          "savings": {
+            "type": "number",
+            "description": "Cost savings in GBP"
+          },
+          "comparisonPeriod": {
+            "type": "string",
+            "description": "Previous period for comparison"
+          },
+          "previousSpend": {
+            "type": "number",
+            "description": "Previous period spend in GBP"
+          },
+          "spendChange": {
+            "type": "number",
+            "description": "Percentage change in spend"
+          }
+        },
+        "required": [
+          "siteId",
+          "spend"
+        ]
+      },
+      "Tariff": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "supplier": {
+            "type": "string",
+            "description": "Energy supplier name"
+          },
+          "utility": {
+            "type": "string",
+            "enum": [
+              "ELECTRICITY",
+              "GAS"
+            ],
+            "description": "Utility type"
+          },
+          "tariffName": {
+            "type": "string",
+            "description": "Tariff name"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Tariff start date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Tariff end date"
+          },
+          "rates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TariffRate"
+            },
+            "description": "Tariff rates"
+          }
+        },
+        "required": [
+          "siteId",
+          "supplier",
+          "utility"
+        ]
+      },
+      "TariffRate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Rate name"
+          },
+          "rate": {
+            "type": "number",
+            "description": "Price per unit in GBP"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time",
+            "description": "Rate start time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "time",
+            "description": "Rate end time"
+          },
+          "daysOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+                "SUNDAY"
+              ]
+            },
+            "description": "Days of the week this rate applies"
+          }
+        },
+        "required": [
+          "name",
+          "rate"
+        ]
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Invoice identifier"
+          },
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "utility": {
+            "type": "string",
+            "enum": [
+              "ELECTRICITY",
+              "GAS",
+              "WATER"
+            ],
+            "description": "Utility type"
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "description": "Invoice number"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Issue date"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Due date"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Service period start date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Service period end date"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Invoice amount in GBP"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PAID",
+              "PENDING",
+              "OVERDUE"
+            ],
+            "description": "Invoice status"
+          },
+          "pdfUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to download invoice PDF"
+          }
+        },
+        "required": [
+          "id",
+          "siteId",
+          "invoiceNumber",
+          "amount"
+        ]
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Report identifier"
+          },
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Report name"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CONSUMPTION",
+              "COST",
+              "EMISSIONS",
+              "EFFICIENCY"
+            ],
+            "description": "Report type"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Report creation date and time"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period"
+          },
+          "downloadUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to download the report"
+          }
+        },
+        "required": [
+          "id",
+          "siteId",
+          "name",
+          "type"
+        ]
       }
     }
   }
