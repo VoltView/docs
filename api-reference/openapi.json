@@ -96,45 +96,6 @@
         }
       }
     },
-    "/v1/requestMagicLink": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "summary": "Request magic link for authentication",
-        "description": "Send a magic link to user's email for authentication",
-        "operationId": "requestMagicLink",
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "User's email address"
-                  }
-                },
-                "required": [
-                  "email"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Magic link sent successfully"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          }
-        }
-      }
-    },
     "/v1/getUser": {
       "get": {
         "tags": [
