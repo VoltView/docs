@@ -1,33 +1,90 @@
 ---
 title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+description: 'VoltView API Documentation - Energy Monitoring and Management'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Welcome to VoltView API
 
-## Welcome
+The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## API Suite Overview
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+Our API suite includes the following core services:
+
+<CardGroup>
+  <Card
+    title="Site Management API"
+    icon="building"
+  >
+    Manage and monitor multiple site locations
+  </Card>
+  <Card
+    title="Energy Consumption API"
+    icon="bolt"
+  >
+    Access detailed energy usage data
+  </Card>
+  <Card
+    title="Cost Analysis API"
+    icon="chart-line"
+  >
+    Track and analyse energy costs
+  </Card>
+  <Card
+    title="Environmental Metrics API"
+    icon="leaf"
+  >
+    Monitor carbon emissions and energy efficiency
+  </Card>
+  <Card
+    title="Utility Supplier API"
+    icon="plug"
+  >
+    Integrate and collect data from utility suppliers
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+To start using the VoltView API, follow these steps:
+
+1. Sign up for a VoltView account to receive your API credentials
+2. Review our data granularity options (hourly/daily/monthly)
+3. Ensure your requests are sent via HTTPS
+
+All API responses are returned in JSON format.
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+The VoltView API uses JWT (JSON Web Token) authentication to secure all endpoints.
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+  "Authorization": "Bearer your-jwt-token"
+}
 ```
+
+### Token Management
+- Generate a JWT token using your API credentials
+- Include the token in the Authorization header
+- Tokens expire after 24 hours
+- Invalid tokens return a 401 Unauthorized response
+
+### Authentication Error Response
+If authentication fails, you will receive an HTTP 401 Unauthorized response with a detailed error message in the JSON response body.
+
+## Data Units
+
+The VoltView API uses the following standardized units across all endpoints:
+
+| Metric | Unit |
+|--------|------|
+| Energy Consumption | kWh |
+| Power Demand | kW |
+| Carbon Emissions | kg CO2e/tonnes CO2e |
+| Currency | GBP (£) |
+| Time Series | ISO 8601 format |
+| Numeric Values | Rounded to 2 decimal places |
+| Meter Point Numbers | MPAN/MPRN format |
+| Supplier Read Frequency | Minutes/Hours/Days |
+| Reading Type | Actual/Estimated |
