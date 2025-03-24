@@ -1,0 +1,69 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Test API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/billValidation/parse": {
+      "post": {
+        "tags": ["Bill Validation"],
+        "summary": "Parse invoice",
+        "description": "Extract data from an invoice document without requiring site association",
+        "operationId": "parseInvoice",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Invoice file (PDF, JPEG, or PNG)"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Invoice parsed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParsedInvoice"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ParsedInvoice": {
+        "type": "object",
+        "properties": {
+          "invoiceNumber": {
+            "type": "string",
+            "description": "Extracted invoice number"
+          },
+          "totalAmount": {
+            "type": "number",
+            "description": "Total invoice amount in GBP"
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence score of the extraction (0-100)"
+          }
+        },
+        "required": ["invoiceNumber", "totalAmount", "confidence"]
+      }
+    }
+  }
+} 

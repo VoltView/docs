@@ -1,0 +1,245 @@
+---
+title: 'Validate Invoice'
+description: 'Validate utility bills against site data, tariffs and meter readings'
+---
+
+# Validate Invoice
+
+The validate endpoint performs a comprehensive check of utility bills against your site data, tariffs, and meter readings to identify potential errors or discrepancies. The invoice is automatically saved to your account and linked to the specified site.
+
+## API Endpoint
+
+```
+POST /v1/billValidation/validate
+```
+
+## Request
+
+<ParamField body="file" type="file" required>
+  The invoice file to be validated. Supported formats include PDF, JPEG, and PNG.
+</ParamField>
+
+<ParamField body="siteId" type="integer" required>
+  The site identifier to which this invoice relates. This allows the system to compare against the correct tariffs and meter readings.
+</ParamField>
+
+<ParamField body="meterId" type="integer">
+  Optional meter identifier if you want to validate against a specific meter. If not provided, the system will attempt to identify the correct meter from the invoice details.
+</ParamField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.voltview.co.uk/v1/billValidation/validate \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -F "file=@invoice.pdf" \
+  -F "siteId=123" \
+  -F "meterId=456"
+```
+
+```javascript Node.js
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+
+const form = new FormData();
+form.append('file', fs.createReadStream('./invoice.pdf'));
+form.append('siteId', '123');
+form.append('meterId', '456');
+
+axios.post('https://api.voltview.co.uk/v1/billValidation/validate', form, {
+  headers: {
+    ...form.getHeaders(),
+    'Authorization': 'Bearer YOUR_TOKEN'
+  }
+})
+.then(response => {
+  console.log(response.data);
+})
+.catch(error => {
+  console.error(error);
+});
+```
+
+```python Python
+import requests
+
+url = "https://api.voltview.co.uk/v1/billValidation/validate"
+headers = {
+    "Authorization": "Bearer YOUR_TOKEN"
+}
+files = {
+    "file": open("invoice.pdf", "rb")
+}
+data = {
+    "siteId": 123,
+    "meterId": 456
+}
+
+response = requests.post(url, headers=headers, files=files, data=data)
+print(response.json())
+```
+</CodeGroup>
+
+## Response
+
+<ResponseField name="documentId" type="integer" required>
+  The ID of the document that has been created in your VoltView account.
+</ResponseField>
+
+<ResponseField name="status" type="string" required>
+  Validation status: "PASSED", "FAILED", or "PENDING".
+</ResponseField>
+
+<ResponseField name="extractedData" type="object" required>
+  <Expandable title="properties">
+    <ResponseField name="supplier" type="string">
+      Detected utility supplier name.
+    </ResponseField>
+    <ResponseField name="utilityType" type="string">
+      Detected utility type (ELECTRICITY, GAS, WATER, or UNKNOWN).
+    </ResponseField>
+    <ResponseField name="invoiceNumber" type="string" required>
+      Extracted invoice number.
+    </ResponseField>
+    <ResponseField name="accountNumber" type="string">
+      Customer account number with the supplier.
+    </ResponseField>
+    <ResponseField name="mpanMprn" type="string">
+      Meter point reference number (MPAN for electricity or MPRN for gas).
+    </ResponseField>
+    <ResponseField name="issueDate" type="date">
+      Invoice issue date in ISO format (YYYY-MM-DD).
+    </ResponseField>
+    <ResponseField name="startDate" type="date">
+      Billing period start date in ISO format (YYYY-MM-DD).
+    </ResponseField>
+    <ResponseField name="endDate" type="date">
+      Billing period end date in ISO format (YYYY-MM-DD).
+    </ResponseField>
+    <ResponseField name="consumption" type="number">
+      Total consumption amount (typically in kWh for electricity/gas).
+    </ResponseField>
+    <ResponseField name="unitRate" type="number">
+      Unit rate charged (in pence).
+    </ResponseField>
+    <ResponseField name="standingCharge" type="number">
+      Standing charge amount (in pence).
+    </ResponseField>
+    <ResponseField name="totalAmount" type="number" required>
+      Total invoice amount in GBP.
+    </ResponseField>
+    <ResponseField name="vatAmount" type="number">
+      VAT amount in GBP.
+    </ResponseField>
+    <ResponseField name="confidence" type="number" required>
+      Confidence score of the extraction (0-100).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="errors" type="array">
+  List of validation errors found.
+  <Expandable title="items">
+    <ResponseField name="type" type="string" required>
+      Error type, one of: "CONSUMPTION_MISMATCH", "RATE_MISMATCH", "STANDING_CHARGE_ERROR", or "OTHER".
+    </ResponseField>
+    <ResponseField name="description" type="string" required>
+      Detailed description of the error.
+    </ResponseField>
+    <ResponseField name="expected" type="string">
+      Expected value based on your tariff or meter readings.
+    </ResponseField>
+    <ResponseField name="actual" type="string">
+      Actual value found in the invoice.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example Response
+
+```json
+{
+  "documentId": 12345,
+  "status": "FAILED",
+  "extractedData": {
+    "supplier": "British Gas",
+    "utilityType": "ELECTRICITY",
+    "invoiceNumber": "INV12345678",
+    "accountNumber": "ACC987654321",
+    "mpanMprn": "2000012345678",
+    "issueDate": "2023-05-15",
+    "startDate": "2023-04-01",
+    "endDate": "2023-04-30",
+    "consumption": 1250.5,
+    "unitRate": 28.5,
+    "standingCharge": 42.7,
+    "totalAmount": 398.62,
+    "vatAmount": 19.93,
+    "confidence": 85.4
+  },
+  "errors": [
+    {
+      "type": "RATE_MISMATCH",
+      "description": "The unit rate on the invoice doesn't match your contracted rate",
+      "expected": "26.7p/kWh",
+      "actual": "28.5p/kWh"
+    },
+    {
+      "type": "CONSUMPTION_MISMATCH",
+      "description": "The billed consumption doesn't match meter readings",
+      "expected": "1198.2 kWh",
+      "actual": "1250.5 kWh"
+    }
+  ]
+}
+```
+
+## Error Responses
+
+<ResponseField name="error" type="object">
+  <Expandable title="properties">
+    <ResponseField name="type" type="string">
+      Error type identifier.
+    </ResponseField>
+    <ResponseField name="message" type="string">
+      Human-readable error message.
+    </ResponseField>
+    <ResponseField name="details" type="array" optional>
+      Additional error details if available.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example Error Response
+
+```json
+{
+  "error": {
+    "type": "validation_error",
+    "message": "Unable to validate invoice. The site ID provided does not exist or you don't have access to it.",
+    "details": [
+      "Site ID: 123 not found",
+      "Please check the site identifier and try again"
+    ]
+  }
+}
+```
+
+## Handling Validation Results
+
+When a validation returns errors, we recommend:
+
+1. **Review the specific error types** to understand what discrepancies were found
+2. **Compare the expected vs. actual values** to assess the potential impact
+3. **Check your contract terms** to confirm the expected values are correct
+4. **Contact your supplier** with specific details about the discrepancies
+5. **Keep a record** of all validation results for audit purposes
+
+## Best Practices
+
+- Upload invoices as soon as they're received to identify issues before payment
+- Ensure your tariff details in VoltView are kept up-to-date for accurate validation
+- For large sites with multiple meters, specifying the meterId parameter can improve accuracy
+- Follow up on all "FAILED" validations, as they often represent legitimate overcharges 

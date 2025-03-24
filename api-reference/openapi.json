@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "VoltView API",
-    "description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\n### JWT Authentication\n- Generate a JWT token using your API credentials\n- Include the token in the Authorisation header\n- Tokens expire after 24 hours\n- Invalid tokens return a 401 Unauthorised response\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (£)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
+    "description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\n### JWT Authentication\n- Generate a JWT token using your API credentials\n- Include the token in the Authorisation header\n- Tokens expire after 24 hours\n- Invalid tokens return a 401 Unauthorised response\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (£)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
     "version": "1.0.0",
     "contact": {
       "email": "info@voltview.co.uk"
@@ -1894,8 +1894,7 @@
                   },
                   "meterId": {
                     "type": "integer",
-                    "description": "Meter identifier (optional)",
-                    "required": false
+                    "description": "Meter identifier (optional)"
                   }
                 },
                 "required": [
