@@ -46,6 +46,10 @@
     {
       "name": "Supplier Integration",
       "description": "Utilities integration endpoints"
+    },
+    {
+      "name": "Bill Validation",
+      "description": "Utility bill validation and error detection endpoints"
     }
   ],
   "paths": {
@@ -1818,6 +1822,106 @@
           }
         }
       }
+    },
+    "/v1/billValidation/parse": {
+      "post": {
+        "tags": [
+          "Bill Validation"
+        ],
+        "summary": "Parse invoice",
+        "description": "Extract data from an invoice document without requiring site association",
+        "operationId": "parseInvoice",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Invoice file (PDF, JPEG, or PNG)"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Invoice parsed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParsedInvoice"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/billValidation/validate": {
+      "post": {
+        "tags": [
+          "Bill Validation"
+        ],
+        "summary": "Validate invoice",
+        "description": "Validate an invoice against meter readings, tariff data and site information",
+        "operationId": "validateInvoice",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Invoice file (PDF, JPEG, or PNG)"
+                  },
+                  "siteId": {
+                    "type": "integer",
+                    "description": "Site identifier"
+                  },
+                  "meterId": {
+                    "type": "integer",
+                    "description": "Meter identifier (optional)",
+                    "required": false
+                  }
+                },
+                "required": [
+                  "file",
+                  "siteId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationResult"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2389,6 +2493,141 @@
           "siteId",
           "name",
           "type"
+        ]
+      },
+      "ValidationResult": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "integer",
+            "description": "Generated document ID in the system"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASSED",
+              "FAILED",
+              "PENDING"
+            ],
+            "description": "Validation status"
+          },
+          "extractedData": {
+            "$ref": "#/components/schemas/ParsedInvoice"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "CONSUMPTION_MISMATCH",
+                    "RATE_MISMATCH",
+                    "STANDING_CHARGE_ERROR",
+                    "OTHER"
+                  ],
+                  "description": "Error type"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Error description"
+                },
+                "expected": {
+                  "type": "string",
+                  "description": "Expected value"
+                },
+                "actual": {
+                  "type": "string",
+                  "description": "Actual value"
+                }
+              },
+              "required": [
+                "type",
+                "description"
+              ]
+            }
+          }
+        },
+        "required": [
+          "documentId",
+          "status",
+          "extractedData"
+        ]
+      },
+      "ParsedInvoice": {
+        "type": "object",
+        "properties": {
+          "supplier": {
+            "type": "string",
+            "description": "Detected utility supplier name"
+          },
+          "utilityType": {
+            "type": "string",
+            "enum": [
+              "ELECTRICITY",
+              "GAS",
+              "WATER",
+              "UNKNOWN"
+            ],
+            "description": "Detected utility type"
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "description": "Extracted invoice number"
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Customer account number"
+          },
+          "mpanMprn": {
+            "type": "string",
+            "description": "Meter point reference number"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Invoice issue date"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Billing period start date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Billing period end date"
+          },
+          "consumption": {
+            "type": "number",
+            "description": "Total consumption"
+          },
+          "unitRate": {
+            "type": "number",
+            "description": "Unit rate"
+          },
+          "standingCharge": {
+            "type": "number",
+            "description": "Standing charge"
+          },
+          "totalAmount": {
+            "type": "number",
+            "description": "Total invoice amount in GBP"
+          },
+          "vatAmount": {
+            "type": "number",
+            "description": "VAT amount"
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence score of the extraction (0-100)"
+          }
+        },
+        "required": [
+          "invoiceNumber",
+          "totalAmount",
+          "confidence"
         ]
       }
     }
