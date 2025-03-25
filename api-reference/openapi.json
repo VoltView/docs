@@ -1077,105 +1077,6 @@
         }
       }
     },
-    "/v1/billValidation/parse": {
-      "post": {
-        "tags": [
-          "Bill Validation"
-        ],
-        "summary": "Parse invoice",
-        "description": "Extract data from an invoice document without requiring site association",
-        "operationId": "parseInvoice",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "Invoice file (PDF, JPEG, or PNG)"
-                  }
-                },
-                "required": [
-                  "file"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Invoice parsed successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParsedInvoice"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
-    "/v1/billValidation/validate": {
-      "post": {
-        "tags": [
-          "Bill Validation"
-        ],
-        "summary": "Validate invoice",
-        "description": "Validate an invoice against meter readings, tariff data and site information",
-        "operationId": "validateInvoice",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "Invoice file (PDF, JPEG, or PNG)"
-                  },
-                  "siteId": {
-                    "type": "integer",
-                    "description": "Site identifier"
-                  },
-                  "meterId": {
-                    "type": "integer",
-                    "description": "Meter identifier (optional)"
-                  }
-                },
-                "required": [
-                  "file",
-                  "siteId"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Validation completed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationResult"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
     "/v1/supplierIntegration/accounts": {
       "post": {
         "tags": [
@@ -1390,6 +1291,105 @@
                   "items": {
                     "$ref": "#/components/schemas/DocumentSignedURL"
                   }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/billValidation/parse": {
+      "post": {
+        "tags": [
+          "Bill Validation"
+        ],
+        "summary": "Parse invoice",
+        "description": "Extract data from an invoice document without requiring site association",
+        "operationId": "parseInvoice",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Invoice file (PDF, JPEG, or PNG)"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Invoice parsed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParsedInvoice"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/billValidation/validate": {
+      "post": {
+        "tags": [
+          "Bill Validation"
+        ],
+        "summary": "Validate invoice",
+        "description": "Validate an invoice against meter readings, tariff data and site information",
+        "operationId": "validateInvoice",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Invoice file (PDF, JPEG, or PNG)"
+                  },
+                  "siteId": {
+                    "type": "integer",
+                    "description": "Site identifier"
+                  },
+                  "meterId": {
+                    "type": "integer",
+                    "description": "Meter identifier (optional)"
+                  }
+                },
+                "required": [
+                  "file",
+                  "siteId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationResult"
                 }
               }
             }
