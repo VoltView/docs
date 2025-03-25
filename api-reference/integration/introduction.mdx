@@ -1,0 +1,49 @@
+---
+title: 'Supplier Integration API'
+description: 'Connect with utility suppliers for automated data collection'
+---
+
+# Supplier Integration API
+
+The Supplier Integration API provides automated data collection functionality from various utility suppliers. This service enables VoltView to connect directly to your utility provider accounts, securely access your utility data, and automatically import it into the VoltView platform.
+
+## Key Features
+
+- **Secure Account Credentials Storage**: Safely store and manage utility website credentials
+- **Automated Data Scraping**: Retrieve utility account data, invoices, and contracts automatically
+- **Callback Notifications**: Receive updates when new data is available
+- **Document Management**: Access stored utility bills and contracts with secure links
+- **Multi-site Support**: Connect and monitor data from multiple utility sites
+
+## Getting Started
+
+To start using the Supplier Integration API, you'll need to:
+
+1. Create a Project using the [Create a Project](/api-reference/integration/create-project) endpoint
+2. Add utility accounts with the [Create an Account](/api-reference/integration/create-account) endpoint
+3. Connect to your utility provider's website using your saved credentials
+4. Set up callback notifications to receive updates when new data is retrieved
+
+## Available Endpoints
+
+The Supplier Integration API provides the following endpoints:
+
+- **Project Management**: Create and manage integration projects
+- **Account Management**: Securely store and manage utility provider credentials
+- **Site Management**: Access utility site information linked to your accounts
+- **Document Access**: Retrieve and view utility bills and contracts
+
+## Authentication
+
+All Supplier Integration API endpoints require authentication using a JWT bearer token. Obtain a token using the [Authentication](/api-reference/authentication/request-token) endpoint.
+
+## Data Access
+
+The API retrieves various data types from utility providers, including:
+
+- Billing information
+- Contract details
+- Site-specific consumption data
+- Account information
+
+All data is securely stored and only accessible to authorized users with proper authentication. 

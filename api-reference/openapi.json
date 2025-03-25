@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "VoltView API",
-    "description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\n### JWT Authentication\n- Generate a JWT token using your API credentials\n- Include the token in the Authorisation header\n- Tokens expire after 24 hours\n- Invalid tokens return a 401 Unauthorised response\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (£)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
+    "description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n- Supplier Integration API - Integrate with utility suppliers for automated data collection\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\n### JWT Authentication\n- Generate a JWT token using your API credentials\n- Include the token in the Authorisation header\n- Tokens expire after 24 hours\n- Invalid tokens return a 401 Unauthorised response\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (£)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
     "version": "1.0.0",
     "contact": {
       "email": "info@voltview.co.uk"
@@ -1077,752 +1077,6 @@
         }
       }
     },
-    "/v1/supplierIntegration/projects": {
-      "post": {
-        "tags": [
-          "Integration"
-        ],
-        "summary": "Create Project",
-        "description": "Create a Data Collection Account from Utility Supplier",
-        "operationId": "createProject",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "sandbox",
-            "schema": {
-              "type": "boolean"
-            },
-            "description": "Create a sandbox project for testing"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "firstName": {
-                    "type": "string",
-                    "description": "First name of the project admin"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "description": "Last name of the project admin"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "Email of the project admin"
-                  },
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "description": "Password for the project admin"
-                  },
-                  "name": {
-                    "type": "string",
-                    "description": "Name of the project"
-                  },
-                  "callbackUrl": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "Callback URL for webhooks"
-                  }
-                },
-                "required": [
-                  "firstName",
-                  "lastName",
-                  "email",
-                  "password",
-                  "name",
-                  "callbackUrl"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Project created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "project": {
-                      "type": "object",
-                      "properties": {
-                        "token": {
-                          "type": "string",
-                          "description": "PROJECT_TOKEN for authenticating subsequent API calls"
-                        },
-                        "name": {
-                          "type": "string",
-                          "description": "Name of the project"
-                        },
-                        "callbackUrl": {
-                          "type": "string",
-                          "format": "uri",
-                          "description": "Callback URL for notifications"
-                        },
-                        "id": {
-                          "type": "string",
-                          "description": "Unique project identifier"
-                        }
-                      },
-                      "required": ["token", "name", "id"]
-                    },
-                    "user": {
-                      "type": "object",
-                      "properties": {
-                        "email": {
-                          "type": "string",
-                          "format": "email",
-                          "description": "Email of the project admin"
-                        },
-                        "firstName": {
-                          "type": "string",
-                          "description": "First name of the project admin"
-                        },
-                        "lastName": {
-                          "type": "string",
-                          "description": "Last name of the project admin"
-                        },
-                        "id": {
-                          "type": "string",
-                          "description": "User identifier"
-                        },
-                        "projectId": {
-                          "type": "string",
-                          "description": "Project identifier"
-                        },
-                        "role": {
-                          "type": "string",
-                          "enum": ["ADMIN", "USER"],
-                          "description": "User role in the project"
-                        }
-                      },
-                      "required": ["email", "firstName", "lastName", "id", "projectId", "role"]
-                    }
-                  },
-                  "required": ["project", "user"]
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
-    "/v1/supplierIntegration/createAccount": {
-      "post": {
-        "tags": [
-          "Integration"
-        ],
-        "summary": "Create account",
-        "description": "Creates a new utility account for automated data scraping from utility websites",
-        "operationId": "createAccount",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "businessId": {
-                    "type": "string",
-                    "description": "Business identifier"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "Email for the account (credentials for utility website)"
-                  },
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "description": "Password for the account (credentials for utility website)"
-                  },
-                  "supplier": {
-                    "type": "string",
-                    "enum": [
-                      "OCTOPUS_ENERGY",
-                      "SSE",
-                      "BRITISH_GAS",
-                      "EDF_ENERGY",
-                      "EON",
-                      "SCOTTISH_POWER"
-                    ],
-                    "description": "Energy supplier"
-                  },
-                  "expiryDate": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "Date when the account should expire"
-                  }
-                },
-                "required": [
-                  "businessId",
-                  "email",
-                  "password",
-                  "supplier"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Account created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "businessId": {
-                      "type": "string",
-                      "description": "Business identifier"
-                    },
-                    "id": {
-                      "type": "string",
-                      "description": "Account identifier"
-                    },
-                    "status": {
-                      "type": "string",
-                      "enum": ["PASSING", "FAILING"],
-                      "description": "Indicates whether the account credentials are valid and the scraping process was successful"
-                    }
-                  },
-                  "required": ["businessId", "id", "status"]
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
-    "/v1/supplierIntegration/accounts/{accountId}": {
-      "get": {
-        "tags": [
-          "Integration"
-        ],
-        "summary": "Get account details",
-        "description": "Retrieves details for a specific account",
-        "operationId": "getAccountDetails",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "accountId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Account identifier"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Account details retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "enum": ["PASSING", "FAILING"],
-                      "description": "Indicates whether the account credentials are valid and the scraping process was successful"
-                    },
-                    "id": {
-                      "type": "string",
-                      "description": "Account identifier"
-                    },
-                    "businessId": {
-                      "type": "string",
-                      "description": "Business identifier"
-                    }
-                  },
-                  "required": ["status", "id", "businessId"]
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Integration"
-        ],
-        "summary": "Delete account",
-        "description": "Removes an account from the system",
-        "operationId": "deleteAccount",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "accountId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Account identifier to delete"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Account successfully deleted"
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
-    "/v1/supplierIntegration/sites/{accountId}": {
-      "get": {
-        "tags": [
-          "Integration"
-        ],
-        "summary": "Get account sites",
-        "description": "Retrieves sites for a specific account",
-        "operationId": "getAccountSites",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "accountId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Account identifier"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Account sites retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "description": "Site identifier"
-                      },
-                      "accountId": {
-                        "type": "string",
-                        "description": "Account identifier"
-                      },
-                      "organisationId": {
-                        "type": "string",
-                        "description": "Organisation identifier"
-                      },
-                      "bgAccountId": {
-                        "type": "string",
-                        "description": "Background account identifier"
-                      },
-                      "fuelType": {
-                        "type": "string",
-                        "description": "Type of fuel service"
-                      },
-                      "address": {
-                        "type": "string",
-                        "description": "Physical address of the site"
-                      },
-                      "invoices": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "description": "Invoice identifier"
-                            },
-                            "filePath": {
-                              "type": "string",
-                              "description": "Path to the invoice file"
-                            },
-                            "extension": {
-                              "type": "string",
-                              "description": "File extension"
-                            }
-                          },
-                          "required": ["id", "filePath", "extension"]
-                        },
-                        "description": "List of invoices associated with the site"
-                      }
-                    },
-                    "required": ["id", "accountId", "fuelType", "address"]
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
-    "/v1/supplierIntegration/business/{businessId}/accounts/count": {
-      "get": {
-        "tags": [
-          "Integration"
-        ],
-        "summary": "Get business accounts count",
-        "description": "Retrieves the count of accounts for a specific business",
-        "operationId": "getBusinessAccountsCount",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "businessId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Business identifier"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Business accounts count retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "count": {
-                      "type": "integer",
-                      "description": "Number of accounts"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
-    "/v1/supplierIntegration/business/{businessId}/accounts": {
-      "get": {
-        "tags": [
-          "Integration"
-        ],
-        "summary": "Get business accounts",
-        "description": "Retrieves all accounts associated with a specific business",
-        "operationId": "getBusinessAccounts",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "businessId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Business identifier"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Business accounts retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "description": "Account identifier"
-                      },
-                      "projectId": {
-                        "type": "string",
-                        "description": "Project identifier"
-                      },
-                      "businessId": {
-                        "type": "string",
-                        "description": "Business identifier"
-                      },
-                      "expiryDate": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Account expiry date"
-                      },
-                      "status": {
-                        "type": "string",
-                        "description": "Account status"
-                      },
-                      "supplier": {
-                        "type": "string",
-                        "description": "Energy supplier"
-                      },
-                      "sites": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "description": "Site identifier"
-                            },
-                            "accountId": {
-                              "type": "string",
-                              "description": "Account identifier"
-                            },
-                            "referenceId": {
-                              "type": "string",
-                              "description": "Reference identifier"
-                            },
-                            "fuelType": {
-                              "type": "string",
-                              "description": "Type of fuel service"
-                            },
-                            "address": {
-                              "type": "string",
-                              "description": "Physical address of the site"
-                            },
-                            "invoices": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "description": "Invoice identifier"
-                                  },
-                                  "filePath": {
-                                    "type": "string",
-                                    "description": "Path to the invoice file"
-                                  },
-                                  "extension": {
-                                    "type": "string",
-                                    "description": "File extension"
-                                  },
-                                  "type": {
-                                    "type": "string",
-                                    "description": "Invoice type"
-                                  }
-                                }
-                              }
-                            },
-                            "contracts": {
-                              "type": "array",
-                              "items": {
-                                "type": "object"
-                              },
-                              "description": "List of contracts"
-                            },
-                            "tariffs": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "__typename": {
-                                    "type": "string"
-                                  },
-                                  "mpan": {
-                                    "type": "string",
-                                    "description": "Meter Point Administration Number"
-                                  },
-                                  "id": {
-                                    "type": "string"
-                                  },
-                                  "gspGroupId": {
-                                    "type": "string",
-                                    "description": "Grid Supply Point Group ID"
-                                  },
-                                  "meters": {
-                                    "type": "array",
-                                    "items": {
-                                      "type": "object",
-                                      "properties": {
-                                        "id": {
-                                          "type": "string"
-                                        },
-                                        "serialNumber": {
-                                          "type": "string"
-                                        },
-                                        "makeAndType": {
-                                          "type": "string"
-                                        },
-                                        "meterType": {
-                                          "type": "string"
-                                        },
-                                        "importMeter": {
-                                          "type": "object"
-                                        },
-                                        "smartDevices": {
-                                          "type": "array",
-                                          "items": {
-                                            "type": "object"
-                                          }
-                                        },
-                                        "__typename": {
-                                          "type": "string"
-                                        }
-                                      }
-                                    }
-                                  },
-                                  "agreements": {
-                                    "type": "array",
-                                    "items": {
-                                      "type": "object",
-                                      "properties": {
-                                        "id": {
-                                          "type": "integer"
-                                        },
-                                        "validFrom": {
-                                          "type": "string",
-                                          "format": "date-time"
-                                        },
-                                        "validTo": {
-                                          "type": "string",
-                                          "format": "date-time"
-                                        },
-                                        "isRevoked": {
-                                          "type": "boolean"
-                                        },
-                                        "unitRateUplifts": {
-                                          "type": "array",
-                                          "items": {
-                                            "type": "object"
-                                          }
-                                        },
-                                        "tariff": {
-                                          "type": "object",
-                                          "properties": {
-                                            "__typename": {
-                                              "type": "string"
-                                            },
-                                            "standingCharge": {
-                                              "type": "number"
-                                            },
-                                            "preVatStandingCharge": {
-                                              "type": "number"
-                                            },
-                                            "displayName": {
-                                              "type": "string"
-                                            },
-                                            "fullName": {
-                                              "type": "string"
-                                            },
-                                            "unitRate": {
-                                              "type": "number"
-                                            },
-                                            "preVatUnitRate": {
-                                              "type": "number"
-                                            }
-                                          }
-                                        },
-                                        "__typename": {
-                                          "type": "string"
-                                        }
-                                      }
-                                    }
-                                  },
-                                  "enrolment": {
-                                    "type": "object"
-                                  },
-                                  "smartStartDate": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  "smartTariffOnboarding": {
-                                    "type": "object"
-                                  },
-                                  "status": {
-                                    "type": "string"
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
-    "/v1/supplierIntegration/signDocument": {
-      "get": {
-        "tags": [
-          "Integration"
-        ],
-        "summary": "Get document signing URL",
-        "description": "Retrieves a signing URL for a document",
-        "operationId": "getDocumentSigningUrl",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "filePath",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path to the file"
-          },
-          {
-            "in": "query",
-            "name": "accountId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Account identifier"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Document signing URL retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "url": {
-                      "type": "string",
-                      "format": "uri",
-                      "description": "Signing URL for the document"
-                    }
-                  },
-                  "required": ["url"]
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
     "/v1/billValidation/parse": {
       "post": {
         "tags": [
@@ -1912,6 +1166,265 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationResult"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/supplierIntegration/projects": {
+      "post": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Create a Project",
+        "description": "Creates a project and returns the PROJECT_TOKEN. The callbackUrl is used to notify users of updates.",
+        "operationId": "createProject",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProjectResponse"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/supplierIntegration/accounts": {
+      "post": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Create an Account",
+        "description": "Create an account with credentials for the utility website. The service will use these details to log in and scrape data.",
+        "operationId": "createAccount",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAccountResponse"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/supplierIntegration/accounts/{id}": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get Account Details",
+        "description": "Retrieve the account credentials stored in the system for a specific account ID.",
+        "operationId": "getAccountDetails",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDetails"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Delete an Account",
+        "description": "Remove an account from the system.",
+        "operationId": "deleteAccount",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account deleted successfully"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/supplierIntegration/accounts/{id}/sites": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get Sites Associated with an Account",
+        "description": "Fetch all utility sites linked to the specified account.",
+        "operationId": "getAccountSites",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sites retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationSite"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/supplierIntegration/businesses/{businessId}/accounts": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get Accounts Associated with a Business",
+        "description": "Fetch all accounts associated with a specific business.",
+        "operationId": "getBusinessAccounts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "businessId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Business ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accounts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Account"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/supplierIntegration/documents/sign": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get Signed Document URL",
+        "description": "Generate a signed URL for accessing a specific document.",
+        "operationId": "getSignedDocumentURL",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filePath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path to the document file"
+          },
+          {
+            "in": "query",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Signed URL generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentSignedURL"
+                  }
                 }
               }
             }
@@ -2628,6 +2141,333 @@
           "totalAmount",
           "confidence"
         ]
+      },
+      "CreateProjectRequest": {
+        "type": "object",
+        "required": ["firstName", "lastName", "email", "password", "name", "callbackUrl"],
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "First name of the project admin"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the project admin"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address for the project admin"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "Password for the project admin account"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the project"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to receive notifications about data updates"
+          }
+        }
+      },
+      "CreateProjectResponse": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string",
+                "description": "Project authentication token"
+              },
+              "name": {
+                "type": "string",
+                "description": "Project name"
+              },
+              "callbackUrl": {
+                "type": "string",
+                "description": "Callback URL for notifications"
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique project identifier"
+              }
+            }
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "description": "User email"
+              },
+              "firstName": {
+                "type": "string",
+                "description": "User first name"
+              },
+              "lastName": {
+                "type": "string",
+                "description": "User last name"
+              },
+              "id": {
+                "type": "string",
+                "description": "User identifier"
+              },
+              "projectId": {
+                "type": "string",
+                "description": "Associated project identifier"
+              },
+              "role": {
+                "type": "string",
+                "enum": ["ADMIN", "USER"],
+                "description": "User role in the project"
+              }
+            }
+          }
+        }
+      },
+      "CreateAccountRequest": {
+        "type": "object",
+        "required": ["email", "password", "businessId", "supplier"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email for utility supplier account"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password for utility supplier account"
+          },
+          "businessId": {
+            "type": "string",
+            "description": "Business identifier"
+          },
+          "supplier": {
+            "type": "string",
+            "description": "Type of utility supplier"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional expiration date for account credentials"
+          }
+        }
+      },
+      "CreateAccountResponse": {
+        "type": "object",
+        "properties": {
+          "businessId": {
+            "type": "string",
+            "description": "Business identifier"
+          },
+          "id": {
+            "type": "string",
+            "description": "Account identifier"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PASSING", "FAILING"],
+            "description": "Account connection status"
+          }
+        }
+      },
+      "AccountDetails": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["PASSING", "FAILING"],
+            "description": "Account connection status"
+          },
+          "id": {
+            "type": "string",
+            "description": "Account identifier"
+          },
+          "businessId": {
+            "type": "string",
+            "description": "Business identifier"
+          }
+        }
+      },
+      "IntegrationInvoice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Invoice identifier"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "Path to stored invoice file"
+          },
+          "extension": {
+            "type": "string",
+            "description": "File extension"
+          }
+        }
+      },
+      "Contract": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Contract identifier"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "Path to stored contract file"
+          },
+          "businessName": {
+            "type": "string",
+            "description": "Business name on the contract"
+          },
+          "contactName": {
+            "type": "string",
+            "description": "Contact person name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Contact email address"
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Utility account number"
+          },
+          "address": {
+            "type": "string",
+            "description": "Site address"
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Contract start date"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Contract end date"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Contract currency"
+          },
+          "mpan": {
+            "type": "string",
+            "description": "Meter Point Administration Number"
+          },
+          "meterSerialNumber": {
+            "type": "string",
+            "description": "Meter serial number"
+          },
+          "unitCharge": {
+            "type": "number",
+            "description": "Unit charge amount"
+          },
+          "standingCharge": {
+            "type": "number",
+            "description": "Standing charge amount"
+          },
+          "capacityCharge": {
+            "type": "number",
+            "description": "Capacity charge amount"
+          }
+        }
+      },
+      "IntegrationSite": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "accountId": {
+            "type": "string",
+            "description": "Account identifier"
+          },
+          "organisationId": {
+            "type": "string",
+            "description": "Organisation identifier"
+          },
+          "bgAccountId": {
+            "type": "string",
+            "description": "Background account identifier"
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "Reference identifier"
+          },
+          "fuelType": {
+            "type": "string",
+            "description": "Type of fuel service"
+          },
+          "address": {
+            "type": "string",
+            "description": "Site address"
+          },
+          "invoices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntegrationInvoice"
+            },
+            "description": "List of invoices for the site"
+          },
+          "contracts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Contract"
+            },
+            "description": "List of contracts for the site"
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Account identifier"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Project identifier"
+          },
+          "businessId": {
+            "type": "string",
+            "description": "Business identifier"
+          },
+          "expiryDate": {
+            "type": "string",
+            "description": "Account credentials expiry date"
+          },
+          "status": {
+            "type": "string",
+            "description": "Account status"
+          },
+          "supplier": {
+            "type": "string",
+            "description": "Utility supplier name"
+          },
+          "sites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntegrationSite"
+            },
+            "description": "List of sites associated with this account"
+          }
+        }
+      },
+      "DocumentSignedURL": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Signed URL for secure document access"
+          }
+        }
       }
     }
   }
