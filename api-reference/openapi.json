@@ -1301,13 +1301,13 @@
         }
       }
     },
-    "/v1/billValidation/parse": {
+    "/v1/billValidation/parseInvoice": {
       "post": {
         "tags": [
           "Bill Validation"
         ],
         "summary": "Parse invoice",
-        "description": "Extract data from an invoice document without requiring site association",
+        "description": "Extract comprehensive data from an invoice document including billing details, consumption data, charges, and meter readings without requiring site association",
         "operationId": "parseInvoice",
         "requestBody": {
           "required": true,
@@ -1346,14 +1346,14 @@
         }
       }
     },
-    "/v1/billValidation/validate": {
+    "/v1/billValidation/parseContract": {
       "post": {
         "tags": [
           "Bill Validation"
         ],
-        "summary": "Validate invoice",
-        "description": "Validate an invoice against meter readings, tariff data and site information",
-        "operationId": "validateInvoice",
+        "summary": "Parse contract",
+        "description": "Extract comprehensive data from a contract document including supplier details, contract terms, rates, and supply points without requiring site association",
+        "operationId": "parseContract",
         "requestBody": {
           "required": true,
           "content": {
@@ -1364,20 +1364,55 @@
                   "file": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Invoice file (PDF, JPEG, or PNG)"
-                  },
-                  "siteId": {
-                    "type": "integer",
-                    "description": "Site identifier"
-                  },
-                  "meterId": {
-                    "type": "integer",
-                    "description": "Meter identifier (optional)"
+                    "description": "Contract file (PDF, JPEG, or PNG)"
                   }
                 },
                 "required": [
-                  "file",
-                  "siteId"
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contract parsed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParsedContract"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/billValidation/validateInvoice": {
+      "post": {
+        "tags": [
+          "Bill Validation"
+        ],
+        "summary": "Validate invoice",
+        "description": "Validate a previously parsed invoice against meter readings, tariff data, and site information to identify discrepancies in consumption, rates, charges, and billing details",
+        "operationId": "validateInvoice",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "invoiceId": {
+                    "type": "string",
+                    "description": "Unique invoice identifier returned from the parseInvoice endpoint"
+                  }
+                },
+                "required": [
+                  "invoiceId"
                 ]
               }
             }
@@ -1976,15 +2011,15 @@
         "type": "object",
         "properties": {
           "documentId": {
-            "type": "integer",
-            "description": "Generated document ID in the system"
+            "type": "string",
+            "description": "Unique identifier for the validated document in the system"
           },
           "status": {
             "type": "string",
             "enum": [
-              "PASSED",
-              "FAILED",
-              "PENDING"
+              "passed",
+              "failed",
+              "pending"
             ],
             "description": "Validation status"
           },
@@ -1999,12 +2034,18 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "CONSUMPTION_MISMATCH",
-                    "RATE_MISMATCH",
-                    "STANDING_CHARGE_ERROR",
-                    "OTHER"
+                    "consumptionMismatch",
+                    "rateMismatch",
+                    "standingChargeError",
+                    "dayRateMismatch",
+                    "nightRateMismatch",
+                    "capacityChargeError",
+                    "vatError",
+                    "cclError",
+                    "dateMismatch",
+                    "other"
                   ],
-                  "description": "Error type"
+                  "description": "Type of validation error detected"
                 },
                 "description": {
                   "type": "string",
@@ -2035,66 +2076,163 @@
       "ParsedInvoice": {
         "type": "object",
         "properties": {
-          "supplier": {
+          "invoiceId": {
             "type": "string",
-            "description": "Detected utility supplier name"
+            "description": "Unique invoice identifier generated by the system"
           },
-          "utilityType": {
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the energy supplier"
+          },
+          "supplierAccountNumber": {
+            "type": "string",
+            "description": "Account number with the supplier"
+          },
+          "supplyType": {
             "type": "string",
             "enum": [
-              "ELECTRICITY",
-              "GAS",
-              "WATER",
-              "UNKNOWN"
+              "electricity",
+              "gas",
+              "water",
+              "unknown"
             ],
-            "description": "Detected utility type"
+            "description": "Type of utility supply"
           },
           "invoiceNumber": {
             "type": "string",
-            "description": "Extracted invoice number"
+            "description": "Invoice reference number"
           },
-          "accountNumber": {
+          "customerName": {
             "type": "string",
-            "description": "Customer account number"
+            "description": "Name of the customer on the invoice"
           },
           "mpanMprn": {
             "type": "string",
-            "description": "Meter point reference number"
+            "description": "MPAN (13 digits) for electricity or MPRN (6-11 digits) for gas"
           },
-          "issueDate": {
+          "invoiceDate": {
             "type": "string",
             "format": "date",
-            "description": "Invoice issue date"
+            "description": "Date invoice was issued (YYYY-MM-DD)"
           },
-          "startDate": {
+          "dueDate": {
             "type": "string",
             "format": "date",
-            "description": "Billing period start date"
+            "description": "Payment due date (YYYY-MM-DD)"
           },
-          "endDate": {
+          "chargeStartDate": {
             "type": "string",
             "format": "date",
-            "description": "Billing period end date"
+            "description": "Start of billing period (YYYY-MM-DD)"
           },
-          "consumption": {
-            "type": "number",
-            "description": "Total consumption"
+          "chargeEndDate": {
+            "type": "string",
+            "format": "date",
+            "description": "End of billing period (YYYY-MM-DD)"
           },
-          "unitRate": {
-            "type": "number",
-            "description": "Unit rate"
+          "meterSerialNumber": {
+            "type": "string",
+            "description": "Meter serial number"
+          },
+          "siteAddress": {
+            "type": "string",
+            "description": "Site address where meter is located"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "Method of payment for this invoice"
           },
           "standingCharge": {
             "type": "number",
-            "description": "Standing charge"
+            "description": "Standing charge amount in pence per day"
+          },
+          "standingChargeType": {
+            "type": "string",
+            "description": "Type of standing charge"
+          },
+          "cclRate": {
+            "type": "number",
+            "description": "Climate Change Levy rate in p/kWh"
+          },
+          "vatRate": {
+            "type": "number",
+            "description": "VAT rate in percentage"
+          },
+          "readFromDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Start meter reading date (YYYY-MM-DD)"
+          },
+          "readFromType": {
+            "type": "string",
+            "enum": ["actual", "estimated", "customer", "smart"],
+            "description": "Type of start reading"
+          },
+          "readToDate": {
+            "type": "string",
+            "format": "date",
+            "description": "End meter reading date (YYYY-MM-DD)"
+          },
+          "readToType": {
+            "type": "string",
+            "enum": ["actual", "estimated", "customer", "smart"],
+            "description": "Type of end reading"
+          },
+          "consumption": {
+            "type": "number",
+            "description": "Total consumption in kWh (null if day/night rates apply)"
+          },
+          "dayConsumption": {
+            "type": "number",
+            "description": "Day/peak consumption in kWh"
+          },
+          "nightConsumption": {
+            "type": "number",
+            "description": "Night/off-peak consumption in kWh"
+          },
+          "unitRate": {
+            "type": "number",
+            "description": "Single rate tariff in p/kWh (null if day/night rates apply)"
+          },
+          "dayUnitRate": {
+            "type": "number",
+            "description": "Day/peak unit rate in p/kWh"
+          },
+          "nightUnitRate": {
+            "type": "number",
+            "description": "Night/off-peak unit rate in p/kWh"
+          },
+          "correctionFactor": {
+            "type": "number",
+            "description": "Gas correction factor"
+          },
+          "calorificValue": {
+            "type": "number",
+            "description": "Gas calorific value"
+          },
+          "totalUnitCharge": {
+            "type": "number",
+            "description": "Total charge for units consumed in £"
+          },
+          "totalStandingCharge": {
+            "type": "number",
+            "description": "Total standing charge amount in £"
+          },
+          "capacityCharge": {
+            "type": "number",
+            "description": "Total capacity charge in £ (for electricity only)"
+          },
+          "amountDueNetOfVat": {
+            "type": "number",
+            "description": "Total amount due before VAT in £"
+          },
+          "vat": {
+            "type": "number",
+            "description": "VAT amount in £"
           },
           "totalAmount": {
             "type": "number",
-            "description": "Total invoice amount in GBP"
-          },
-          "vatAmount": {
-            "type": "number",
-            "description": "VAT amount"
+            "description": "Total invoice amount including VAT in £"
           },
           "confidence": {
             "type": "number",
@@ -2102,6 +2240,7 @@
           }
         },
         "required": [
+          "invoiceId",
           "invoiceNumber",
           "totalAmount",
           "confidence"
@@ -2170,6 +2309,157 @@
             "description": "Business identifier"
           }
         }
+      },
+      "ParsedContract": {
+        "type": "object",
+        "properties": {
+          "contractId": {
+            "type": "string",
+            "description": "Unique contract identifier generated by the system"
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the energy supplier"
+          },
+          "supplierCode": {
+            "type": "string",
+            "description": "Supplier's identifier code"
+          },
+          "supplierAccountNumber": {
+            "type": "string",
+            "description": "Account number with the supplier"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Name of the customer on the contract"
+          },
+          "contractNumber": {
+            "type": "string",
+            "description": "Official contract reference number"
+          },
+          "contractStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract start date (YYYY-MM-DD)"
+          },
+          "contractEndDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract end date (YYYY-MM-DD)"
+          },
+          "isFixedContract": {
+            "type": "boolean",
+            "description": "Whether the contract has fixed rates"
+          },
+          "isMarketRates": {
+            "type": "boolean",
+            "description": "Whether rates follow wholesale market prices"
+          },
+          "isMicroBusiness": {
+            "type": "boolean",
+            "description": "Whether the customer is classified as a micro business"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "The agreed payment method"
+          },
+          "contractTermMonths": {
+            "type": "integer",
+            "description": "Duration of the contract in months"
+          },
+          "cclRate": {
+            "type": "number",
+            "description": "Climate Change Levy rate in p/kWh"
+          },
+          "vatRate": {
+            "type": "number",
+            "description": "VAT rate in percentage"
+          },
+          "supplyPoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "mpanMprn": {
+                  "type": "string",
+                  "description": "MPAN (13 digits) for electricity or MPRN (6-11 digits) for gas"
+                },
+                "supplyType": {
+                  "type": "string",
+                  "enum": ["electricity", "gas"],
+                  "description": "Type of utility supply"
+                },
+                "meterSerialNumber": {
+                  "type": "string",
+                  "description": "Meter serial number"
+                },
+                "siteName": {
+                  "type": "string",
+                  "description": "Name or identifier of the site"
+                },
+                "siteAddress": {
+                  "type": "string",
+                  "description": "Full address of the supply point"
+                },
+                "standingCharge": {
+                  "type": "number",
+                  "description": "Standing charge amount in £ per day"
+                },
+                "standingChargeType": {
+                  "type": "string",
+                  "description": "Type of standing charge"
+                },
+                "unitRate": {
+                  "type": "number",
+                  "description": "Single rate tariff in p/kWh (null if day/night rates apply)"
+                },
+                "dayUnitRate": {
+                  "type": "number",
+                  "description": "Day/peak unit rate in p/kWh"
+                },
+                "nightUnitRate": {
+                  "type": "number",
+                  "description": "Night/off-peak unit rate in p/kWh"
+                },
+                "estimatedAnnualConsumption": {
+                  "type": "number",
+                  "description": "Estimated annual consumption in kWh"
+                },
+                "maximumImportCapacity": {
+                  "type": "number",
+                  "description": "Maximum import capacity in kVA (for electricity only)"
+                },
+                "capacityRate": {
+                  "type": "number",
+                  "description": "Capacity charge in p/kVA per day (for electricity only)"
+                },
+                "directDebitDiscount": {
+                  "type": "number",
+                  "description": "Percentage discount if applicable"
+                },
+                "brokerName": {
+                  "type": "string",
+                  "description": "Name of the broker if contract was arranged through one"
+                },
+                "brokerUplift": {
+                  "type": "number",
+                  "description": "Broker's uplift in p/kWh if specified"
+                }
+              }
+            },
+            "description": "Details of individual meters covered by this contract, each with their specific terms and rates"
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence score of the extraction (0-100)"
+          }
+        },
+        "required": [
+          "contractId",
+          "contractNumber",
+          "supplierName",
+          "confidence"
+        ]
       },
       "IntegrationInvoice": {
         "type": "object",
