@@ -2176,7 +2176,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Invoice identifier"
+            "description": "Unique invoice identifier"
           },
           "filePath": {
             "type": "string",
@@ -2184,7 +2184,166 @@
           },
           "extension": {
             "type": "string",
-            "description": "File extension"
+            "description": "File extension of the invoice document"
+          },
+          "mpan_mprn": {
+            "type": "string",
+            "description": "MPAN (13 digits) for electricity or MPRN (6-11 digits) for gas"
+          },
+          "supply_type": {
+            "type": "string",
+            "enum": ["electricity", "gas"],
+            "description": "Type of utility supply"
+          },
+          "supplier_name": {
+            "type": "string",
+            "description": "Name of the energy supplier"
+          },
+          "supplier_account_number": {
+            "type": "string",
+            "description": "Account number with the supplier"
+          },
+          "customer_name": {
+            "type": "string",
+            "description": "Name of the customer on the invoice"
+          },
+          "invoice_number": {
+            "type": "string",
+            "description": "Invoice reference number"
+          },
+          "invoice_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date invoice was issued (YYYY-MM-DD)"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Payment due date (YYYY-MM-DD)"
+          },
+          "charge_start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Start of billing period (YYYY-MM-DD)"
+          },
+          "charge_end_date": {
+            "type": "string",
+            "format": "date",
+            "description": "End of billing period (YYYY-MM-DD)"
+          },
+          "meter_serial_number": {
+            "type": "string",
+            "description": "Meter serial number"
+          },
+          "site_address": {
+            "type": "string",
+            "description": "Site address where meter is located"
+          },
+          "payment_method": {
+            "type": "string",
+            "description": "Method of payment for this invoice"
+          },
+          "standing_charge": {
+            "type": "number",
+            "description": "Standing charge amount in pence per day"
+          },
+          "standing_charge_type": {
+            "type": "string",
+            "description": "Type of standing charge"
+          },
+          "ccl_rate": {
+            "type": "number",
+            "description": "Climate Change Levy rate in p/kWh"
+          },
+          "vat_rate": {
+            "type": "number",
+            "description": "VAT rate in percentage"
+          },
+          "read_from_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Start meter reading date (YYYY-MM-DD)"
+          },
+          "read_from_type": {
+            "type": "string",
+            "enum": ["actual", "estimated", "customer", "smart"],
+            "description": "Type of start reading"
+          },
+          "read_to_date": {
+            "type": "string",
+            "format": "date",
+            "description": "End meter reading date (YYYY-MM-DD)"
+          },
+          "read_to_type": {
+            "type": "string",
+            "enum": ["actual", "estimated", "customer", "smart"],
+            "description": "Type of end reading"
+          },
+          "consumption": {
+            "type": "number",
+            "description": "Total consumption in kWh (null if day/night rates apply)"
+          },
+          "day_consumption": {
+            "type": "number",
+            "description": "Day/peak consumption in kWh"
+          },
+          "night_consumption": {
+            "type": "number",
+            "description": "Night/off-peak consumption in kWh"
+          },
+          "unit_rate": {
+            "type": "number",
+            "description": "Single rate tariff in p/kWh (null if day/night rates apply)"
+          },
+          "day_unit_rate": {
+            "type": "number",
+            "description": "Day/peak unit rate in p/kWh"
+          },
+          "night_unit_rate": {
+            "type": "number",
+            "description": "Night/off-peak unit rate in p/kWh"
+          },
+          "correction_factor": {
+            "type": "number",
+            "description": "Gas correction factor"
+          },
+          "calorific_value": {
+            "type": "number",
+            "description": "Gas calorific value"
+          },
+          "total_unit_charge": {
+            "type": "number",
+            "description": "Total charge for units consumed in £"
+          },
+          "total_standing_charge": {
+            "type": "number",
+            "description": "Total standing charge amount in £"
+          },
+          "capacity_charge": {
+            "type": "number",
+            "description": "Total capacity charge in £ (for electricity only)"
+          },
+          "amount_due_net_of_vat": {
+            "type": "number",
+            "description": "Total amount due before VAT in £"
+          },
+          "vat": {
+            "type": "number",
+            "description": "VAT amount in £"
+          },
+          "total_amount": {
+            "type": "number",
+            "description": "Total invoice amount including VAT in £"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "paid", "overdue", "disputed"],
+            "description": "Current payment status of the invoice"
+          },
+          "validation_status": {
+            "type": "string",
+            "enum": ["pending", "validated", "issues_detected"],
+            "description": "Status of invoice validation process"
           }
         }
       },
@@ -2193,63 +2352,147 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Contract identifier"
+            "description": "Unique contract identifier"
           },
           "filePath": {
             "type": "string",
             "description": "Path to stored contract file"
           },
-          "businessName": {
+          "supplier_name": {
             "type": "string",
-            "description": "Business name on the contract"
+            "description": "Name of the energy supplier"
           },
-          "contactName": {
+          "supplier_code": {
             "type": "string",
-            "description": "Contact person name"
+            "description": "Supplier's identifier code"
           },
-          "email": {
+          "supplier_account_number": {
             "type": "string",
-            "description": "Contact email address"
+            "description": "Account number with the supplier"
           },
-          "accountNumber": {
+          "customer_name": {
             "type": "string",
-            "description": "Utility account number"
+            "description": "Name of the customer on the contract"
           },
-          "address": {
+          "contract_number": {
             "type": "string",
-            "description": "Site address"
+            "description": "Official contract reference number"
           },
-          "startDate": {
+          "contract_start_date": {
             "type": "string",
-            "description": "Contract start date"
+            "format": "date",
+            "description": "Contract start date (YYYY-MM-DD)"
           },
-          "endDate": {
+          "contract_end_date": {
             "type": "string",
-            "description": "Contract end date"
+            "format": "date",
+            "description": "Contract end date (YYYY-MM-DD)"
           },
-          "currency": {
+          "display_name": {
             "type": "string",
-            "description": "Contract currency"
+            "description": "User-friendly name for the contract"
           },
-          "mpan": {
+          "is_fixed_contract": {
+            "type": "boolean",
+            "description": "Whether the contract has fixed rates"
+          },
+          "is_market_rates": {
+            "type": "boolean",
+            "description": "Whether rates follow wholesale market prices"
+          },
+          "is_micro_business": {
+            "type": "boolean",
+            "description": "Whether the customer is classified as a micro business"
+          },
+          "payment_method": {
             "type": "string",
-            "description": "Meter Point Administration Number"
+            "description": "The agreed payment method"
           },
-          "meterSerialNumber": {
-            "type": "string",
-            "description": "Meter serial number"
+          "contract_term_months": {
+            "type": "integer",
+            "description": "Duration of the contract in months"
           },
-          "unitCharge": {
+          "ccl_rate": {
             "type": "number",
-            "description": "Unit charge amount"
+            "description": "Climate Change Levy rate in p/kWh"
           },
-          "standingCharge": {
+          "vat_rate": {
             "type": "number",
-            "description": "Standing charge amount"
+            "description": "VAT rate in percentage"
           },
-          "capacityCharge": {
-            "type": "number",
-            "description": "Capacity charge amount"
+          "supply_points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "mpan_mprn": {
+                  "type": "string",
+                  "description": "MPAN (13 digits) for electricity or MPRN (6-11 digits) for gas"
+                },
+                "supply_type": {
+                  "type": "string",
+                  "enum": ["electricity", "gas"],
+                  "description": "Type of utility supply"
+                },
+                "meter_serial_number": {
+                  "type": "string",
+                  "description": "Meter serial number"
+                },
+                "site_name": {
+                  "type": "string",
+                  "description": "Name or identifier of the site"
+                },
+                "site_address": {
+                  "type": "string",
+                  "description": "Full address of the supply point"
+                },
+                "standing_charge": {
+                  "type": "number",
+                  "description": "Standing charge amount in £ per day"
+                },
+                "standing_charge_type": {
+                  "type": "string",
+                  "description": "Type of standing charge"
+                },
+                "unit_rate": {
+                  "type": "number",
+                  "description": "Single rate tariff in p/kWh (null if day/night rates apply)"
+                },
+                "day_unit_rate": {
+                  "type": "number",
+                  "description": "Day/peak unit rate in p/kWh"
+                },
+                "night_unit_rate": {
+                  "type": "number",
+                  "description": "Night/off-peak unit rate in p/kWh"
+                },
+                "estimated_annual_consumption": {
+                  "type": "number",
+                  "description": "Estimated annual consumption in kWh"
+                },
+                "maximum_import_capacity": {
+                  "type": "number",
+                  "description": "Maximum import capacity in kVA (for electricity only)"
+                },
+                "capacity_rate": {
+                  "type": "number",
+                  "description": "Capacity charge in p/kVA per day (for electricity only)"
+                },
+                "direct_debit_discount": {
+                  "type": "number",
+                  "description": "Percentage discount if applicable"
+                },
+                "broker_name": {
+                  "type": "string",
+                  "description": "Name of the broker if contract was arranged through one"
+                },
+                "broker_uplift": {
+                  "type": "number",
+                  "description": "Broker's uplift in p/kWh if specified"
+                }
+              }
+            },
+            "description": "Details of individual meters covered by this contract, each with their specific terms and rates"
           }
         }
       },
