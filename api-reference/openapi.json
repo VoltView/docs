@@ -1352,8 +1352,8 @@
           "Bill Validation",
           "Contract Parsing"
         ],
-        "summary": "Parse energy supplier contract",
-        "description": "Upload and process a UK energy supplier contract (PDF or images) to extract contract details, supply points (MPANs/MPRNs), and associated tariff information.",
+        "summary": "Parse contract",
+        "description": "Upload and process a UK energy supplier contract (PDF or images) to extract contract details, supply points (MPANs/MPRNs), and associated tariff information.\n\n⚠️ **Note:** Due to a current limitation in Mintlify's UI, file uploads through the 'Try It' button may not work correctly. Please use Postman or curl for testing file uploads.",
         "operationId": "parseContract",
         "requestBody": {
           "required": true,
@@ -1362,22 +1362,26 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "files": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "binary"
-                    },
-                    "description": "Either a single PDF file or one or more image files (JPEG/JPG, PNG) containing the contract document. Mixed file types are not allowed."
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Contract file to upload (PDF, JPEG, or PNG format)"
                   }
                 },
-                "required": [
-                  "files"
-                ]
+                "required": ["file"]
               },
-              "encoding": {
-                "files": {
-                  "contentType": "application/pdf, image/jpeg, image/png"
+              "examples": {
+                "pdf": {
+                  "summary": "Upload PDF contract",
+                  "value": {
+                    "file": "@contract.pdf"
+                  }
+                },
+                "image": {
+                  "summary": "Upload image contract",
+                  "value": {
+                    "file": "@contract.png"
+                  }
                 }
               }
             }
