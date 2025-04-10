@@ -1304,10 +1304,11 @@
     "/v1/billValidation/parseInvoice": {
       "post": {
         "tags": [
-          "Bill Validation"
+          "Bill Validation",
+          "Invoice Parsing"
         ],
         "summary": "Parse invoice",
-        "description": "Extract comprehensive data from an invoice document including billing details, consumption data, charges, and meter readings without requiring site association",
+        "description": "Uploads and processes a UK energy supplier invoice (PDF or images) to extract invoice details, supply points (MPANs/MPRNs), and associated consumption and charge information.\n\n⚠️ **Note:** Due to a current limitation in Mintlify's UI, file uploads through the 'Try It' button may not work correctly. Please use Postman or curl for testing file uploads.",
         "operationId": "parseInvoice",
         "requestBody": {
           "required": true,
@@ -1316,26 +1317,98 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "Invoice file (PDF, JPEG, or PNG)"
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Either a single PDF file or one or more image files (JPEG/JPG, PNG) containing the invoice document. Multiple images will be combined into a single PDF."
                   }
                 },
                 "required": [
-                  "file"
+                  "files"
                 ]
+              },
+              "encoding": {
+                "files": {
+                  "contentType": "application/pdf, image/jpeg, image/png"
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Invoice parsed successfully",
+            "description": "Invoice successfully parsed",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ParsedInvoice"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ExtractedData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "noFiles": {
+                    "value": {
+                      "error": "No files uploaded"
+                    }
+                  },
+                  "fileSize": {
+                    "value": {
+                      "error": "File too large",
+                      "message": "The uploaded file exceeds the size limit of 32MB."
+                    }
+                  },
+                  "invalidField": {
+                    "value": {
+                      "error": "Invalid field name",
+                      "message": "Files must be uploaded using the field name \"files\"."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Failed to extract data from PDF"
                 }
               }
             }
@@ -3052,10 +3125,6 @@
             "type": "string",
             "description": "For electricity (MPAN), this is the core 13 digits. For gas (MPRN), this is the 6-11 digit number."
           },
-          "meterSerialNumber": {
-            "type": "string",
-            "description": "Serial number of the meter"
-          },
           "supplyType": {
             "type": "string",
             "enum": [
@@ -3064,14 +3133,47 @@
             ],
             "description": "Type of utility supply"
           },
+          "meterSerialNumber": {
+            "type": "string",
+            "description": "Serial number of the meter"
+          },
+          "siteAddress": {
+            "type": "string",
+            "description": "Full address of the supply location"
+          },
           "standingCharge": {
             "type": "number",
             "format": "float",
-            "description": "Standing charge in £ per day"
+            "description": "Standing charge in pence per day"
           },
           "standingChargeType": {
             "type": "string",
             "description": "Type of standing charge applied"
+          },
+          "consumptionkWh": {
+            "type": "number",
+            "format": "float",
+            "description": "Active energy consumption in kilowatt-hours (kWh)"
+          },
+          "consumptionKvarh": {
+            "type": "number",
+            "format": "float",
+            "description": "Reactive energy consumption in kilovar-hours (kvarh)"
+          },
+          "consumptionKvah": {
+            "type": "number",
+            "format": "float",
+            "description": "Apparent energy consumption in kilovolt-ampere-hours (kVAh)"
+          },
+          "dayConsumption": {
+            "type": "number",
+            "format": "float",
+            "description": "Day/peak consumption in kWh"
+          },
+          "nightConsumption": {
+            "type": "number",
+            "format": "float",
+            "description": "Night/off-peak consumption in kWh"
           },
           "unitRate": {
             "type": "number",
@@ -3088,52 +3190,165 @@
             "format": "float",
             "description": "Night/off-peak unit rate in p/kWh (for dual-rate tariffs)"
           },
-          "estimatedAnnualConsumption": {
+          "correctionFactor": {
             "type": "number",
             "format": "float",
-            "description": "Estimated annual consumption in kWh"
+            "description": "Correction factor applied to gas consumption"
           },
-          "maximumImportCapacity": {
+          "calorificValue": {
             "type": "number",
             "format": "float",
-            "description": "Maximum import capacity in kVA (for electricity only)"
+            "description": "Calorific value for gas meters"
           },
-          "capacityRate": {
+          "totalUnitCharge": {
             "type": "number",
             "format": "float",
-            "description": "Capacity rate in p/kVA per day (for electricity only)"
+            "description": "Total charge for consumption in £"
           },
-          "siteName": {
+          "totalStandingCharge": {
+            "type": "number",
+            "format": "float",
+            "description": "Total standing charge in £"
+          },
+          "capacityCharge": {
+            "type": "number",
+            "format": "float",
+            "description": "Capacity charge in £"
+          },
+          "currentMeterReading": {
+            "type": "number",
+            "format": "float",
+            "description": "Current meter reading in kWh"
+          },
+          "previousMeterReading": {
+            "type": "number",
+            "format": "float",
+            "description": "Previous meter reading in kWh"
+          },
+          "readFromDate": {
             "type": "string",
-            "description": "Name or identifier of the site"
+            "format": "date",
+            "description": "Date of the previous meter reading (YYYY-MM-DD)"
           },
-          "siteAddress": {
+          "readFromType": {
             "type": "string",
-            "description": "Full address of the supply point"
+            "enum": [
+              "actual",
+              "estimated"
+            ],
+            "description": "Type of previous meter reading"
           },
-          "directDebitDiscount": {
-            "type": "number",
-            "format": "float",
-            "description": "Direct debit discount percentage"
-          },
-          "brokerName": {
+          "readToDate": {
             "type": "string",
-            "description": "Name of the broker if contract arranged through one"
+            "format": "date",
+            "description": "Date of the current meter reading (YYYY-MM-DD)"
           },
-          "brokerUplift": {
-            "type": "number",
-            "format": "float",
-            "description": "Broker's uplift in p/kWh"
-          },
-          "vatRate": {
-            "type": "number",
-            "format": "float",
-            "description": "VAT percentage rate for this specific supply point"
+          "readToType": {
+            "type": "string",
+            "enum": [
+              "actual",
+              "estimated"
+            ],
+            "description": "Type of current meter reading"
           }
         },
         "required": [
           "mpanMprn",
           "supplyType"
+        ]
+      },
+      "ExtractedData": {
+        "type": "object",
+        "properties": {
+          "invoiceId": {
+            "type": "string",
+            "description": "Unique identifier for the invoice"
+          },
+          "supplierAccountNumber": {
+            "type": "string",
+            "description": "Account number with the supplier"
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the energy supplier"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Name of the customer"
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "description": "Invoice reference number"
+          },
+          "invoiceDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of invoice issuance (YYYY-MM-DD)"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Payment due date (YYYY-MM-DD)"
+          },
+          "chargeStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Start date of the billing period (YYYY-MM-DD)"
+          },
+          "chargeEndDate": {
+            "type": "string",
+            "format": "date",
+            "description": "End date of the billing period (YYYY-MM-DD)"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "Method of payment specified on the invoice"
+          },
+          "cclRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Climate Change Levy rate in p/kWh"
+          },
+          "vatRate": {
+            "type": "number",
+            "format": "float",
+            "description": "VAT rate percentage"
+          },
+          "amountDueNetOfVat": {
+            "type": "number",
+            "format": "float",
+            "description": "Amount due before VAT in £"
+          },
+          "vat": {
+            "type": "number",
+            "format": "float",
+            "description": "VAT amount in £"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "float",
+            "description": "Total invoice amount in £"
+          },
+          "previousAmountDue": {
+            "type": "number",
+            "format": "float",
+            "description": "Previous balance carried forward in £"
+          },
+          "confidence": {
+            "type": "number",
+            "format": "float",
+            "description": "Confidence level in the extracted data (0-100)"
+          },
+          "supplyPoints": {
+            "type": "array",
+            "description": "List of supply points in the invoice",
+            "items": {
+              "$ref": "#/components/schemas/SupplyPoint"
+            }
+          }
+        },
+        "required": [
+          "supplyPoints"
         ]
       }
     }
