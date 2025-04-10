@@ -1,0 +1,33 @@
+// CURSOR PROJECT RULES
+
+// DOCUMENTATION STRUCTURE
+- Keep all OpenAPI specification files in the root of the project or within the api-reference directory
+- Organize MDX files for individual endpoints in directories matching their API categories
+- Follow Mintlify's naming conventions: lowercase, kebab-case for files and directories
+
+// OPENAPI SPECIFICATION
+- Ensure OpenAPI spec follows version 3.0+ standards
+- Validate OpenAPI files before committing using: `mintlify openapi-check <filename>`
+- Include comprehensive descriptions, examples, and schema references for all endpoints
+- Group related endpoints under appropriate tags in the OpenAPI specification
+
+// MDX FILES
+- Create minimal MDX files for endpoints, using the format:
+  ```
+  ---
+  openapi: <METHOD> <PATH>
+  ---
+  ```
+- Add custom titles or descriptions only when necessary to override the OpenAPI defaults
+- For multiple OpenAPI files, specify the file path: `openapi: "/path/to/spec.json METHOD /path"`
+
+// MINT.JSON CONFIGURATION
+- Maintain proper configuration in mint.json for OpenAPI integration
+- Use either the tab-level or group-level openapi configuration depending on project needs
+- Keep navigation structure organized and intuitive for API documentation
+
+// BEST PRACTICES
+- Run `mintlify dev` to preview changes locally before committing
+- Use the Mintlify scraper for large OpenAPI files: `npx @mintlify/scraping@latest openapi-file <path> -o <dir>`
+- Document any custom styling or components used to enhance OpenAPI presentation
+- Keep MDX files as simple as possible, leveraging the OpenAPI spec for all endpoint details

@@ -44,6 +44,10 @@
       "description": "Energy consumption data endpoints"
     },
     {
+      "name": "Emissions",
+      "description": "Carbon emissions data endpoints"
+    },
+    {
       "name": "Supplier Integration",
       "description": "Utilities integration endpoints"
     },
@@ -245,7 +249,8 @@
     "/v1/sites/annualConsumptionAndEmissions": {
       "get": {
         "tags": [
-          "Sites"
+          "Sites",
+          "Emissions"
         ],
         "summary": "Annual consumption and emissions for all sites",
         "description": "Retrieves annual energy consumption and emissions data across all sites",
@@ -427,7 +432,7 @@
     "/v1/sites/emissions": {
       "get": {
         "tags": [
-          "Sites"
+          "Emissions"
         ],
         "summary": "Emissions data for all sites",
         "description": "Retrieves carbon emissions data across all sites",
@@ -516,7 +521,7 @@
     "/v1/marginalCarbonIntensity": {
       "get": {
         "tags": [
-          "Sites"
+          "Emissions"
         ],
         "summary": "Marginal carbon intensity",
         "description": "Retrieves marginal carbon intensity data",
@@ -569,7 +574,8 @@
     "/v1/sites/{siteId}/annualConsumptionAndEmissions": {
       "get": {
         "tags": [
-          "Specific Site"
+          "Specific Site",
+          "Emissions"
         ],
         "summary": "Annual consumption and emissions for a specific site",
         "description": "Retrieves annual energy consumption and emissions data for a specific site",
@@ -840,7 +846,7 @@
     "/v1/sites/{siteId}/emissions": {
       "get": {
         "tags": [
-          "Specific Site"
+          "Emissions"
         ],
         "summary": "Emissions data for a specific site",
         "description": "Retrieves carbon emissions data for a specific site",
@@ -3349,6 +3355,130 @@
         },
         "required": [
           "supplyPoints"
+        ]
+      },
+      "EmissionsData": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period"
+          },
+          "emissions": {
+            "type": "number",
+            "description": "Carbon emissions in kg CO2e"
+          },
+          "emissionsIntensity": {
+            "type": "number",
+            "description": "Emissions intensity in kg CO2e/kWh"
+          },
+          "emissionsBySource": {
+            "type": "object",
+            "properties": {
+              "electricity": {
+                "type": "number",
+                "description": "Emissions from electricity consumption in kg CO2e"
+              },
+              "gas": {
+                "type": "number",
+                "description": "Emissions from gas consumption in kg CO2e"
+              },
+              "other": {
+                "type": "number",
+                "description": "Emissions from other sources in kg CO2e"
+              }
+            },
+            "description": "Breakdown of emissions by source"
+          },
+          "historicalData": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "period": {
+                  "type": "string",
+                  "description": "Historical period"
+                },
+                "emissions": {
+                  "type": "number",
+                  "description": "Emissions in the period in kg CO2e"
+                }
+              }
+            },
+            "description": "Historical emissions data for comparison"
+          },
+          "carbonSavings": {
+            "type": "number",
+            "description": "Carbon savings compared to baseline in kg CO2e"
+          },
+          "targetReduction": {
+            "type": "number",
+            "description": "Target reduction percentage"
+          }
+        },
+        "required": [
+          "siteId",
+          "emissions"
+        ]
+      },
+      "MarginalCarbonIntensity": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of measurement"
+          },
+          "intensity": {
+            "type": "number",
+            "description": "Current carbon intensity in gCO2/kWh"
+          },
+          "forecast": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Forecast timestamp"
+                },
+                "intensity": {
+                  "type": "number",
+                  "description": "Forecasted carbon intensity in gCO2/kWh"
+                }
+              }
+            },
+            "description": "Carbon intensity forecast"
+          },
+          "lowCarbonWindow": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Start time of low carbon window"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time",
+                "description": "End time of low carbon window"
+              },
+              "intensity": {
+                "type": "number",
+                "description": "Average carbon intensity during window in gCO2/kWh"
+              }
+            },
+            "description": "Upcoming low carbon intensity window"
+          }
+        },
+        "required": [
+          "timestamp",
+          "intensity"
         ]
       }
     }
