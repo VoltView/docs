@@ -1349,10 +1349,11 @@
     "/v1/billValidation/parseContract": {
       "post": {
         "tags": [
-          "Bill Validation"
+          "Bill Validation",
+          "Contract Parsing"
         ],
-        "summary": "Parse contract",
-        "description": "Extract comprehensive data from a contract document including supplier details, contract terms, rates, and supply points without requiring site association",
+        "summary": "Parse energy supplier contract",
+        "description": "Upload and process a UK energy supplier contract (PDF or images) to extract contract details, supply points (MPANs/MPRNs), and associated tariff information.",
         "operationId": "parseContract",
         "requestBody": {
           "required": true,
@@ -1361,26 +1362,109 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "Contract file (PDF, JPEG, or PNG)"
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Either a single PDF file or one or more image files (JPEG/JPG, PNG) containing the contract document. Mixed file types are not allowed."
                   }
                 },
                 "required": [
-                  "file"
+                  "files"
                 ]
+              },
+              "encoding": {
+                "files": {
+                  "contentType": "application/pdf, image/jpeg, image/png"
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Contract parsed successfully",
+            "description": "Contract successfully parsed",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ParsedContract"
+                  "$ref": "#/components/schemas/ContractData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "noFiles": {
+                    "value": {
+                      "error": "No files uploaded"
+                    }
+                  },
+                  "invalidFormat": {
+                    "value": {
+                      "error": "Invalid file format",
+                      "message": "Only PDF, JPEG, and PNG files are supported",
+                      "supportedFormats": [
+                        "PDF",
+                        "JPEG/JPG",
+                        "PNG"
+                      ],
+                      "invalidFiles": [
+                        "contract.docx"
+                      ]
+                    }
+                  },
+                  "mixedTypes": {
+                    "value": {
+                      "error": "Mixed file types not allowed",
+                      "message": "Upload either one PDF or one or more images, but not both types together"
+                    }
+                  },
+                  "multiplePdfs": {
+                    "value": {
+                      "error": "Multiple PDFs not allowed",
+                      "message": "Only one PDF file is allowed per request"
+                    }
+                  },
+                  "fileSize": {
+                    "value": {
+                      "error": "File too large",
+                      "message": "The uploaded file exceeds the size limit of 32MB."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Failed to process the document. Please try again."
                 }
               }
             }
@@ -2877,6 +2961,176 @@
             "description": "Signed URL for secure document access"
           }
         }
+      },
+      "ContractData": {
+        "type": "object",
+        "properties": {
+          "contractId": {
+            "type": "string",
+            "description": "Unique identifier for the contract"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "Original filename of the uploaded contract"
+          },
+          "supplierAccountNumber": {
+            "type": "string",
+            "description": "Account number with the supplier"
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the energy supplier"
+          },
+          "supplierCode": {
+            "type": "string",
+            "description": "Supplier code or identifier"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Name of the customer"
+          },
+          "contractNumber": {
+            "type": "string",
+            "description": "Contract reference number"
+          },
+          "contractStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract start date (YYYY-MM-DD)"
+          },
+          "contractEndDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract end date (YYYY-MM-DD)"
+          },
+          "cclRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Climate Change Levy rate in p/kWh"
+          },
+          "supplyPoints": {
+            "type": "array",
+            "description": "List of supply points in the contract",
+            "items": {
+              "$ref": "#/components/schemas/SupplyPoint"
+            }
+          },
+          "isFixedContract": {
+            "type": "boolean",
+            "description": "Whether the contract has fixed rates"
+          },
+          "isMarketRates": {
+            "type": "boolean",
+            "description": "Whether the contract has variable market rates"
+          },
+          "isMicroBusiness": {
+            "type": "boolean",
+            "description": "Whether the customer is classified as a micro-business"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "Payment method for the contract"
+          },
+          "contractTermMonths": {
+            "type": "integer",
+            "description": "Duration of the contract in months"
+          }
+        },
+        "required": [
+          "contractId",
+          "supplyPoints"
+        ]
+      },
+      "SupplyPoint": {
+        "type": "object",
+        "properties": {
+          "mpanMprn": {
+            "type": "string",
+            "description": "For electricity (MPAN), this is the core 13 digits. For gas (MPRN), this is the 6-11 digit number."
+          },
+          "meterSerialNumber": {
+            "type": "string",
+            "description": "Serial number of the meter"
+          },
+          "supplyType": {
+            "type": "string",
+            "enum": [
+              "electricity",
+              "gas"
+            ],
+            "description": "Type of utility supply"
+          },
+          "standingCharge": {
+            "type": "number",
+            "format": "float",
+            "description": "Standing charge in £ per day"
+          },
+          "standingChargeType": {
+            "type": "string",
+            "description": "Type of standing charge applied"
+          },
+          "unitRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Unit rate in p/kWh (for single-rate tariffs)"
+          },
+          "dayUnitRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Day/peak unit rate in p/kWh (for dual-rate tariffs)"
+          },
+          "nightUnitRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Night/off-peak unit rate in p/kWh (for dual-rate tariffs)"
+          },
+          "estimatedAnnualConsumption": {
+            "type": "number",
+            "format": "float",
+            "description": "Estimated annual consumption in kWh"
+          },
+          "maximumImportCapacity": {
+            "type": "number",
+            "format": "float",
+            "description": "Maximum import capacity in kVA (for electricity only)"
+          },
+          "capacityRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Capacity rate in p/kVA per day (for electricity only)"
+          },
+          "siteName": {
+            "type": "string",
+            "description": "Name or identifier of the site"
+          },
+          "siteAddress": {
+            "type": "string",
+            "description": "Full address of the supply point"
+          },
+          "directDebitDiscount": {
+            "type": "number",
+            "format": "float",
+            "description": "Direct debit discount percentage"
+          },
+          "brokerName": {
+            "type": "string",
+            "description": "Name of the broker if contract arranged through one"
+          },
+          "brokerUplift": {
+            "type": "number",
+            "format": "float",
+            "description": "Broker's uplift in p/kWh"
+          },
+          "vatRate": {
+            "type": "number",
+            "format": "float",
+            "description": "VAT percentage rate for this specific supply point"
+          }
+        },
+        "required": [
+          "mpanMprn",
+          "supplyType"
+        ]
       }
     }
   }
