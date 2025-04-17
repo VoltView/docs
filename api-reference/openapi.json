@@ -1314,7 +1314,7 @@
           "Invoice Parsing"
         ],
         "summary": "Parse invoice",
-        "description": "Uploads and processes a UK energy supplier invoice (PDF or images) to extract invoice details, supply points (MPANs/MPRNs), and associated consumption and charge information.\n\n⚠️ **Note:** Due to a current limitation in Mintlify's UI, file uploads through the 'Try It' button may not work correctly. Please use Postman or curl for testing file uploads.",
+        "description": "Uploads and processes a UK energy supplier invoice (PDF or images) to extract invoice details, supply points (MPANs/MPRNs), and associated consumption and charge information.",
         "operationId": "parseInvoice",
         "requestBody": {
           "required": true,
@@ -1323,7 +1323,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "files": {
+                  "file": {
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -1333,11 +1333,11 @@
                   }
                 },
                 "required": [
-                  "files"
+                  "file"
                 ]
               },
               "encoding": {
-                "files": {
+                "file": {
                   "contentType": "application/pdf, image/jpeg, image/png"
                 }
               }
@@ -1374,7 +1374,7 @@
                 "examples": {
                   "noFiles": {
                     "value": {
-                      "error": "No files uploaded"
+                      "error": "No file uploaded"
                     }
                   },
                   "fileSize": {
@@ -1386,7 +1386,7 @@
                   "invalidField": {
                     "value": {
                       "error": "Invalid field name",
-                      "message": "Files must be uploaded using the field name \"files\"."
+                      "message": "Files must be uploaded using the field name \"file\"."
                     }
                   }
                 }
@@ -1432,7 +1432,7 @@
           "Contract Parsing"
         ],
         "summary": "Parse contract",
-        "description": "Upload and process a UK energy supplier contract (PDF or images) to extract contract details, supply points (MPANs/MPRNs), and associated tariff information.\n\n⚠️ **Note:** Due to a current limitation in Mintlify's UI, file uploads through the 'Try It' button may not work correctly. Please use Postman or curl for testing file uploads.",
+        "description": "Upload and process a UK energy supplier contract (PDF or images) to extract contract details, supply points (MPANs/MPRNs), and associated tariff information.",
         "operationId": "parseContract",
         "requestBody": {
           "required": true,
@@ -1487,7 +1487,7 @@
                 "examples": {
                   "noFiles": {
                     "value": {
-                      "error": "No files uploaded"
+                      "error": "No file uploaded"
                     }
                   },
                   "invalidFormat": {
