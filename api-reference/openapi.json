@@ -1601,6 +1601,34 @@
           }
         }
       }
+    },
+    "/v1/suppliers": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "List available suppliers",
+        "description": "Retrieves a list of all available energy suppliers that can be integrated with",
+        "operationId": "getSuppliers",
+        "responses": {
+          "200": {
+            "description": "List of suppliers retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Supplier"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3044,6 +3072,29 @@
             "description": "Signed URL for secure document access"
           }
         }
+      },
+      "Supplier": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the supplier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the supplier"
+          },
+          "icon": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the supplier's logo"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "icon"
+        ]
       },
       "ContractData": {
         "type": "object",
