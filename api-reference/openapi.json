@@ -1083,6 +1083,34 @@
         }
       }
     },
+    "/v1/suppliers": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "List available suppliers",
+        "description": "Retrieves a list of all available energy suppliers that can be integrated with",
+        "operationId": "getSuppliers",
+        "responses": {
+          "200": {
+            "description": "List of suppliers retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Supplier"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
     "/v1/suppliers/accounts": {
       "post": {
         "tags": [
@@ -1592,34 +1620,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationResult"
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
-          }
-        }
-      }
-    },
-    "/v1/suppliers": {
-      "get": {
-        "tags": [
-          "Supplier Integration"
-        ],
-        "summary": "List available suppliers",
-        "description": "Retrieves a list of all available energy suppliers that can be integrated with",
-        "operationId": "getSuppliers",
-        "responses": {
-          "200": {
-            "description": "List of suppliers retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Supplier"
-                  }
                 }
               }
             }
