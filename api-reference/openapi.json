@@ -1083,7 +1083,7 @@
         }
       }
     },
-    "/v1/supplierIntegration/accounts": {
+    "/v1/suppliers/accounts": {
       "post": {
         "tags": [
           "Supplier Integration"
@@ -1118,7 +1118,7 @@
         }
       }
     },
-    "/v1/supplierIntegration/accounts/{id}": {
+    "/v1/suppliers/accounts/{id}": {
       "get": {
         "tags": [
           "Supplier Integration"
@@ -1181,7 +1181,7 @@
         }
       }
     },
-    "/v1/supplierIntegration/accounts/{id}/sites": {
+    "/v1/suppliers/accounts/{id}/sites": {
       "get": {
         "tags": [
           "Supplier Integration"
@@ -1220,7 +1220,7 @@
         }
       }
     },
-    "/v1/supplierIntegration/businesses/{businessId}/accounts": {
+    "/v1/suppliers/businesses/{businessId}/accounts": {
       "get": {
         "tags": [
           "Supplier Integration"
@@ -1259,7 +1259,7 @@
         }
       }
     },
-    "/v1/supplierIntegration/documents/sign": {
+    "/v1/suppliers/documents/sign": {
       "get": {
         "tags": [
           "Supplier Integration"
