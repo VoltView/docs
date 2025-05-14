@@ -2992,25 +2992,9 @@
             "type": "string",
             "description": "Account identifier"
           },
-          "organisationId": {
-            "type": "string",
-            "description": "Organisation identifier"
-          },
-          "bgAccountId": {
-            "type": "string",
-            "description": "Background account identifier"
-          },
           "referenceId": {
             "type": "string",
             "description": "Reference identifier"
-          },
-          "fuelType": {
-            "type": "string",
-            "description": "Type of fuel service"
-          },
-          "address": {
-            "type": "string",
-            "description": "Site address"
           },
           "invoices": {
             "type": "array",
