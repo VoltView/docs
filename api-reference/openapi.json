@@ -2832,7 +2832,7 @@
           }
         }
       },
-      "Contract": {
+      "IntegrationContract": {
         "type": "object",
         "properties": {
           "id": {
@@ -2872,10 +2872,6 @@
             "type": "string",
             "format": "date",
             "description": "Contract end date (YYYY-MM-DD)"
-          },
-          "displayName": {
-            "type": "string",
-            "description": "User-friendly name for the contract"
           },
           "isFixedContract": {
             "type": "boolean",
@@ -2999,14 +2995,14 @@
           "invoices": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IntegrationInvoice"
+              "$ref": "#/components/schemas/IntegrationContract"
             },
             "description": "List of invoices for the site"
           },
           "contracts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Contract"
+              "$ref": "#/components/schemas/IntegrationInvoice"
             },
             "description": "List of contracts for the site"
           }
