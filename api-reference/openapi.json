@@ -1822,6 +1822,10 @@
             "type": "string",
             "description": "Type of building"
           },
+          "meterCount": {
+            "type": "integer",
+            "description": "Number of meters at the site"
+          },
           "utilities": {
             "type": "array",
             "items": {
