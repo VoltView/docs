@@ -1091,6 +1091,21 @@
         "summary": "List available suppliers",
         "description": "Retrieves a list of all available energy suppliers that can be integrated with",
         "operationId": "getSuppliers",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BUSINESS",
+                "RESIDENTIAL"
+              ]
+            },
+            "description": "Filter suppliers by type: BUSINESS, RESIDENTIAL"
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of suppliers retrieved successfully",
@@ -1475,7 +1490,9 @@
                     "description": "Contract file to upload (PDF, JPEG, or PNG format)"
                   }
                 },
-                "required": ["file"]
+                "required": [
+                  "file"
+                ]
               },
               "examples": {
                 "pdf": {
@@ -1709,14 +1726,18 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["error"]
+                  "enum": [
+                    "error"
+                  ]
                 },
                 "error": {
                   "type": "object",
                   "properties": {
                     "type": {
                       "type": "string",
-                      "enum": ["invalid_request_error"]
+                      "enum": [
+                        "invalid_request_error"
+                      ]
                     },
                     "message": {
                       "type": "string",
@@ -1736,7 +1757,9 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["error"],
+            "enum": [
+              "error"
+            ],
             "description": "Error type indicator"
           },
           "error": {
@@ -1744,7 +1767,9 @@
             "properties": {
               "type": {
                 "type": "string",
-                "enum": ["invalid_request_error"],
+                "enum": [
+                  "invalid_request_error"
+                ],
                 "description": "Specific error type"
               },
               "message": {
@@ -1752,10 +1777,16 @@
                 "description": "Human-readable error message"
               }
             },
-            "required": ["type", "message"]
+            "required": [
+              "type",
+              "message"
+            ]
           }
         },
-        "required": ["type", "error"]
+        "required": [
+          "type",
+          "error"
+        ]
       },
       "User": {
         "type": "object",
@@ -2364,7 +2395,12 @@
           },
           "readFromType": {
             "type": "string",
-            "enum": ["actual", "estimated", "customer", "smart"],
+            "enum": [
+              "actual",
+              "estimated",
+              "customer",
+              "smart"
+            ],
             "description": "Type of start reading"
           },
           "readToDate": {
@@ -2374,7 +2410,12 @@
           },
           "readToType": {
             "type": "string",
-            "enum": ["actual", "estimated", "customer", "smart"],
+            "enum": [
+              "actual",
+              "estimated",
+              "customer",
+              "smart"
+            ],
             "description": "Type of end reading"
           },
           "consumption": {
@@ -2447,7 +2488,12 @@
       },
       "CreateAccountRequest": {
         "type": "object",
-        "required": ["email", "password", "businessId", "supplier"],
+        "required": [
+          "email",
+          "password",
+          "businessId",
+          "supplier"
+        ],
         "properties": {
           "email": {
             "type": "string",
@@ -2486,7 +2532,10 @@
           },
           "status": {
             "type": "string",
-            "enum": ["PASSING", "FAILING"],
+            "enum": [
+              "PASSING",
+              "FAILING"
+            ],
             "description": "Account connection status"
           }
         }
@@ -2496,7 +2545,10 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["PASSING", "FAILING"],
+            "enum": [
+              "PASSING",
+              "FAILING"
+            ],
             "description": "Account connection status"
           },
           "id": {
@@ -2585,7 +2637,10 @@
                 },
                 "supplyType": {
                   "type": "string",
-                  "enum": ["electricity", "gas"],
+                  "enum": [
+                    "electricity",
+                    "gas"
+                  ],
                   "description": "Type of utility supply"
                 },
                 "meterSerialNumber": {
@@ -2681,7 +2736,10 @@
           },
           "supplyType": {
             "type": "string",
-            "enum": ["electricity", "gas"],
+            "enum": [
+              "electricity",
+              "gas"
+            ],
             "description": "Type of utility supply"
           },
           "supplierName": {
@@ -2755,7 +2813,12 @@
           },
           "readFromType": {
             "type": "string",
-            "enum": ["actual", "estimated", "customer", "smart"],
+            "enum": [
+              "actual",
+              "estimated",
+              "customer",
+              "smart"
+            ],
             "description": "Type of start reading"
           },
           "readToDate": {
@@ -2765,7 +2828,12 @@
           },
           "readToType": {
             "type": "string",
-            "enum": ["actual", "estimated", "customer", "smart"],
+            "enum": [
+              "actual",
+              "estimated",
+              "customer",
+              "smart"
+            ],
             "description": "Type of end reading"
           },
           "consumption": {
@@ -2826,12 +2894,21 @@
           },
           "status": {
             "type": "string",
-            "enum": ["pending", "paid", "overdue", "disputed"],
+            "enum": [
+              "pending",
+              "paid",
+              "overdue",
+              "disputed"
+            ],
             "description": "Current payment status of the invoice"
           },
           "validationStatus": {
             "type": "string",
-            "enum": ["pending", "validated", "issues_detected"],
+            "enum": [
+              "pending",
+              "validated",
+              "issues_detected"
+            ],
             "description": "Status of invoice validation process"
           }
         }
@@ -2916,7 +2993,10 @@
                 },
                 "supplyType": {
                   "type": "string",
-                  "enum": ["electricity", "gas"],
+                  "enum": [
+                    "electricity",
+                    "gas"
+                  ],
                   "description": "Type of utility supply"
                 },
                 "meterSerialNumber": {
