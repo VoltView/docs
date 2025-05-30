@@ -1367,12 +1367,9 @@
                 "type": "object",
                 "properties": {
                   "file": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "binary"
-                    },
-                    "description": "Either a single PDF file or one or more image files (JPEG/JPG, PNG) containing the invoice document. Multiple images will be combined into a single PDF."
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Invoice file to upload (PDF, JPEG, or PNG format)"
                   }
                 },
                 "required": [
