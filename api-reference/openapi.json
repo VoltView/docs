@@ -1162,6 +1162,50 @@
       }
     },
     "/v1/suppliers/accounts/{id}": {
+      "put": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Update Account Details",
+        "description": "Update the account credentials stored in the system for a specific account ID.",
+        "operationId": "updateAccountDetails",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDetails"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      },
       "get": {
         "tags": [
           "Supplier Integration"
@@ -2483,6 +2527,24 @@
           "confidence"
         ]
       },
+      "UpdateAccountRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email for utility supplier account"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password for utility supplier account"
+          }
+        }
+      },
       "CreateAccountRequest": {
         "type": "object",
         "required": [
@@ -2534,6 +2596,10 @@
               "FAILING"
             ],
             "description": "Account connection status"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for failing"
           }
         }
       },
@@ -2555,6 +2621,10 @@
           "businessId": {
             "type": "string",
             "description": "Business identifier"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for failing"
           }
         }
       },
