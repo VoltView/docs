@@ -1833,39 +1833,6 @@
                     "value": {
                       "filePath": "accounts/123456789/invoices/INV2024001.pdf",
                       "status": "passed",
-                      "extractedData": {
-                        "filePath": "accounts/123456789/invoices/INV2024001.pdf",
-                        "supplierName": "Energy Supplier Ltd",
-                        "supplierAccountNumber": "123456789",
-                        "supplyType": "electricity",
-                        "invoiceNumber": "INV2024001",
-                        "customerName": "John Smith",
-                        "mpanMprn": "1000000000001",
-                        "invoiceDate": "2024-07-02",
-                        "dueDate": "2024-07-21",
-                        "chargeStartDate": "2024-06-02",
-                        "chargeEndDate": "2024-07-01",
-                        "meterSerialNumber": "MTR123456",
-                        "siteAddress": "Unit 1, Example Business Park, London, SW1A 1AA",
-                        "paymentMethod": "Direct Debit",
-                        "standingCharge": 69.9,
-                        "standingChargeType": "per day",
-                        "cclRate": 0.775,
-                        "vatRate": 20,
-                        "readFromDate": "2024-06-01",
-                        "readFromType": "actual",
-                        "readToDate": "2024-07-01",
-                        "readToType": "actual",
-                        "consumption": 5223,
-                        "unitRate": 28.87,
-                        "correctionFactor": 1.0,
-                        "totalUnitCharge": 1507.88,
-                        "totalStandingCharge": 20.97,
-                        "amountDueNetOfVat": 1462.3,
-                        "vat": 292.46,
-                        "totalAmount": 1754.76,
-                        "confidence": 95
-                      },
                       "errors": []
                     }
                   },
@@ -1874,22 +1841,6 @@
                     "value": {
                       "filePath": "accounts/123456789/invoices/INV2024001.pdf",
                       "status": "failed",
-                      "extractedData": {
-                        "filePath": "accounts/123456789/invoices/INV2024001.pdf",
-                        "supplierName": "Energy Supplier Ltd",
-                        "invoiceNumber": "INV2024001",
-                        "mpanMprn": "1000000000001",
-                        "invoiceDate": "2024-07-02",
-                        "dueDate": "2024-07-21",
-                        "chargeStartDate": "2024-06-02",
-                        "chargeEndDate": "2024-07-01",
-                        "paymentMethod": "Direct Debit",
-                        "cclRate": 0.775,
-                        "vatRate": 20,
-                        "consumption": 5223,
-                        "totalAmount": 1754.76,
-                        "confidence": 95
-                      },
                       "errors": [
                         {
                           "type": "consumptionMismatch",
@@ -1905,16 +1856,6 @@
                     "value": {
                       "filePath": "accounts/123456789/invoices/INV2024001.pdf",
                       "status": "failed",
-                      "extractedData": {
-                        "filePath": "accounts/123456789/invoices/INV2024001.pdf",
-                        "supplierName": "Energy Supplier Ltd",
-                        "invoiceNumber": "INV2024001",
-                        "mpanMprn": "1000000000001",
-                        "invoiceDate": "2024-07-02",
-                        "consumption": 5223,
-                        "totalAmount": 1754.76,
-                        "confidence": 95
-                      },
                       "errors": [
                         {
                           "type": "consumptionMismatch",
@@ -1942,16 +1883,6 @@
                     "value": {
                       "filePath": "accounts/123456789/invoices/INV2024001.pdf",
                       "status": "pending",
-                      "extractedData": {
-                        "filePath": "accounts/123456789/invoices/INV2024001.pdf",
-                        "supplierName": "Energy Supplier Ltd",
-                        "invoiceNumber": "INV2024001",
-                        "mpanMprn": "1000000000001",
-                        "invoiceDate": "2024-07-02",
-                        "consumption": 5223,
-                        "totalAmount": 1754.76,
-                        "confidence": 95
-                      },
                       "errors": [
                         {
                           "type": "other",
@@ -2625,9 +2556,6 @@
             ],
             "description": "Validation status - passed means all validations succeeded, failed means discrepancies were found, pending means validation could not be completed (e.g., missing contract data)"
           },
-          "extractedData": {
-            "$ref": "#/components/schemas/ParsedInvoice"
-          },
           "errors": {
             "type": "array",
             "items": {
@@ -2675,7 +2603,6 @@
         "required": [
           "filePath",
           "status",
-          "extractedData",
           "errors"
         ]
       },
