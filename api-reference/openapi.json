@@ -1650,7 +1650,7 @@
           "Bill Validation"
         ],
         "summary": "Validate invoice",
-        "description": "Validate an invoice against meter readings, tariff data, and site information to identify discrepancies in consumption, rates, charges, and billing details. Works with invoices from manual upload (parseInvoice endpoint) or Supplier Integration system.",
+        "description": "Validates an invoice against contract data and optional user-provided consumption data. Performs comprehensive validation including consumption matching, meter reading verification, and contract compliance.\n\n**Validation Rules:**\n- Consumption Tolerance: ±1% margin allowed for numerical comparisons\n- Negative Values: Not permitted for consumption or meter readings\n- Meter Reading Logic: Current reading must be ≥ previous reading\n- Zero Division: Handled specially - only exact matches accepted for zero values\n- Contract Matching: Invoice date must fall within contract period\n- MPAN Matching: At least one MPAN must match between invoice and contract\n\n**Data Sources:**\n- Manual uploads from parseInvoice endpoint\n- Invoices from Supplier Integration system\n- User-provided consumption and meter reading data",
         "operationId": "validateInvoice",
         "requestBody": {
           "required": true,
@@ -1661,7 +1661,8 @@
                 "properties": {
                   "filePath": {
                     "type": "string",
-                    "description": "File path to the invoice document to validate. Can be from a manually uploaded invoice (parseInvoice endpoint) or from an invoice retrieved via Supplier Integration endpoints."
+                    "description": "File path to the invoice document to validate. Can be from a manually uploaded invoice (parseInvoice endpoint) or from an invoice retrieved via Supplier Integration endpoints.",
+                    "example": "accounts/123456789/invoices/INV2024001.pdf"
                   },
                   "userConsumptionData": {
                     "type": "object",
@@ -1670,12 +1671,14 @@
                       "fromDate": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Start date of consumption period (ISO 8601)"
+                        "description": "Start date of consumption period (ISO 8601)",
+                        "example": "2024-06-01T00:00:00.000Z"
                       },
                       "toDate": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "End date of consumption period (ISO 8601)"
+                        "description": "End date of consumption period (ISO 8601)",
+                        "example": "2024-07-01T00:00:00.000Z"
                       },
                       "utilityType": {
                         "type": "string",
@@ -1692,7 +1695,8 @@
                         "properties": {
                           "activeImportKwh": {
                             "type": "number",
-                            "description": "Active energy imported (main consumption) in kWh"
+                            "description": "Active energy imported (main consumption) in kWh",
+                            "example": 5223
                           },
                           "activeExportKwh": {
                             "type": "number",
@@ -1726,21 +1730,25 @@
                         "properties": {
                           "previousReading": {
                             "type": "number",
-                            "description": "Previous meter reading"
+                            "description": "Previous meter reading",
+                            "example": 100000
                           },
                           "currentReading": {
                             "type": "number",
-                            "description": "Current meter reading"
+                            "description": "Current meter reading",
+                            "example": 105223
                           },
                           "previousReadingDate": {
                             "type": "string",
                             "format": "date-time",
-                            "description": "Date of previous reading (ISO 8601)"
+                            "description": "Date of previous reading (ISO 8601)",
+                            "example": "2024-06-01T00:00:00.000Z"
                           },
                           "currentReadingDate": {
                             "type": "string",
                             "format": "date-time",
-                            "description": "Date of current reading (ISO 8601)"
+                            "description": "Date of current reading (ISO 8601)",
+                            "example": "2024-07-01T00:00:00.000Z"
                           },
                           "previousReadingType": {
                             "type": "string",
@@ -1770,23 +1778,243 @@
                 "required": [
                   "filePath"
                 ]
+              },
+              "examples": {
+                "basicValidation": {
+                  "summary": "Basic validation without user data",
+                  "value": {
+                    "filePath": "accounts/123456789/invoices/INV2024001.pdf"
+                  }
+                },
+                "withConsumptionData": {
+                  "summary": "Validation with consumption data",
+                  "value": {
+                    "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                    "userConsumptionData": {
+                      "utilityType": "ELECTRICITY",
+                      "consumption": {
+                        "activeImportKwh": 5223
+                      }
+                    }
+                  }
+                },
+                "withMeterReadings": {
+                  "summary": "Validation with meter readings",
+                  "value": {
+                    "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                    "userConsumptionData": {
+                      "utilityType": "ELECTRICITY",
+                      "meterReadings": {
+                        "previousReading": 100000,
+                        "currentReading": 105223,
+                        "previousReadingDate": "2024-06-01T00:00:00.000Z",
+                        "currentReadingDate": "2024-07-01T00:00:00.000Z",
+                        "previousReadingType": "actual",
+                        "currentReadingType": "actual"
+                      }
+                    }
+                  }
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Validation completed",
+            "description": "Validation completed - may return passed, failed, or pending status",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationResult"
+                },
+                "examples": {
+                  "validationPassed": {
+                    "summary": "Validation Passed",
+                    "value": {
+                      "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                      "status": "passed",
+                      "extractedData": {
+                        "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                        "supplierName": "Energy Supplier Ltd",
+                        "supplierAccountNumber": "123456789",
+                        "supplyType": "electricity",
+                        "invoiceNumber": "INV2024001",
+                        "customerName": "John Smith",
+                        "mpanMprn": "1000000000001",
+                        "invoiceDate": "2024-07-02",
+                        "dueDate": "2024-07-21",
+                        "chargeStartDate": "2024-06-02",
+                        "chargeEndDate": "2024-07-01",
+                        "meterSerialNumber": "MTR123456",
+                        "siteAddress": "Unit 1, Example Business Park, London, SW1A 1AA",
+                        "paymentMethod": "Direct Debit",
+                        "standingCharge": 69.9,
+                        "standingChargeType": "per day",
+                        "cclRate": 0.775,
+                        "vatRate": 20,
+                        "readFromDate": "2024-06-01",
+                        "readFromType": "actual",
+                        "readToDate": "2024-07-01",
+                        "readToType": "actual",
+                        "consumption": 5223,
+                        "unitRate": 28.87,
+                        "correctionFactor": 1.0,
+                        "totalUnitCharge": 1507.88,
+                        "totalStandingCharge": 20.97,
+                        "amountDueNetOfVat": 1462.3,
+                        "vat": 292.46,
+                        "totalAmount": 1754.76,
+                        "confidence": 95
+                      },
+                      "errors": []
+                    }
+                  },
+                  "validationFailedSingle": {
+                    "summary": "Validation Failed - Single Error",
+                    "value": {
+                      "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                      "status": "failed",
+                      "extractedData": {
+                        "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                        "supplierName": "Energy Supplier Ltd",
+                        "invoiceNumber": "INV2024001",
+                        "mpanMprn": "1000000000001",
+                        "invoiceDate": "2024-07-02",
+                        "dueDate": "2024-07-21",
+                        "chargeStartDate": "2024-06-02",
+                        "chargeEndDate": "2024-07-01",
+                        "paymentMethod": "Direct Debit",
+                        "cclRate": 0.775,
+                        "vatRate": 20,
+                        "consumption": 5223,
+                        "totalAmount": 1754.76,
+                        "confidence": 95
+                      },
+                      "errors": [
+                        {
+                          "type": "consumptionMismatch",
+                          "description": "Invoice consumption differs from user-provided consumption",
+                          "expected": "6000 kWh",
+                          "actual": "5223 kWh"
+                        }
+                      ]
+                    }
+                  },
+                  "validationFailedMultiple": {
+                    "summary": "Validation Failed - Multiple Errors",
+                    "value": {
+                      "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                      "status": "failed",
+                      "extractedData": {
+                        "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                        "supplierName": "Energy Supplier Ltd",
+                        "invoiceNumber": "INV2024001",
+                        "mpanMprn": "1000000000001",
+                        "invoiceDate": "2024-07-02",
+                        "consumption": 5223,
+                        "totalAmount": 1754.76,
+                        "confidence": 95
+                      },
+                      "errors": [
+                        {
+                          "type": "consumptionMismatch",
+                          "description": "Invoice consumption differs from user-provided consumption",
+                          "expected": "6000 kWh",
+                          "actual": "5223 kWh"
+                        },
+                        {
+                          "type": "consumptionMismatch",
+                          "description": "Invoice consumption differs from calculated consumption based on meter readings",
+                          "expected": "6033 kWh",
+                          "actual": "5223 kWh"
+                        },
+                        {
+                          "type": "rateMismatch",
+                          "description": "Unit rate differs from contract rate",
+                          "expected": "25.50p/kWh",
+                          "actual": "28.87p/kWh"
+                        }
+                      ]
+                    }
+                  },
+                  "validationPending": {
+                    "summary": "Validation Pending - No Contract",
+                    "value": {
+                      "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                      "status": "pending",
+                      "extractedData": {
+                        "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                        "supplierName": "Energy Supplier Ltd",
+                        "invoiceNumber": "INV2024001",
+                        "mpanMprn": "1000000000001",
+                        "invoiceDate": "2024-07-02",
+                        "consumption": 5223,
+                        "totalAmount": 1754.76,
+                        "confidence": 95
+                      },
+                      "errors": [
+                        {
+                          "type": "other",
+                          "description": "Cannot validate - please parse a contract document for the corresponding MPAN and date range",
+                          "expected": "Contract document with matching MPAN and date range",
+                          "actual": "No contract document found"
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
           },
-          "4XX": {
-            "$ref": "#/components/responses/Error4XX"
+          "400": {
+            "description": "Bad Request - Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "missingFilePath": {
+                    "summary": "Missing filePath",
+                    "value": {
+                      "error": "File path is required"
+                    }
+                  },
+                  "invalidConsumptionData": {
+                    "summary": "Invalid consumption data",
+                    "value": {
+                      "error": "User-provided consumption cannot be negative"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Invoice not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Invoice not found at specified file path"
+                }
+              }
+            }
           }
         }
       }
@@ -2384,9 +2612,9 @@
       "ValidationResult": {
         "type": "object",
         "properties": {
-          "documentId": {
+          "filePath": {
             "type": "string",
-            "description": "Unique identifier for the validated document in the system"
+            "description": "File path to the validated invoice document"
           },
           "status": {
             "type": "string",
@@ -2395,7 +2623,7 @@
               "failed",
               "pending"
             ],
-            "description": "Validation status"
+            "description": "Validation status - passed means all validations succeeded, failed means discrepancies were found, pending means validation could not be completed (e.g., missing contract data)"
           },
           "extractedData": {
             "$ref": "#/components/schemas/ParsedInvoice"
@@ -2423,21 +2651,33 @@
                 },
                 "description": {
                   "type": "string",
-                  "description": "Error description"
+                  "description": "Human-readable description of the validation error"
                 },
                 "expected": {
                   "type": "string",
-                  "description": "Expected value"
+                  "description": "Expected value or condition"
                 },
-                                "actual": {
+                "actual": {
                   "type": "string",
-                  "description": "Actual value"
+                  "description": "Actual value found that caused the validation error"
                 }
-              }
- 
-            }
+              },
+              "required": [
+                "type",
+                "description",
+                "expected",
+                "actual"
+              ]
+            },
+            "description": "Array of validation errors found. Empty array indicates validation passed."
           }
-        }
+        },
+        "required": [
+          "filePath",
+          "status",
+          "extractedData",
+          "errors"
+        ]
       },
       "ParsedInvoice": {
         "type": "object",
