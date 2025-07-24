@@ -3319,10 +3319,6 @@
       "ContractData": {
         "type": "object",
         "properties": {
-          "contractId": {
-            "type": "string",
-            "description": "Unique identifier for the contract"
-          },
           "filePath": {
             "type": "string",
             "description": "Original filename of the uploaded contract"
@@ -3391,7 +3387,6 @@
           }
         },
         "required": [
-          "contractId",
           "supplyPoints"
         ]
       },
