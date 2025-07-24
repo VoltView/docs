@@ -1650,7 +1650,7 @@
           "Bill Validation"
         ],
         "summary": "Validate invoice",
-        "description": "Validate a previously parsed invoice against meter readings, tariff data, and site information to identify discrepancies in consumption, rates, charges, and billing details",
+        "description": "Validate an invoice against meter readings, tariff data, and site information to identify discrepancies in consumption, rates, charges, and billing details. Works with invoices from manual upload (parseInvoice endpoint) or Supplier Integration system.",
         "operationId": "validateInvoice",
         "requestBody": {
           "required": true,
@@ -1661,7 +1661,7 @@
                 "properties": {
                   "filePath": {
                     "type": "string",
-                    "description": "File path to the invoice document to validate"
+                    "description": "File path to the invoice document to validate. Can be from a manually uploaded invoice (parseInvoice endpoint) or from an invoice retrieved via Supplier Integration (getAccountSites endpoint)."
                   }
                 },
                 "required": [
@@ -3146,14 +3146,14 @@
           "invoices": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IntegrationContract"
+              "$ref": "#/components/schemas/IntegrationInvoice"
             },
             "description": "List of invoices for the site"
           },
           "contracts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IntegrationInvoice"
+              "$ref": "#/components/schemas/IntegrationContract"
             },
             "description": "List of contracts for the site"
           }
