@@ -1661,7 +1661,110 @@
                 "properties": {
                   "filePath": {
                     "type": "string",
-                    "description": "File path to the invoice document to validate. Can be from a manually uploaded invoice (parseInvoice endpoint) or from an invoice retrieved via Supplier Integration (getAccountSites endpoint)."
+                    "description": "File path to the invoice document to validate. Can be from a manually uploaded invoice (parseInvoice endpoint) or from an invoice retrieved via Supplier Integration endpoints."
+                  },
+                  "userConsumptionData": {
+                    "type": "object",
+                    "description": "Optional user-provided consumption data to validate against the invoice",
+                    "properties": {
+                      "fromDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Start date of consumption period (ISO 8601)"
+                      },
+                      "toDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "End date of consumption period (ISO 8601)"
+                      },
+                      "utilityType": {
+                        "type": "string",
+                        "enum": [
+                          "ELECTRICITY",
+                          "GAS",
+                          "BMS"
+                        ],
+                        "description": "Type of utility"
+                      },
+                      "consumption": {
+                        "type": "object",
+                        "description": "Consumption values for the period",
+                        "properties": {
+                          "activeImportKwh": {
+                            "type": "number",
+                            "description": "Active energy imported (main consumption) in kWh"
+                          },
+                          "activeExportKwh": {
+                            "type": "number",
+                            "description": "Active energy exported in kWh (for sites with generation)"
+                          },
+                          "dayConsumption": {
+                            "type": "number",
+                            "description": "Day/peak consumption in kWh (for dual-rate tariffs)"
+                          },
+                          "nightConsumption": {
+                            "type": "number",
+                            "description": "Night/off-peak consumption in kWh (for dual-rate tariffs)"
+                          },
+                          "reactiveImportKvarh": {
+                            "type": "number",
+                            "description": "Reactive energy imported in kvarh (electricity only)"
+                          },
+                          "reactiveExportKvarh": {
+                            "type": "number",
+                            "description": "Reactive energy exported in kvarh (electricity only)"
+                          },
+                          "apparentKvah": {
+                            "type": "number",
+                            "description": "Apparent energy consumption in kVAh (electricity only)"
+                          }
+                        }
+                      },
+                      "meterReadings": {
+                        "type": "object",
+                        "description": "Optional meter reading information",
+                        "properties": {
+                          "previousReading": {
+                            "type": "number",
+                            "description": "Previous meter reading"
+                          },
+                          "currentReading": {
+                            "type": "number",
+                            "description": "Current meter reading"
+                          },
+                          "previousReadingDate": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Date of previous reading (ISO 8601)"
+                          },
+                          "currentReadingDate": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Date of current reading (ISO 8601)"
+                          },
+                          "previousReadingType": {
+                            "type": "string",
+                            "enum": [
+                              "actual",
+                              "estimated",
+                              "customer",
+                              "smart"
+                            ],
+                            "description": "Type of previous reading"
+                          },
+                          "currentReadingType": {
+                            "type": "string",
+                            "enum": [
+                              "actual",
+                              "estimated",
+                              "customer",
+                              "smart"
+                            ],
+                            "description": "Type of current reading"
+                          }
+                        }
+                      }
+                    }
                   }
                 },
                 "required": [
@@ -2326,23 +2429,15 @@
                   "type": "string",
                   "description": "Expected value"
                 },
-                "actual": {
+                                "actual": {
                   "type": "string",
                   "description": "Actual value"
                 }
-              },
-              "required": [
-                "type",
-                "description"
-              ]
+              }
+ 
             }
           }
-        },
-        "required": [
-          "documentId",
-          "status",
-          "extractedData"
-        ]
+        }
       },
       "ParsedInvoice": {
         "type": "object",
@@ -2519,13 +2614,7 @@
             "type": "number",
             "description": "Confidence score of the extraction (0-100)"
           }
-        },
-        "required": [
-          "filePath",
-          "invoiceNumber",
-          "totalAmount",
-          "confidence"
-        ]
+        }
       },
       "UpdateAccountRequest": {
         "type": "object",
