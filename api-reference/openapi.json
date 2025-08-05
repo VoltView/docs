@@ -1650,7 +1650,7 @@
           "Bill Validation"
         ],
         "summary": "Validate invoice",
-        "description": "Validates an invoice against contract data and optional user-provided consumption data. Performs comprehensive validation including consumption matching, meter reading verification, and check against contract.\n\n**Validation Rules:**\n- Negative Values: Not permitted for consumption or meter readings\n- Meter Reading Logic: Current reading must be ≥ previous reading\n- Contract Matching: Invoice date must fall within contract period\n- MPAN Matching: At least one MPAN must match between invoice and contract\n\n**Data Sources:**\n- Manual uploads from parseInvoice endpoint\n- Invoices from Supplier Integration system\n- User-provided consumption and meter reading data",
+        "description": "Validates an invoice against contract data and optional user-provided consumption data. Performs comprehensive validation including consumption matching, meter reading verification, and check against contract.\n\n**Validation Rules:**\n- Meter Reading Logic: Current reading must be ≥ previous reading\n- Contract Matching: Invoice date must fall within contract period\n- MPAN Matching: At least one MPAN must match between invoice and contract\n\n**Data Sources:**\n- Manual uploads from parseInvoice endpoint\n- Invoices from Supplier Integration system\n- User-provided consumption and meter reading data",
         "operationId": "validateInvoice",
         "requestBody": {
           "required": true,
@@ -2081,13 +2081,11 @@
               }
             },
             "required": [
-              "type",
               "message"
             ]
           }
         },
         "required": [
-          "type",
           "error"
         ]
       },
