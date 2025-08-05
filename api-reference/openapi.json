@@ -2599,12 +2599,7 @@
             },
             "description": "Array of validation errors found. Empty array indicates validation passed."
           }
-        },
-        "required": [
-          "filePath",
-          "status",
-          "errors"
-        ]
+        }
       },
       "ParsedInvoice": {
         "type": "object",
