@@ -1166,8 +1166,8 @@
         "tags": [
           "Supplier Integration"
         ],
-        "summary": "List supplier accounts for a business with their sites and meters",
-        "description": "Returns, for the specified business, each supplier account the caller can access, including its sites and a deduplicated list of meters per site.",
+        "summary": "Get sites and meters for a business",
+        "description": "Returns all sites and meters for a business, organised by supplier account. Each site includes its supply types (electricity/gas) and associated meter details (MPAN/MPRN and serial numbers).",
         "operationId": "getBusinessAccountsSitesMeters",
         "parameters": [
           {
