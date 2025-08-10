@@ -1527,7 +1527,7 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "Unauthorised"
+                  "error": "Unauthorized"
                 }
               }
             }
@@ -1662,7 +1662,7 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "Unauthorised"
+                  "error": "Unauthorized"
                 }
               }
             }
@@ -1971,7 +1971,7 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "Unauthorised"
+                  "error": "Unauthorized"
                 }
               }
             }
