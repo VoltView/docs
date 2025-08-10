@@ -2115,9 +2115,9 @@
                     "properties": {
                       "id": { "type": "string" },
                       "accountId": { "type": "string" },
-                      "referenceId": { "type": ["string", "null"] },
-                      "name": { "type": ["string", "null"] },
-                      "address": { "type": ["string", "null"] },
+                      "referenceId": { "type": "string", "nullable": true },
+                      "name": { "type": "string", "nullable": true },
+                      "address": { "type": "string", "nullable": true },
                       "supplyTypes": {
                         "type": "array",
                         "items": { "type": "string", "enum": ["electricity", "gas"] }
@@ -2127,8 +2127,8 @@
                         "items": {
                           "type": "object",
                           "properties": {
-                            "mpanMprn": { "type": ["string", "null"] },
-                            "meterSerialNumber": { "type": ["string", "null"] },
+                            "mpanMprn": { "type": "string", "nullable": true },
+                            "meterSerialNumber": { "type": "string", "nullable": true },
                             "utilityType": { "type": "string", "enum": ["electricity", "gas"] }
                           },
                           "required": ["utilityType"]
