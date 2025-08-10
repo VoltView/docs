@@ -1527,7 +1527,7 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "Unauthorized"
+                  "error": "Unauthorised"
                 }
               }
             }
@@ -1662,7 +1662,7 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "Unauthorized"
+                  "error": "Unauthorised"
                 }
               }
             }
@@ -1971,7 +1971,7 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "Unauthorized"
+                  "error": "Unauthorised"
                 }
               }
             }
@@ -2199,13 +2199,13 @@
             "type": "string",
             "description": "User last name"
           },
-          "organization": {
+          "organisation": {
             "type": "string",
-            "description": "User organization"
+            "description": "User organisation"
           },
           "role": {
             "type": "string",
-            "description": "User role in the organization"
+            "description": "User role in the organisation"
           }
         },
         "required": [
