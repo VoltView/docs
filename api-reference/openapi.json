@@ -1161,6 +1161,47 @@
         }
       }
     },
+    "/v1/suppliers/businesses/{businessId}/accountsSitesMeters": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "List supplier accounts for a business with their sites and meters",
+        "description": "Returns, for the specified business, each supplier account the caller can access, including its sites and a deduplicated list of meters per site.",
+        "operationId": "getBusinessAccountsSitesMeters",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "businessId",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Business ID"
+          },
+          {
+            "in": "query",
+            "name": "supplier",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Filter to accounts from a specific supplier (SupplierType id or name)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accounts with sites and meters retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountsSitesMetersResponse"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
     "/v1/suppliers/accounts/{id}": {
       "put": {
         "tags": [
@@ -1346,6 +1387,7 @@
         }
       }
     },
+    
     "/v1/suppliers/documents/sign": {
       "get": {
         "tags": [
@@ -2055,6 +2097,54 @@
       }
     },
     "schemas": {
+      "AccountsSitesMetersResponse": {
+        "type": "object",
+        "properties": {
+          "businessId": { "type": "string" },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "supplier": { "type": "string" },
+                "sites": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "accountId": { "type": "string" },
+                      "referenceId": { "type": ["string", "null"] },
+                      "name": { "type": ["string", "null"] },
+                      "address": { "type": ["string", "null"] },
+                      "supplyTypes": {
+                        "type": "array",
+                        "items": { "type": "string", "enum": ["electricity", "gas"] }
+                      },
+                      "meters": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "mpanMprn": { "type": ["string", "null"] },
+                            "meterSerialNumber": { "type": ["string", "null"] },
+                            "utilityType": { "type": "string", "enum": ["electricity", "gas"] }
+                          },
+                          "required": ["utilityType"]
+                        }
+                      }
+                    },
+                    "required": ["id", "accountId", "supplyTypes", "meters"]
+                  }
+                }
+              },
+              "required": ["id", "supplier", "sites"]
+            }
+          }
+        },
+        "required": ["businessId", "accounts"]
+      },
       "Error": {
         "type": "object",
         "properties": {
