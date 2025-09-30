@@ -1309,6 +1309,94 @@
         }
       }
     },
+    "/v1/suppliers/accounts/{id}/documents/upload": {
+      "put": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Upload Document to Account",
+        "description": "Upload a document to a specific account for processing and storage.",
+        "operationId": "uploadDocumentToAccount",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Document file to upload (PDF, JPEG, PNG formats supported)"
+                  },
+                  "documentId": {
+                    "type": "string",
+                    "description": "Unique identifier for the document"
+                  },
+                  "documentType": {
+                    "type": "string",
+                    "description": "Type of document being uploaded"
+                  }
+                },
+                "required": ["file", "documentId", "documentType"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document uploaded successfully and sites retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationSite"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - no file uploaded or invalid file format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "examples": {
+                        "noFile": {
+                          "value": "No file uploaded"
+                        },
+                        "invalidExtension": {
+                          "value": "Could not determine file extension from filename"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
     "/v1/suppliers/accounts/{id}/sites": {
       "get": {
         "tags": [
