@@ -2948,6 +2948,28 @@
           }
         }
       },
+      "ParsedDocument": {
+        "type": "object",
+        "required": [
+          "id",
+          "filePath",
+          "extension"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Document ID"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "File path to the document"
+          },
+          "extension": {
+            "type": "string",
+            "description": "Document extension"
+          }
+        }
+      },
       "UpdateAccountRequest": {
         "type": "object",
         "required": [
@@ -3577,6 +3599,41 @@
               "$ref": "#/components/schemas/IntegrationContract"
             },
             "description": "List of contracts for the site"
+          },
+          "creditNotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of credit notes for the site"
+          },
+          "debitNotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of debit notes for the site"
+          },
+          "certificates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of certificates for the site"
+          },
+          "others": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of other documents for the site"
+          },
+          "loas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of loas for the site"
           }
         }
       },
