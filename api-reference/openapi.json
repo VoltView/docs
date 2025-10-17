@@ -1174,14 +1174,18 @@
             "in": "path",
             "name": "businessId",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Business ID"
           },
           {
             "in": "query",
             "name": "supplier",
             "required": false,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Filter to accounts from a specific supplier (SupplierType id or name)."
           }
         ],
@@ -1349,7 +1353,10 @@
                     "description": "Type of document being uploaded INVOICE, CONTRACT, CREDIT_NOTE, DEBIT_NOTE, CERTIFICATE, OTHER, LOA"
                   }
                 },
-                "required": ["file", "documentId"]
+                "required": [
+                  "file",
+                  "documentId"
+                ]
               }
             }
           }
@@ -1475,7 +1482,6 @@
         }
       }
     },
-    
     "/v1/suppliers/documents/sign": {
       "get": {
         "tags": [
@@ -2188,50 +2194,101 @@
       "AccountsSitesMetersResponse": {
         "type": "object",
         "properties": {
-          "businessId": { "type": "string" },
+          "businessId": {
+            "type": "string"
+          },
           "accounts": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "id": { "type": "string" },
-                "supplier": { "type": "string" },
+                "id": {
+                  "type": "string"
+                },
+                "supplier": {
+                  "type": "string"
+                },
                 "sites": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "id": { "type": "string" },
-                      "accountId": { "type": "string" },
-                      "referenceId": { "type": "string", "nullable": true },
-                      "name": { "type": "string", "nullable": true },
-                      "address": { "type": "string", "nullable": true },
+                      "id": {
+                        "type": "string"
+                      },
+                      "accountId": {
+                        "type": "string"
+                      },
+                      "referenceId": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "name": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "address": {
+                        "type": "string",
+                        "nullable": true
+                      },
                       "supplyTypes": {
                         "type": "array",
-                        "items": { "type": "string", "enum": ["electricity", "gas"] }
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "electricity",
+                            "gas"
+                          ]
+                        }
                       },
                       "meters": {
                         "type": "array",
                         "items": {
                           "type": "object",
                           "properties": {
-                            "mpanMprn": { "type": "string", "nullable": true },
-                            "meterSerialNumber": { "type": "string", "nullable": true },
-                            "utilityType": { "type": "string", "enum": ["electricity", "gas"] }
+                            "mpanMprn": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "meterSerialNumber": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "utilityType": {
+                              "type": "string",
+                              "enum": [
+                                "electricity",
+                                "gas"
+                              ]
+                            }
                           },
-                          "required": ["utilityType"]
+                          "required": [
+                            "utilityType"
+                          ]
                         }
                       }
                     },
-                    "required": ["id", "accountId", "supplyTypes", "meters"]
+                    "required": [
+                      "id",
+                      "accountId",
+                      "supplyTypes",
+                      "meters"
+                    ]
                   }
                 }
               },
-              "required": ["id", "supplier", "sites"]
+              "required": [
+                "id",
+                "supplier",
+                "sites"
+              ]
             }
           }
         },
-        "required": ["businessId", "accounts"]
+        "required": [
+          "businessId",
+          "accounts"
+        ]
       },
       "Error": {
         "type": "object",
@@ -3018,6 +3075,10 @@
             "type": "string",
             "format": "date-time",
             "description": "Optional expiration date for account credentials"
+          },
+          "isTest": {
+            "type": "boolean",
+            "description": "Optional. Marks the account as a test account. Test accounts are deleted after 30 days."
           }
         }
       },
@@ -3043,6 +3104,15 @@
           "reason": {
             "type": "string",
             "description": "Reason for failing"
+          },
+          "isTest": {
+            "type": "boolean",
+            "description": "Test accounts are deleted after 30 days."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date the account was created"
           }
         }
       },
@@ -4139,4 +4209,3 @@
     }
   }
 }
-
