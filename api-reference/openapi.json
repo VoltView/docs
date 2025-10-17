@@ -1346,10 +1346,10 @@
                   },
                   "documentType": {
                     "type": "string",
-                    "description": "Type of document being uploaded"
+                    "description": "Type of document being uploaded INVOICE, CONTRACT, CREDIT_NOTE, DEBIT_NOTE, CERTIFICATE, OTHER, LOA"
                   }
                 },
-                "required": ["file", "documentId", "documentType"]
+                "required": ["file", "documentId"]
               }
             }
           }
