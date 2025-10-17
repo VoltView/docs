@@ -1380,17 +1380,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "examples": {
-                        "noFile": {
-                          "value": "No file uploaded"
-                        },
-                        "invalidExtension": {
-                          "value": "Could not determine file extension from filename"
-                        }
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "noFile": {
+                    "value": {
+                      "type": "error",
+                      "error": {
+                        "type": "invalid_request_error",
+                        "message": "No file uploaded"
+                      }
+                    }
+                  },
+                  "invalidExtension": {
+                    "value": {
+                      "type": "error",
+                      "error": {
+                        "type": "invalid_request_error",
+                        "message": "Could not determine file extension from filename"
                       }
                     }
                   }
