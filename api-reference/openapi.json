@@ -1159,6 +1159,60 @@
             "$ref": "#/components/responses/Error4XX"
           }
         }
+      },
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get all accounts",
+        "description": "Get all accounts under the projects.",
+        "operationId": "getAccounts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "expiryDateIsLessThanOrEqualTo",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Filter to accounts by the date"
+          },
+          {
+            "in": "query",
+            "name": "isTest",
+            "required": false,
+            "schema": { "type": "boolean" },
+            "description": "Filter to accounts by isTest"
+          },
+          {
+            "in": "query",
+            "name": "supplier",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Filter to accounts by supplier"
+          },
+          {
+            "in": "query",
+            "name": "referenceId",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Filter to accounts by referenceId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "type": "array",
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAccountResponse"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
       }
     },
     "/v1/suppliers/references/{referenceId}/accountsSitesMeters": {
@@ -3011,7 +3065,7 @@
         "properties": {
           "referenceId": {
             "type": "string",
-            "description": "Business identifier"
+            "description": "Reference identifier"
           },
           "id": {
             "type": "string",
