@@ -1161,7 +1161,7 @@
         }
       }
     },
-    "/v1/suppliers/businesses/{businessId}/accountsSitesMeters": {
+    "/v1/suppliers/references/{referenceId}/accountsSitesMeters": {
       "get": {
         "tags": [
           "Supplier Integration"
@@ -1172,7 +1172,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "businessId",
+            "name": "referenceId",
             "required": true,
             "schema": { "type": "string" },
             "description": "Business ID"
@@ -1443,7 +1443,7 @@
         }
       }
     },
-    "/v1/suppliers/businesses/{businessId}/accounts": {
+    "/v1/suppliers/references/{referenceId}/accounts": {
       "get": {
         "tags": [
           "Supplier Integration"
@@ -1454,7 +1454,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "businessId",
+            "name": "referenceId",
             "required": true,
             "schema": {
               "type": "string"
@@ -2195,7 +2195,7 @@
       "AccountsSitesMetersResponse": {
         "type": "object",
         "properties": {
-          "businessId": { "type": "string" },
+          "referenceId": { "type": "string" },
           "accounts": {
             "type": "array",
             "items": {
@@ -2238,7 +2238,7 @@
             }
           }
         },
-        "required": ["businessId", "accounts"]
+        "required": ["referenceId", "accounts"]
       },
       "Error": {
         "type": "object",
@@ -2978,7 +2978,7 @@
         "required": [
           "email",
           "password",
-          "businessId",
+          "referenceId",
           "supplier"
         ],
         "properties": {
@@ -2991,7 +2991,7 @@
             "type": "string",
             "description": "Password for utility supplier account"
           },
-          "businessId": {
+          "referenceId": {
             "type": "string",
             "description": "Business identifier"
           },
@@ -3009,7 +3009,7 @@
       "CreateAccountResponse": {
         "type": "object",
         "properties": {
-          "businessId": {
+          "referenceId": {
             "type": "string",
             "description": "Business identifier"
           },
@@ -3046,7 +3046,7 @@
             "type": "string",
             "description": "Account identifier"
           },
-          "businessId": {
+          "referenceId": {
             "type": "string",
             "description": "Business identifier"
           },
@@ -3598,7 +3598,7 @@
             "type": "string",
             "description": "Project identifier"
           },
-          "businessId": {
+          "referenceId": {
             "type": "string",
             "description": "Business identifier"
           },
