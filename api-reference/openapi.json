@@ -4260,10 +4260,8 @@
                         "description": "Consumption data",
                         "properties": {
                           "total": {
-                            "type": [
-                              "number",
-                              "null"
-                            ],
+                            "type": "number",
+                            "nullable": true,
                             "description": "Total consumption"
                           },
                           "unit": {
@@ -4271,31 +4269,23 @@
                             "description": "Unit of consumption (e.g., 'kWh')"
                           },
                           "day": {
-                            "type": [
-                              "number",
-                              "null"
-                            ],
+                            "type": "number",
+                            "nullable": true,
                             "description": "Day consumption (for dual-rate meters)"
                           },
                           "night": {
-                            "type": [
-                              "number",
-                              "null"
-                            ],
+                            "type": "number",
+                            "nullable": true,
                             "description": "Night consumption (for dual-rate meters)"
                           },
                           "reactive": {
-                            "type": [
-                              "number",
-                              "null"
-                            ],
+                            "type": "number",
+                            "nullable": true,
                             "description": "Reactive consumption"
                           },
                           "apparent": {
-                            "type": [
-                              "number",
-                              "null"
-                            ],
+                            "type": "number",
+                            "nullable": true,
                             "description": "Apparent consumption"
                           }
                         },
@@ -4392,17 +4382,13 @@
                               "description": "Meter reading value"
                             },
                             "register": {
-                              "type": [
-                                "string",
-                                "null"
-                              ],
+                              "type": "string",
+                              "nullable": true,
                               "description": "Register identifier"
                             },
                             "consumption": {
-                              "type": [
-                                "number",
-                                "null"
-                              ],
+                              "type": "number",
+                              "nullable": true,
                               "description": "Consumption since last reading"
                             },
                             "unit": {
