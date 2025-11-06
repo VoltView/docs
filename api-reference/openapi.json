@@ -1210,9 +1210,11 @@
             "description": "Account created successfully",
             "content": {
               "application/json": {
-                "type": "array",
                 "schema": {
-                  "$ref": "#/components/schemas/CreateAccountResponse"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreateAccountResponse"
+                  }
                 }
               }
             }
