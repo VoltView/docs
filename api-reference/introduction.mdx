@@ -1,0 +1,90 @@
+---
+title: 'Introduction'
+description: 'VoltView API Documentation - Energy Monitoring and Management'
+---
+
+## Welcome to VoltView API
+
+The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.
+
+## API Suite Overview
+
+Our API suite includes the following core services:
+
+<CardGroup>
+  <Card
+    title="Site Management API"
+    icon="building"
+  >
+    Manage and monitor multiple site locations
+  </Card>
+  <Card
+    title="Energy Consumption API"
+    icon="bolt"
+  >
+    Access detailed energy usage data
+  </Card>
+  <Card
+    title="Cost Analysis API"
+    icon="chart-line"
+  >
+    Track and analyse energy costs
+  </Card>
+  <Card
+    title="Environmental Metrics API"
+    icon="leaf"
+  >
+    Monitor carbon emissions and energy efficiency
+  </Card>
+  <Card
+    title="Utility Supplier API"
+    icon="plug"
+  >
+    Integrate and collect data from utility suppliers
+  </Card>
+  <Card
+    title="Bill Validation API"
+    icon="receipt"
+  >
+    Validate and audit utility bills for accuracy
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+Register for a VoltView account to receive your API credentials [**__here__**](https://docs.voltview.co.uk/register).
+
+## Authentication
+
+The VoltView API uses JWT (JSON Web Token) authentication to secure all endpoints.
+
+```json
+{
+  "Authorization": "Bearer your-jwt-token"
+}
+```
+
+### Token Management
+- Generate a JWT token using your API credentials
+- Include the token in the Authorization header
+- Tokens expire after 24 hours
+- Invalid tokens return a 401 Unauthorized response
+
+### Authentication Error Response
+If authentication fails, you will receive an HTTP 401 Unauthorized response with a detailed error message in the JSON response body.
+
+## Data Units
+
+The VoltView API uses the following standardized units across all endpoints:
+
+| Metric | Unit |
+|--------|------|
+| Energy Consumption | kWh |
+| Power Demand | kW |
+| Carbon Emissions | kg CO2eq |
+| Currency | GBP (£) |
+| Time Series | ISO 8601 format |
+| Numeric Values | Rounded to 2 decimal places |
+| Meter Point Numbers | MPAN/MPRN format |
+| Supplier Read Frequency | Minutes/Hours/Days |
+| Reading Type | Actual/Estimated |

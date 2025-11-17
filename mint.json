@@ -1,0 +1,55 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "VoltView",
+  "logo": {
+    "dark": "/logo/voltview-logo-dark.svg",
+    "light": "/logo/voltview-logo-light.svg"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#000000",
+    "light": "#FFFFFF",
+    "dark": "#000000",
+    "anchors": {
+      "from": "#000000",
+      "to": "#666666"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:hi@voltview.co.uk"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://portal.voltview.co.uk"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference",
+      "openapi": "/api-reference/openapi.json"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "introduction",
+        "register"
+      ]
+    },
+    {
+      "group": "API Documentation",
+      "pages": [
+        "api-reference/introduction"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/VoltViewUK",
+    "github": "https://github.com/VoltView",
+    "linkedin": "https://www.linkedin.com/company/voltview"
+  }
+}

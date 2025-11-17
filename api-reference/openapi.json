@@ -1,0 +1,4562 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "VoltView API",
+    "description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n- Supplier Integration API - Integrate with utility suppliers for automated data collection\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\n### JWT Authentication\n- Generate a JWT token using your API credentials\n- Include the token in the Authorisation header\n- Tokens expire after 24 hours\n- Invalid tokens return a 401 Unauthorised response\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (£)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
+    "version": "1.0.0",
+    "contact": {
+      "email": "info@voltview.co.uk"
+    },
+    "license": {
+      "name": "Proprietary"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.voltview.co.uk",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints for authentication"
+    },
+    {
+      "name": "User",
+      "description": "User profile management"
+    },
+    {
+      "name": "Sites",
+      "description": "Multi-site management endpoints"
+    },
+    {
+      "name": "Specific Site",
+      "description": "Operations for specific sites"
+    },
+    {
+      "name": "Consumption",
+      "description": "Energy consumption data endpoints"
+    },
+    {
+      "name": "Emissions",
+      "description": "Carbon emissions data endpoints"
+    },
+    {
+      "name": "Supplier Integration",
+      "description": "Utilities integration endpoints"
+    },
+    {
+      "name": "Bill Validation",
+      "description": "Utility bill validation and error detection endpoints"
+    }
+  ],
+  "paths": {
+    "/v1/requestToken": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Request authentication token",
+        "description": "Generates a JWT token for API authentication",
+        "operationId": "requestToken",
+        "security": [],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key for requesting a token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful token generation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "JWT token for API authentication"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/getUser": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Fetch user profile",
+        "description": "Retrieves the authenticated user's profile information",
+        "operationId": "getUser",
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "List all sites",
+        "description": "Retrieves all sites associated with the authenticated user",
+        "operationId": "getSites",
+        "responses": {
+          "200": {
+            "description": "Sites retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Site"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/addressLookup": {
+      "post": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Address lookup",
+        "description": "Look up addresses by postcode",
+        "operationId": "addressLookup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "postCode": {
+                    "type": "string",
+                    "description": "Postal code to search"
+                  },
+                  "fuelType": {
+                    "type": "string",
+                    "enum": [
+                      "elec",
+                      "gas"
+                    ],
+                    "description": "Type of fuel service"
+                  },
+                  "customerConsent": {
+                    "type": "string",
+                    "enum": [
+                      "Yes",
+                      "No"
+                    ],
+                    "description": "Customer consent for data access"
+                  }
+                },
+                "required": [
+                  "postCode",
+                  "fuelType",
+                  "customerConsent"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Address lookup successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/peakDemand": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Peak demand for all sites",
+        "description": "Retrieves peak power demand data across all sites",
+        "operationId": "getSitesPeakDemand",
+        "responses": {
+          "200": {
+            "description": "Peak demand data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PeakDemand"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/annualConsumptionAndEmissions": {
+      "get": {
+        "tags": [
+          "Sites",
+          "Emissions"
+        ],
+        "summary": "Annual consumption and emissions for all sites",
+        "description": "Retrieves annual energy consumption and emissions data across all sites",
+        "operationId": "getSitesAnnualConsumptionAndEmissions",
+        "responses": {
+          "200": {
+            "description": "Annual consumption and emissions data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConsumptionAndEmissions"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/annualSpendAndSavings": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Annual spend and savings for all sites",
+        "description": "Retrieves annual energy spending and cost savings data across all sites",
+        "operationId": "getSitesAnnualSpendAndSavings",
+        "responses": {
+          "200": {
+            "description": "Annual spend and savings data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SpendAndSavings"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/tariffs": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Tariffs for all sites",
+        "description": "Retrieves energy tariff information across all sites",
+        "operationId": "getSitesTariffs",
+        "responses": {
+          "200": {
+            "description": "Tariff information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tariff"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/invoices": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Invoices for all sites",
+        "description": "Retrieves invoice information across all sites",
+        "operationId": "getSitesInvoices",
+        "responses": {
+          "200": {
+            "description": "Invoice information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Invoice"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/reports": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Reports for all sites",
+        "description": "Retrieves energy reports across all sites",
+        "operationId": "getSitesReports",
+        "responses": {
+          "200": {
+            "description": "Reports retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Report"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/cost": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Energy cost data for all sites",
+        "description": "Retrieves energy cost data across all sites",
+        "operationId": "getSitesCost",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/lookback"
+          },
+          {
+            "$ref": "#/components/parameters/granularity"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cost data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CostData"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/emissions": {
+      "get": {
+        "tags": [
+          "Emissions"
+        ],
+        "summary": "Emissions data for all sites",
+        "description": "Retrieves carbon emissions data across all sites",
+        "operationId": "getSitesEmissions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/lookback"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Emissions data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmissionsData"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/energyIntensity": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Energy intensity for all sites",
+        "description": "Retrieves energy intensity metrics across all sites",
+        "operationId": "getSitesEnergyIntensity",
+        "responses": {
+          "200": {
+            "description": "Energy intensity data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EnergyIntensity"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/stats": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Statistics for all sites",
+        "description": "Retrieves statistical data across all sites",
+        "operationId": "getSitesStats",
+        "responses": {
+          "200": {
+            "description": "Statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiteStats"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/marginalCarbonIntensity": {
+      "get": {
+        "tags": [
+          "Emissions"
+        ],
+        "summary": "Marginal carbon intensity",
+        "description": "Retrieves marginal carbon intensity data",
+        "operationId": "getMarginalCarbonIntensity",
+        "responses": {
+          "200": {
+            "description": "Marginal carbon intensity data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarginalCarbonIntensity"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/energyRecommendation": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Energy recommendations",
+        "description": "Retrieves energy efficiency recommendations",
+        "operationId": "getEnergyRecommendation",
+        "responses": {
+          "200": {
+            "description": "Energy recommendations retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EnergyRecommendation"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/annualConsumptionAndEmissions": {
+      "get": {
+        "tags": [
+          "Specific Site",
+          "Emissions"
+        ],
+        "summary": "Annual consumption and emissions for a specific site",
+        "description": "Retrieves annual energy consumption and emissions data for a specific site",
+        "operationId": "getSiteSpecificAnnualConsumptionAndEmissions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Annual consumption and emissions data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsumptionAndEmissions"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/annualSpendAndSavings": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Annual spend and savings for a specific site",
+        "description": "Retrieves annual energy spending and savings data for a specific site",
+        "operationId": "getSiteSpecificAnnualSpendAndSavings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Annual spend and savings data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpendAndSavings"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/peakDemand": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Peak demand for a specific site",
+        "description": "Retrieves peak power demand data for a specific site",
+        "operationId": "getSiteSpecificPeakDemand",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peak demand data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeakDemand"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/tariffs": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Tariffs for a specific site",
+        "description": "Retrieves energy tariff information for a specific site",
+        "operationId": "getSiteSpecificTariffs",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "in": "query",
+            "name": "utility",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ELECTRICITY",
+                "GAS"
+              ]
+            },
+            "description": "Filter tariffs by utility type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tariff information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tariff"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/reports": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Reports for a specific site",
+        "description": "Retrieves energy reports for a specific site",
+        "operationId": "getSiteSpecificReports",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reports retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Report"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/stats": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Statistics for a specific site",
+        "description": "Retrieves statistical data for a specific site",
+        "operationId": "getSiteSpecificStats",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteStats"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/siteSpecificEnergyIntensity": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Energy intensity for a specific site",
+        "description": "Retrieves energy intensity metrics for a specific site",
+        "operationId": "getSiteSpecificEnergyIntensity",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Energy intensity data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergyIntensity"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/cost": {
+      "get": {
+        "tags": [
+          "Specific Site"
+        ],
+        "summary": "Energy cost data for a specific site",
+        "description": "Retrieves energy cost data for a specific site",
+        "operationId": "getSiteSpecificCost",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "$ref": "#/components/parameters/lookback"
+          },
+          {
+            "$ref": "#/components/parameters/granularity"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cost data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CostData"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/emissions": {
+      "get": {
+        "tags": [
+          "Emissions"
+        ],
+        "summary": "Emissions data for a specific site",
+        "description": "Retrieves carbon emissions data for a specific site",
+        "operationId": "getSiteSpecificEmissions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "$ref": "#/components/parameters/lookback"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Emissions data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmissionsData"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/loadCurve": {
+      "get": {
+        "tags": [
+          "Consumption"
+        ],
+        "summary": "Load curve for all sites",
+        "description": "Retrieves load curve data across all sites",
+        "operationId": "getSitesLoadCurve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          },
+          {
+            "in": "query",
+            "name": "summaryLevel",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "day",
+                "month"
+              ]
+            },
+            "description": "Level of data aggregation"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Load curve data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LoadCurve"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/loadCurve": {
+      "get": {
+        "tags": [
+          "Consumption"
+        ],
+        "summary": "Load curve for a specific site",
+        "description": "Retrieves load curve data for a specific site",
+        "operationId": "getSiteSpecificLoadCurve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          },
+          {
+            "in": "query",
+            "name": "summaryLevel",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "day",
+                "month"
+              ]
+            },
+            "description": "Level of data aggregation"
+          },
+          {
+            "in": "query",
+            "name": "unit",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "kWh",
+                "kW"
+              ]
+            },
+            "description": "Unit of measurement"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Load curve data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoadCurve"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/timeSeries": {
+      "get": {
+        "tags": [
+          "Consumption"
+        ],
+        "summary": "Time series data for all sites",
+        "description": "Retrieves time series energy data across all sites",
+        "operationId": "getSitesTimeSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/granularity"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          },
+          {
+            "$ref": "#/components/parameters/lookback"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time series data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimeSeries"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/sites/{siteId}/timeSeries": {
+      "get": {
+        "tags": [
+          "Consumption"
+        ],
+        "summary": "Time series data for a specific site",
+        "description": "Retrieves time series energy data for a specific site",
+        "operationId": "getSiteSpecificTimeSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/siteId"
+          },
+          {
+            "$ref": "#/components/parameters/granularity"
+          },
+          {
+            "$ref": "#/components/parameters/from"
+          },
+          {
+            "$ref": "#/components/parameters/to"
+          },
+          {
+            "in": "query",
+            "name": "unit",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "kWh",
+                "kW"
+              ]
+            },
+            "description": "Unit of measurement"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time series data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeSeries"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/suppliers": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "List available suppliers",
+        "description": "Retrieves a list of all available energy suppliers that can be integrated with",
+        "operationId": "getSuppliers",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BUSINESS",
+                "RESIDENTIAL"
+              ]
+            },
+            "description": "Filter suppliers by type: BUSINESS, RESIDENTIAL"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of suppliers retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Supplier"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/suppliers/accounts": {
+      "post": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Create an Account",
+        "description": "Create an account with credentials for the utility website. The service will use these details to log in and scrape data.",
+        "operationId": "createAccount",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAccountResponse"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get all accounts",
+        "description": "Get all accounts under the projects.",
+        "operationId": "getAccounts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "expiryDateIsLessThanOrEqualTo",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter to accounts by the date"
+          },
+          {
+            "in": "query",
+            "name": "isTest",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filter to accounts by isTest"
+          },
+          {
+            "in": "query",
+            "name": "supplier",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter to accounts by supplier"
+          },
+          {
+            "in": "query",
+            "name": "referenceId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter to accounts by referenceId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreateAccountResponse"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/suppliers/references/{referenceId}/accountsSitesMeters": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get sites and meters for a business",
+        "description": "Returns all sites and meters for a business, organised by supplier account. Each site includes its supply types (electricity/gas) and associated meter details (MPAN/MPRN and serial numbers).",
+        "operationId": "getBusinessAccountsSitesMeters",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "referenceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Business ID"
+          },
+          {
+            "in": "query",
+            "name": "supplier",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter to accounts from a specific supplier (SupplierType id or name)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accounts with sites and meters retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountsSitesMetersResponse"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/suppliers/accounts/{id}": {
+      "put": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Update Account Details",
+        "description": "Update the account credentials stored in the system for a specific account ID.",
+        "operationId": "updateAccountDetails",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDetails"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get Account Details",
+        "description": "Retrieve the account credentials stored in the system for a specific account ID.",
+        "operationId": "getAccountDetails",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDetails"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Delete an Account",
+        "description": "Remove an account from the system.",
+        "operationId": "deleteAccount",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account deleted successfully"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/suppliers/accounts/{id}/documents/upload": {
+      "put": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Upload Document to Account",
+        "description": "Upload a document to a specific account for processing and storage.",
+        "operationId": "uploadDocumentToAccount",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Document file to upload (PDF, JPEG, PNG formats supported)"
+                  },
+                  "documentId": {
+                    "type": "string",
+                    "description": "Unique identifier for the document"
+                  },
+                  "documentType": {
+                    "type": "string",
+                    "description": "Type of document being uploaded INVOICE, CONTRACT, CREDIT_NOTE, DEBIT_NOTE, CERTIFICATE, OTHER, LOA"
+                  }
+                },
+                "required": [
+                  "file",
+                  "documentId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document uploaded successfully and sites retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationSite"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - no file uploaded or invalid file format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "noFile": {
+                    "value": {
+                      "type": "error",
+                      "error": {
+                        "type": "invalid_request_error",
+                        "message": "No file uploaded"
+                      }
+                    }
+                  },
+                  "invalidExtension": {
+                    "value": {
+                      "type": "error",
+                      "error": {
+                        "type": "invalid_request_error",
+                        "message": "Could not determine file extension from filename"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/suppliers/accounts/{id}/sites": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get Sites Associated with an Account",
+        "description": "Fetch all utility sites linked to the specified account.",
+        "operationId": "getAccountSites",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sites retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationSite"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/suppliers/references/{referenceId}/accounts": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get Accounts Associated with a Business",
+        "description": "Fetch all accounts associated with a specific business.",
+        "operationId": "getBusinessAccounts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "referenceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Business ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accounts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Account"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/suppliers/documents/sign": {
+      "get": {
+        "tags": [
+          "Supplier Integration"
+        ],
+        "summary": "Get Signed Document URL",
+        "description": "Generate a signed URL for accessing a specific document.",
+        "operationId": "getSignedDocumentURL",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filePath",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path to the document file"
+          },
+          {
+            "in": "query",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Signed URL generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentSignedURL"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/billValidation/parseInvoice": {
+      "post": {
+        "tags": [
+          "Bill Validation",
+          "Invoice Parsing"
+        ],
+        "summary": "Parse invoice",
+        "description": "Uploads and processes a UK energy supplier invoice (PDF or images) to extract invoice details, supply points (MPANs/MPRNs), and associated consumption and charge information.",
+        "operationId": "parseInvoice",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Invoice file(s) to upload (PDF, JPEG, or PNG format). Can upload multiple files."
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              },
+              "encoding": {
+                "file": {
+                  "contentType": "application/pdf, image/jpeg, image/png"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Invoice successfully parsed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ExtractedData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "noFiles": {
+                    "value": {
+                      "error": "No file uploaded"
+                    }
+                  },
+                  "fileSize": {
+                    "value": {
+                      "error": "File too large",
+                      "message": "The uploaded file exceeds the size limit of 50MB."
+                    }
+                  },
+                  "invalidField": {
+                    "value": {
+                      "error": "Invalid field name",
+                      "message": "Files must be uploaded using the field name \"file\"."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Failed to extract data from PDF"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/billValidation/parseContract": {
+      "post": {
+        "tags": [
+          "Bill Validation",
+          "Contract Parsing"
+        ],
+        "summary": "Parse contract",
+        "description": "Upload and process a UK energy supplier contract (PDF or images) to extract contract details, supply points (MPANs/MPRNs), and associated tariff information.",
+        "operationId": "parseContract",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Contract file(s) to upload (PDF, JPEG, or PNG format). Can upload multiple files (up to 10). Either one PDF or one or more images, but not both types together."
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              },
+              "examples": {
+                "pdf": {
+                  "summary": "Upload PDF contract",
+                  "value": {
+                    "file": "@contract.pdf"
+                  }
+                },
+                "image": {
+                  "summary": "Upload image contract",
+                  "value": {
+                    "file": "@contract.png"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contract successfully parsed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "noFiles": {
+                    "value": {
+                      "error": "No file uploaded"
+                    }
+                  },
+                  "invalidFormat": {
+                    "value": {
+                      "error": "Invalid file format",
+                      "message": "Only PDF, JPEG, and PNG files are supported",
+                      "supportedFormats": [
+                        "PDF",
+                        "JPEG/JPG",
+                        "PNG"
+                      ],
+                      "invalidFiles": [
+                        "contract.docx"
+                      ]
+                    }
+                  },
+                  "mixedTypes": {
+                    "value": {
+                      "error": "Mixed file types not allowed",
+                      "message": "Upload either one PDF or one or more images, but not both types together"
+                    }
+                  },
+                  "multiplePdfs": {
+                    "value": {
+                      "error": "Multiple PDFs not allowed",
+                      "message": "Only one PDF file is allowed per request"
+                    }
+                  },
+                  "fileSize": {
+                    "value": {
+                      "error": "File too large",
+                      "message": "The uploaded file exceeds the size limit of 32MB."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Failed to process the document. Please try again."
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error4XX"
+          }
+        }
+      }
+    },
+    "/v1/billValidation/validateInvoice": {
+      "post": {
+        "tags": [
+          "Bill Validation"
+        ],
+        "summary": "Validate invoice",
+        "description": "Validates an invoice against contract data and optional user-provided consumption data. Performs comprehensive validation including consumption matching, meter reading verification, and check against contract.\n\n**Validation Rules:**\n- Meter Reading Logic: Current reading must be ≥ previous reading\n- Contract Matching: Invoice date must fall within contract period\n- MPAN Matching: At least one MPAN must match between invoice and contract\n\n**Data Sources:**\n- Manual uploads from parseInvoice endpoint\n- Invoices from Supplier Integration system\n- User-provided consumption and meter reading data",
+        "operationId": "validateInvoice",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filePath": {
+                    "type": "string",
+                    "description": "File path to the invoice document to validate. Can be from a manually uploaded invoice (parseInvoice endpoint) or from an invoice retrieved via Supplier Integration endpoints.",
+                    "example": "accounts/123456789/invoices/INV2024001.pdf"
+                  },
+                  "userConsumptionData": {
+                    "type": "object",
+                    "description": "Optional user-provided consumption data to validate against the invoice",
+                    "properties": {
+                      "fromDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Start date of consumption period (ISO 8601)",
+                        "example": "2024-06-01T00:00:00.000Z"
+                      },
+                      "toDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "End date of consumption period (ISO 8601)",
+                        "example": "2024-07-01T00:00:00.000Z"
+                      },
+                      "utilityType": {
+                        "type": "string",
+                        "enum": [
+                          "ELECTRICITY",
+                          "GAS",
+                          "BMS"
+                        ],
+                        "description": "Type of utility"
+                      },
+                      "consumption": {
+                        "type": "object",
+                        "description": "Consumption values for the period",
+                        "properties": {
+                          "activeImportKwh": {
+                            "type": "number",
+                            "description": "Active energy imported (main consumption) in kWh",
+                            "example": 5223
+                          },
+                          "activeExportKwh": {
+                            "type": "number",
+                            "description": "Active energy exported in kWh (for sites with generation)"
+                          },
+                          "dayConsumption": {
+                            "type": "number",
+                            "description": "Day/peak consumption in kWh (for dual-rate tariffs)"
+                          },
+                          "nightConsumption": {
+                            "type": "number",
+                            "description": "Night/off-peak consumption in kWh (for dual-rate tariffs)"
+                          },
+                          "reactiveImportKvarh": {
+                            "type": "number",
+                            "description": "Reactive energy imported in kvarh (electricity only)"
+                          },
+                          "reactiveExportKvarh": {
+                            "type": "number",
+                            "description": "Reactive energy exported in kvarh (electricity only)"
+                          },
+                          "apparentKvah": {
+                            "type": "number",
+                            "description": "Apparent energy consumption in kVAh (electricity only)"
+                          }
+                        }
+                      },
+                      "meterReadings": {
+                        "type": "object",
+                        "description": "Optional meter reading information",
+                        "properties": {
+                          "previousReading": {
+                            "type": "number",
+                            "description": "Previous meter reading",
+                            "example": 100000
+                          },
+                          "currentReading": {
+                            "type": "number",
+                            "description": "Current meter reading",
+                            "example": 105223
+                          },
+                          "previousReadingDate": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Date of previous reading (ISO 8601)",
+                            "example": "2024-06-01T00:00:00.000Z"
+                          },
+                          "currentReadingDate": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Date of current reading (ISO 8601)",
+                            "example": "2024-07-01T00:00:00.000Z"
+                          },
+                          "previousReadingType": {
+                            "type": "string",
+                            "enum": [
+                              "actual",
+                              "estimated",
+                              "customer",
+                              "smart"
+                            ],
+                            "description": "Type of previous reading"
+                          },
+                          "currentReadingType": {
+                            "type": "string",
+                            "enum": [
+                              "actual",
+                              "estimated",
+                              "customer",
+                              "smart"
+                            ],
+                            "description": "Type of current reading"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "filePath"
+                ]
+              },
+              "examples": {
+                "basicValidation": {
+                  "summary": "Basic validation without user data",
+                  "value": {
+                    "filePath": "accounts/123456789/invoices/INV2024001.pdf"
+                  }
+                },
+                "withConsumptionData": {
+                  "summary": "Validation with consumption data",
+                  "value": {
+                    "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                    "userConsumptionData": {
+                      "utilityType": "ELECTRICITY",
+                      "consumption": {
+                        "activeImportKwh": 5223
+                      }
+                    }
+                  }
+                },
+                "withMeterReadings": {
+                  "summary": "Validation with meter readings",
+                  "value": {
+                    "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                    "userConsumptionData": {
+                      "utilityType": "ELECTRICITY",
+                      "meterReadings": {
+                        "previousReading": 100000,
+                        "currentReading": 105223,
+                        "previousReadingDate": "2024-06-01T00:00:00.000Z",
+                        "currentReadingDate": "2024-07-01T00:00:00.000Z",
+                        "previousReadingType": "actual",
+                        "currentReadingType": "actual"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation completed - may return passed, failed, or pending status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationResult"
+                },
+                "examples": {
+                  "validationPassed": {
+                    "summary": "Validation Passed",
+                    "value": {
+                      "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                      "status": "passed",
+                      "errors": []
+                    }
+                  },
+                  "validationFailedSingle": {
+                    "summary": "Validation Failed - Single Error",
+                    "value": {
+                      "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                      "status": "failed",
+                      "errors": [
+                        {
+                          "type": "consumptionMismatch",
+                          "description": "Invoice consumption differs from user-provided consumption",
+                          "expected": "6000 kWh",
+                          "actual": "5223 kWh"
+                        }
+                      ]
+                    }
+                  },
+                  "validationFailedMultiple": {
+                    "summary": "Validation Failed - Multiple Errors",
+                    "value": {
+                      "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                      "status": "failed",
+                      "errors": [
+                        {
+                          "type": "consumptionMismatch",
+                          "description": "Invoice consumption differs from user-provided consumption",
+                          "expected": "6000 kWh",
+                          "actual": "5223 kWh"
+                        },
+                        {
+                          "type": "consumptionMismatch",
+                          "description": "Invoice consumption differs from calculated consumption based on meter readings",
+                          "expected": "6033 kWh",
+                          "actual": "5223 kWh"
+                        },
+                        {
+                          "type": "rateMismatch",
+                          "description": "Unit rate differs from contract rate",
+                          "expected": "25.50p/kWh",
+                          "actual": "28.87p/kWh"
+                        }
+                      ]
+                    }
+                  },
+                  "validationPending": {
+                    "summary": "Validation Pending - No Contract",
+                    "value": {
+                      "filePath": "accounts/123456789/invoices/INV2024001.pdf",
+                      "status": "pending",
+                      "errors": [
+                        {
+                          "type": "other",
+                          "description": "Cannot validate - please parse a contract document for the corresponding MPAN and date range",
+                          "expected": "Contract document with matching MPAN and date range",
+                          "actual": "No contract document found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "missingFilePath": {
+                    "summary": "Missing filePath",
+                    "value": {
+                      "error": "File path is required"
+                    }
+                  },
+                  "invalidConsumptionData": {
+                    "summary": "Invalid consumption data",
+                    "value": {
+                      "error": "User-provided consumption cannot be negative"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Invoice not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Invoice not found at specified file path"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from /v1/requestToken endpoint"
+      }
+    },
+    "parameters": {
+      "siteId": {
+        "in": "path",
+        "name": "siteId",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Site identifier"
+      },
+      "lookback": {
+        "in": "query",
+        "name": "lookback",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+[dwmy]$",
+          "example": "1y"
+        },
+        "description": "Time period to look back (e.g. 1d, 1w, 1m, 1y for day, week, month, year)"
+      },
+      "granularity": {
+        "in": "query",
+        "name": "granularity",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "hour",
+            "day",
+            "month",
+            "year"
+          ]
+        },
+        "description": "Data aggregation granularity"
+      },
+      "from": {
+        "in": "query",
+        "name": "from",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-01-01T00:00:00.000Z"
+        },
+        "description": "Start date and time (ISO 8601)"
+      },
+      "to": {
+        "in": "query",
+        "name": "to",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-12-31T23:59:59.999Z"
+        },
+        "description": "End date and time (ISO 8601)"
+      }
+    },
+    "responses": {
+      "Error4XX": {
+        "description": "Client error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "error"
+                  ]
+                },
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request_error"
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "default": "Invalid request"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "AccountsSitesMetersResponse": {
+        "type": "object",
+        "properties": {
+          "businessId": {
+            "type": "string"
+          },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "supplier": {
+                  "type": "string"
+                },
+                "sites": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "accountId": {
+                        "type": "string"
+                      },
+                      "referenceId": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "name": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "address": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "supplyTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "electricity",
+                            "gas"
+                          ]
+                        }
+                      },
+                      "meters": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "mpanMprn": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "meterSerialNumber": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "utilityType": {
+                              "type": "string",
+                              "enum": [
+                                "electricity",
+                                "gas"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "utilityType"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "accountId",
+                      "supplyTypes",
+                      "meters"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "supplier",
+                "sites"
+              ]
+            }
+          }
+        },
+        "required": [
+          "businessId",
+          "accounts"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "error"
+            ],
+            "description": "Error type indicator"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "invalid_request_error"
+                ],
+                "description": "Specific error type"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable error message"
+              }
+            },
+            "required": [
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User identifier"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User email"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name"
+          },
+          "organisation": {
+            "type": "string",
+            "description": "User organisation"
+          },
+          "role": {
+            "type": "string",
+            "description": "User role in the organisation"
+          }
+        },
+        "required": [
+          "id",
+          "email"
+        ]
+      },
+      "Site": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Site name"
+          },
+          "address": {
+            "type": "string",
+            "description": "Site address"
+          },
+          "postcode": {
+            "type": "string",
+            "description": "Site postcode"
+          },
+          "region": {
+            "type": "string",
+            "description": "Geographic region"
+          },
+          "floorArea": {
+            "type": "number",
+            "description": "Floor area in square meters"
+          },
+          "buildingType": {
+            "type": "string",
+            "description": "Type of building"
+          },
+          "meterCount": {
+            "type": "integer",
+            "description": "Number of meters at the site"
+          },
+          "utilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ELECTRICITY",
+                "GAS",
+                "WATER"
+              ]
+            },
+            "description": "Utilities available at the site"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ],
+            "description": "Site status"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "address"
+        ]
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Address identifier"
+          },
+          "address": {
+            "type": "string",
+            "description": "Full address"
+          },
+          "postcode": {
+            "type": "string",
+            "description": "Postal code"
+          },
+          "mpan": {
+            "type": "string",
+            "description": "Meter Point Administration Number for electricity"
+          },
+          "mprn": {
+            "type": "string",
+            "description": "Meter Point Reference Number for gas"
+          }
+        },
+        "required": [
+          "id",
+          "address"
+        ]
+      },
+      "PeakDemand": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "peak": {
+            "type": "number",
+            "description": "Peak power demand in kW"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of peak demand"
+          },
+          "averageDemand": {
+            "type": "number",
+            "description": "Average power demand in kW"
+          },
+          "loadFactor": {
+            "type": "number",
+            "description": "Load factor as a percentage"
+          }
+        },
+        "required": [
+          "siteId",
+          "peak"
+        ]
+      },
+      "ConsumptionAndEmissions": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period"
+          },
+          "consumption": {
+            "type": "number",
+            "description": "Energy consumption in kWh"
+          },
+          "emissions": {
+            "type": "number",
+            "description": "Carbon emissions in kg CO2e"
+          },
+          "emissionsIntensity": {
+            "type": "number",
+            "description": "Emissions intensity in kg CO2e/kWh"
+          },
+          "comparisonPeriod": {
+            "type": "string",
+            "description": "Previous period for comparison"
+          },
+          "previousConsumption": {
+            "type": "number",
+            "description": "Previous period consumption in kWh"
+          },
+          "previousEmissions": {
+            "type": "number",
+            "description": "Previous period emissions in kg CO2e"
+          },
+          "consumptionChange": {
+            "type": "number",
+            "description": "Percentage change in consumption"
+          },
+          "emissionsChange": {
+            "type": "number",
+            "description": "Percentage change in emissions"
+          }
+        },
+        "required": [
+          "siteId",
+          "consumption",
+          "emissions"
+        ]
+      },
+      "SpendAndSavings": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period"
+          },
+          "spend": {
+            "type": "number",
+            "description": "Energy spend in GBP"
+          },
+          "savings": {
+            "type": "number",
+            "description": "Cost savings in GBP"
+          },
+          "comparisonPeriod": {
+            "type": "string",
+            "description": "Previous period for comparison"
+          },
+          "previousSpend": {
+            "type": "number",
+            "description": "Previous period spend in GBP"
+          },
+          "spendChange": {
+            "type": "number",
+            "description": "Percentage change in spend"
+          }
+        },
+        "required": [
+          "siteId",
+          "spend"
+        ]
+      },
+      "Tariff": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "supplier": {
+            "type": "string",
+            "description": "Energy supplier name"
+          },
+          "utility": {
+            "type": "string",
+            "enum": [
+              "ELECTRICITY",
+              "GAS"
+            ],
+            "description": "Utility type"
+          },
+          "tariffName": {
+            "type": "string",
+            "description": "Tariff name"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Tariff start date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Tariff end date"
+          },
+          "rates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TariffRate"
+            },
+            "description": "Tariff rates"
+          }
+        },
+        "required": [
+          "siteId",
+          "supplier",
+          "utility"
+        ]
+      },
+      "TariffRate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Rate name"
+          },
+          "rate": {
+            "type": "number",
+            "description": "Price per unit in GBP"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time",
+            "description": "Rate start time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "time",
+            "description": "Rate end time"
+          },
+          "daysOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+                "SUNDAY"
+              ]
+            },
+            "description": "Days of the week this rate applies"
+          }
+        },
+        "required": [
+          "name",
+          "rate"
+        ]
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Invoice identifier"
+          },
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "utility": {
+            "type": "string",
+            "enum": [
+              "ELECTRICITY",
+              "GAS",
+              "WATER"
+            ],
+            "description": "Utility type"
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "description": "Invoice number"
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Issue date"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Due date"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Service period start date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Service period end date"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Invoice amount in GBP"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PAID",
+              "PENDING",
+              "OVERDUE"
+            ],
+            "description": "Invoice status"
+          },
+          "pdfUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to download invoice PDF"
+          }
+        },
+        "required": [
+          "id",
+          "siteId",
+          "invoiceNumber",
+          "amount"
+        ]
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Report identifier"
+          },
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Report name"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CONSUMPTION",
+              "COST",
+              "EMISSIONS",
+              "EFFICIENCY"
+            ],
+            "description": "Report type"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Report creation date and time"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period"
+          },
+          "downloadUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to download the report"
+          }
+        },
+        "required": [
+          "id",
+          "siteId",
+          "name",
+          "type"
+        ]
+      },
+      "ValidationResult": {
+        "type": "object",
+        "properties": {
+          "filePath": {
+            "type": "string",
+            "description": "File path to the validated invoice document"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "failed",
+              "pending"
+            ],
+            "description": "Validation status - passed means all validations succeeded, failed means discrepancies were found, pending means validation could not be completed (e.g., missing contract data)"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "consumptionMismatch",
+                    "rateMismatch",
+                    "standingChargeError",
+                    "dayRateMismatch",
+                    "nightRateMismatch",
+                    "capacityChargeError",
+                    "vatError",
+                    "cclError",
+                    "dateMismatch",
+                    "other"
+                  ],
+                  "description": "Type of validation error detected"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Human-readable description of the validation error"
+                },
+                "expected": {
+                  "type": "string",
+                  "description": "Expected value or condition"
+                },
+                "actual": {
+                  "type": "string",
+                  "description": "Actual value found that caused the validation error"
+                }
+              }
+            },
+            "description": "Array of validation errors found. Empty array indicates validation passed."
+          }
+        }
+      },
+      "ParsedInvoice": {
+        "type": "object",
+        "properties": {
+          "filePath": {
+            "type": "string",
+            "description": "File path to the invoice document"
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the energy supplier"
+          },
+          "supplierAccountNumber": {
+            "type": "string",
+            "description": "Account number with the supplier"
+          },
+          "supplyType": {
+            "type": "string",
+            "enum": [
+              "electricity",
+              "gas",
+              "water",
+              "unknown"
+            ],
+            "description": "Type of utility supply"
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "description": "Invoice reference number"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Name of the customer on the invoice"
+          },
+          "mpanMprn": {
+            "type": "string",
+            "description": "MPAN (13 digits) for electricity or MPRN (6-11 digits) for gas"
+          },
+          "invoiceDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date invoice was issued (YYYY-MM-DD)"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Payment due date (YYYY-MM-DD)"
+          },
+          "chargeStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Start of billing period (YYYY-MM-DD)"
+          },
+          "chargeEndDate": {
+            "type": "string",
+            "format": "date",
+            "description": "End of billing period (YYYY-MM-DD)"
+          },
+          "meterSerialNumber": {
+            "type": "string",
+            "description": "Meter serial number"
+          },
+          "siteAddress": {
+            "type": "string",
+            "description": "Site address where meter is located"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "Method of payment for this invoice"
+          },
+          "standingCharge": {
+            "type": "number",
+            "description": "Standing charge amount in pence per day"
+          },
+          "standingChargeType": {
+            "type": "string",
+            "description": "Type of standing charge"
+          },
+          "cclRate": {
+            "type": "number",
+            "description": "Climate Change Levy rate in p/kWh"
+          },
+          "vatRate": {
+            "type": "number",
+            "description": "VAT rate in percentage"
+          },
+          "readFromDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Start meter reading date (YYYY-MM-DD)"
+          },
+          "readFromType": {
+            "type": "string",
+            "enum": [
+              "actual",
+              "estimated",
+              "customer",
+              "smart"
+            ],
+            "description": "Type of start reading"
+          },
+          "readToDate": {
+            "type": "string",
+            "format": "date",
+            "description": "End meter reading date (YYYY-MM-DD)"
+          },
+          "readToType": {
+            "type": "string",
+            "enum": [
+              "actual",
+              "estimated",
+              "customer",
+              "smart"
+            ],
+            "description": "Type of end reading"
+          },
+          "consumption": {
+            "type": "number",
+            "description": "Total consumption in kWh (null if day/night rates apply)"
+          },
+          "dayConsumption": {
+            "type": "number",
+            "description": "Day/peak consumption in kWh"
+          },
+          "nightConsumption": {
+            "type": "number",
+            "description": "Night/off-peak consumption in kWh"
+          },
+          "unitRate": {
+            "type": "number",
+            "description": "Single rate tariff in p/kWh (null if day/night rates apply)"
+          },
+          "dayUnitRate": {
+            "type": "number",
+            "description": "Day/peak unit rate in p/kWh"
+          },
+          "nightUnitRate": {
+            "type": "number",
+            "description": "Night/off-peak unit rate in p/kWh"
+          },
+          "correctionFactor": {
+            "type": "number",
+            "description": "Gas correction factor"
+          },
+          "calorificValue": {
+            "type": "number",
+            "description": "Gas calorific value"
+          },
+          "totalUnitCharge": {
+            "type": "number",
+            "description": "Total charge for units consumed in £"
+          },
+          "totalStandingCharge": {
+            "type": "number",
+            "description": "Total standing charge amount in £"
+          },
+          "capacityCharge": {
+            "type": "number",
+            "description": "Total capacity charge in £ (for electricity only)"
+          },
+          "amountDueNetOfVat": {
+            "type": "number",
+            "description": "Total amount due before VAT in £"
+          },
+          "vat": {
+            "type": "number",
+            "description": "VAT amount in £"
+          },
+          "totalAmount": {
+            "type": "number",
+            "description": "Total invoice amount including VAT in £"
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence score of the extraction (0-100)"
+          }
+        }
+      },
+      "ParsedDocument": {
+        "type": "object",
+        "required": [
+          "id",
+          "filePath",
+          "extension"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Document ID"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "File path to the document"
+          },
+          "extension": {
+            "type": "string",
+            "description": "Document extension"
+          }
+        }
+      },
+      "UpdateAccountRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email for utility supplier account"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password for utility supplier account"
+          }
+        }
+      },
+      "CreateAccountRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "referenceId",
+          "supplier"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email for utility supplier account"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password for utility supplier account"
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "Business identifier"
+          },
+          "supplier": {
+            "type": "string",
+            "description": "Type of utility supplier"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional expiration date for account credentials"
+          },
+          "isTest": {
+            "type": "boolean",
+            "description": "Optional. Marks the account as a test account. Test accounts are deleted after 30 days."
+          }
+        }
+      },
+      "CreateAccountResponse": {
+        "type": "object",
+        "properties": {
+          "referenceId": {
+            "type": "string",
+            "description": "Reference identifier"
+          },
+          "id": {
+            "type": "string",
+            "description": "Account identifier"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASSING",
+              "FAILING"
+            ],
+            "description": "Account connection status"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for failing"
+          },
+          "isTest": {
+            "type": "boolean",
+            "description": "Test accounts are deleted after 30 days."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date the account was created"
+          }
+        }
+      },
+      "AccountDetails": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASSING",
+              "FAILING"
+            ],
+            "description": "Account connection status"
+          },
+          "id": {
+            "type": "string",
+            "description": "Account identifier"
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "Business identifier"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for failing"
+          }
+        }
+      },
+      "ParsedContract": {
+        "type": "object",
+        "properties": {
+          "contractId": {
+            "type": "string",
+            "description": "Unique contract identifier generated by the system"
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the energy supplier"
+          },
+          "supplierCode": {
+            "type": "string",
+            "description": "Supplier's identifier code"
+          },
+          "supplierAccountNumber": {
+            "type": "string",
+            "description": "Account number with the supplier"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Name of the customer on the contract"
+          },
+          "contractNumber": {
+            "type": "string",
+            "description": "Official contract reference number"
+          },
+          "contractStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract start date (YYYY-MM-DD)"
+          },
+          "contractEndDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract end date (YYYY-MM-DD)"
+          },
+          "isFixedContract": {
+            "type": "boolean",
+            "description": "Whether the contract has fixed rates"
+          },
+          "isMarketRates": {
+            "type": "boolean",
+            "description": "Whether rates follow wholesale market prices"
+          },
+          "isMicroBusiness": {
+            "type": "boolean",
+            "description": "Whether the customer is classified as a micro business"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "The agreed payment method"
+          },
+          "contractTermMonths": {
+            "type": "integer",
+            "description": "Duration of the contract in months"
+          },
+          "cclRate": {
+            "type": "number",
+            "description": "Climate Change Levy rate in p/kWh"
+          },
+          "vatRate": {
+            "type": "number",
+            "description": "VAT rate in percentage"
+          },
+          "supplyPoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "mpanMprn": {
+                  "type": "string",
+                  "description": "MPAN (13 digits) for electricity or MPRN (6-11 digits) for gas"
+                },
+                "supplyType": {
+                  "type": "string",
+                  "enum": [
+                    "electricity",
+                    "gas"
+                  ],
+                  "description": "Type of utility supply"
+                },
+                "meterSerialNumber": {
+                  "type": "string",
+                  "description": "Meter serial number"
+                },
+                "siteName": {
+                  "type": "string",
+                  "description": "Name or identifier of the site"
+                },
+                "siteAddress": {
+                  "type": "string",
+                  "description": "Full address of the supply point"
+                },
+                "standingCharge": {
+                  "type": "number",
+                  "description": "Standing charge amount in £ per day"
+                },
+                "standingChargeType": {
+                  "type": "string",
+                  "description": "Type of standing charge"
+                },
+                "unitRate": {
+                  "type": "number",
+                  "description": "Single rate tariff in p/kWh (null if day/night rates apply)"
+                },
+                "dayUnitRate": {
+                  "type": "number",
+                  "description": "Day/peak unit rate in p/kWh"
+                },
+                "nightUnitRate": {
+                  "type": "number",
+                  "description": "Night/off-peak unit rate in p/kWh"
+                },
+                "estimatedAnnualConsumption": {
+                  "type": "number",
+                  "description": "Estimated annual consumption in kWh"
+                },
+                "maximumImportCapacity": {
+                  "type": "number",
+                  "description": "Maximum import capacity in kVA (for electricity only)"
+                },
+                "capacityRate": {
+                  "type": "number",
+                  "description": "Capacity charge in p/kVA per day (for electricity only)"
+                },
+                "directDebitDiscount": {
+                  "type": "number",
+                  "description": "Percentage discount if applicable"
+                },
+                "brokerName": {
+                  "type": "string",
+                  "description": "Name of the broker if contract was arranged through one"
+                },
+                "brokerUplift": {
+                  "type": "number",
+                  "description": "Broker's uplift in p/kWh if specified"
+                }
+              }
+            },
+            "description": "Details of individual meters covered by this contract, each with their specific terms and rates"
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence score of the extraction (0-100)"
+          }
+        },
+        "required": [
+          "contractId",
+          "contractNumber",
+          "supplierName",
+          "confidence"
+        ]
+      },
+      "IntegrationInvoice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique invoice identifier"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "Path to stored invoice file"
+          },
+          "extension": {
+            "type": "string",
+            "description": "File extension of the invoice document"
+          },
+          "mpanMprn": {
+            "type": "string",
+            "description": "MPAN (13 digits) for electricity or MPRN (6-11 digits) for gas"
+          },
+          "supplyType": {
+            "type": "string",
+            "enum": [
+              "electricity",
+              "gas"
+            ],
+            "description": "Type of utility supply"
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the energy supplier"
+          },
+          "supplierAccountNumber": {
+            "type": "string",
+            "description": "Account number with the supplier"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Name of the customer on the invoice"
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "description": "Invoice reference number"
+          },
+          "invoiceDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date invoice was issued (YYYY-MM-DD)"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Payment due date (YYYY-MM-DD)"
+          },
+          "chargeStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Start of billing period (YYYY-MM-DD)"
+          },
+          "chargeEndDate": {
+            "type": "string",
+            "format": "date",
+            "description": "End of billing period (YYYY-MM-DD)"
+          },
+          "meterSerialNumber": {
+            "type": "string",
+            "description": "Meter serial number"
+          },
+          "siteAddress": {
+            "type": "string",
+            "description": "Site address where meter is located"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "Method of payment for this invoice"
+          },
+          "standingCharge": {
+            "type": "number",
+            "description": "Standing charge amount in pence per day"
+          },
+          "standingChargeType": {
+            "type": "string",
+            "description": "Type of standing charge"
+          },
+          "cclRate": {
+            "type": "number",
+            "description": "Climate Change Levy rate in p/kWh"
+          },
+          "vatRate": {
+            "type": "number",
+            "description": "VAT rate in percentage"
+          },
+          "readFromDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Start meter reading date (YYYY-MM-DD)"
+          },
+          "readFromType": {
+            "type": "string",
+            "enum": [
+              "actual",
+              "estimated",
+              "customer",
+              "smart"
+            ],
+            "description": "Type of start reading"
+          },
+          "readToDate": {
+            "type": "string",
+            "format": "date",
+            "description": "End meter reading date (YYYY-MM-DD)"
+          },
+          "readToType": {
+            "type": "string",
+            "enum": [
+              "actual",
+              "estimated",
+              "customer",
+              "smart"
+            ],
+            "description": "Type of end reading"
+          },
+          "consumption": {
+            "type": "number",
+            "description": "Total consumption in kWh (null if day/night rates apply)"
+          },
+          "dayConsumption": {
+            "type": "number",
+            "description": "Day/peak consumption in kWh"
+          },
+          "nightConsumption": {
+            "type": "number",
+            "description": "Night/off-peak consumption in kWh"
+          },
+          "unitRate": {
+            "type": "number",
+            "description": "Single rate tariff in p/kWh (null if day/night rates apply)"
+          },
+          "dayUnitRate": {
+            "type": "number",
+            "description": "Day/peak unit rate in p/kWh"
+          },
+          "nightUnitRate": {
+            "type": "number",
+            "description": "Night/off-peak unit rate in p/kWh"
+          },
+          "correctionFactor": {
+            "type": "number",
+            "description": "Gas correction factor"
+          },
+          "calorificValue": {
+            "type": "number",
+            "description": "Gas calorific value"
+          },
+          "totalUnitCharge": {
+            "type": "number",
+            "description": "Total charge for units consumed in £"
+          },
+          "totalStandingCharge": {
+            "type": "number",
+            "description": "Total standing charge amount in £"
+          },
+          "capacityCharge": {
+            "type": "number",
+            "description": "Total capacity charge in £ (for electricity only)"
+          },
+          "amountDueNetOfVat": {
+            "type": "number",
+            "description": "Total amount due before VAT in £"
+          },
+          "vat": {
+            "type": "number",
+            "description": "VAT amount in £"
+          },
+          "totalAmount": {
+            "type": "number",
+            "description": "Total invoice amount including VAT in £"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid",
+              "overdue",
+              "disputed"
+            ],
+            "description": "Current payment status of the invoice"
+          },
+          "validationStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "validated",
+              "issues_detected"
+            ],
+            "description": "Status of invoice validation process"
+          }
+        }
+      },
+      "IntegrationContract": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique contract identifier"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "Path to stored contract file"
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the energy supplier"
+          },
+          "supplierCode": {
+            "type": "string",
+            "description": "Supplier's identifier code"
+          },
+          "supplierAccountNumber": {
+            "type": "string",
+            "description": "Account number with the supplier"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Name of the customer on the contract"
+          },
+          "contractNumber": {
+            "type": "string",
+            "description": "Official contract reference number"
+          },
+          "contractStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract start date (YYYY-MM-DD)"
+          },
+          "contractEndDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract end date (YYYY-MM-DD)"
+          },
+          "isFixedContract": {
+            "type": "boolean",
+            "description": "Whether the contract has fixed rates"
+          },
+          "isMarketRates": {
+            "type": "boolean",
+            "description": "Whether rates follow wholesale market prices"
+          },
+          "isMicroBusiness": {
+            "type": "boolean",
+            "description": "Whether the customer is classified as a micro business"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "The agreed payment method"
+          },
+          "contractTermMonths": {
+            "type": "integer",
+            "description": "Duration of the contract in months"
+          },
+          "cclRate": {
+            "type": "number",
+            "description": "Climate Change Levy rate in p/kWh"
+          },
+          "vatRate": {
+            "type": "number",
+            "description": "VAT rate in percentage"
+          },
+          "supplyPoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "mpanMprn": {
+                  "type": "string",
+                  "description": "MPAN (13 digits) for electricity or MPRN (6-11 digits) for gas"
+                },
+                "supplyType": {
+                  "type": "string",
+                  "enum": [
+                    "electricity",
+                    "gas"
+                  ],
+                  "description": "Type of utility supply"
+                },
+                "meterSerialNumber": {
+                  "type": "string",
+                  "description": "Meter serial number"
+                },
+                "siteName": {
+                  "type": "string",
+                  "description": "Name or identifier of the site"
+                },
+                "siteAddress": {
+                  "type": "string",
+                  "description": "Full address of the supply point"
+                },
+                "standingCharge": {
+                  "type": "number",
+                  "description": "Standing charge amount in £ per day"
+                },
+                "standingChargeType": {
+                  "type": "string",
+                  "description": "Type of standing charge"
+                },
+                "unitRate": {
+                  "type": "number",
+                  "description": "Single rate tariff in p/kWh (null if day/night rates apply)"
+                },
+                "dayUnitRate": {
+                  "type": "number",
+                  "description": "Day/peak unit rate in p/kWh"
+                },
+                "nightUnitRate": {
+                  "type": "number",
+                  "description": "Night/off-peak unit rate in p/kWh"
+                },
+                "estimatedAnnualConsumption": {
+                  "type": "number",
+                  "description": "Estimated annual consumption in kWh"
+                },
+                "maximumImportCapacity": {
+                  "type": "number",
+                  "description": "Maximum import capacity in kVA (for electricity only)"
+                },
+                "capacityRate": {
+                  "type": "number",
+                  "description": "Capacity charge in p/kVA per day (for electricity only)"
+                },
+                "directDebitDiscount": {
+                  "type": "number",
+                  "description": "Percentage discount if applicable"
+                },
+                "brokerName": {
+                  "type": "string",
+                  "description": "Name of the broker if contract was arranged through one"
+                },
+                "brokerUplift": {
+                  "type": "number",
+                  "description": "Broker's uplift in p/kWh if specified"
+                }
+              }
+            },
+            "description": "Details of individual meters covered by this contract, each with their specific terms and rates"
+          }
+        }
+      },
+      "IntegrationSite": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "accountId": {
+            "type": "string",
+            "description": "Account identifier"
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "Reference identifier"
+          },
+          "invoices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntegrationInvoice"
+            },
+            "description": "List of invoices for the site"
+          },
+          "contracts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntegrationContract"
+            },
+            "description": "List of contracts for the site"
+          },
+          "creditNotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of credit notes for the site"
+          },
+          "debitNotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of debit notes for the site"
+          },
+          "certificates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of certificates for the site"
+          },
+          "others": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of other documents for the site"
+          },
+          "loas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedDocument"
+            },
+            "description": "List of loas for the site"
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Account identifier"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Project identifier"
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "Business identifier"
+          },
+          "expiryDate": {
+            "type": "string",
+            "description": "Account credentials expiry date"
+          },
+          "status": {
+            "type": "string",
+            "description": "Account status"
+          },
+          "supplier": {
+            "type": "string",
+            "description": "Utility supplier name"
+          },
+          "sites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntegrationSite"
+            },
+            "description": "List of sites associated with this account"
+          }
+        }
+      },
+      "DocumentSignedURL": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Signed URL for secure document access"
+          }
+        }
+      },
+      "Supplier": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the supplier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the supplier"
+          },
+          "icon": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the supplier's logo"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "icon"
+        ]
+      },
+      "ContractData": {
+        "type": "object",
+        "description": "Extracted contract data. Many fields are optional and depend on what can be extracted from the document. Only 'customerType' and 'supplyPoints' are always present (supplyPoints may be an empty array).",
+        "properties": {
+          "filePath": {
+            "type": "string",
+            "description": "Generated file path for the contract"
+          },
+          "customerType": {
+            "type": "string",
+            "enum": [
+              "domestic",
+              "non_domestic"
+            ],
+            "description": "Customer classification - residential (domestic) or business (non_domestic)"
+          },
+          "supplierAccountNumber": {
+            "type": "string",
+            "description": "Supplier account number"
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the supplier"
+          },
+          "supplierId": {
+            "type": "string",
+            "description": "Internal supplier identifier"
+          },
+          "supplierCode": {
+            "type": "string",
+            "description": "Supplier code"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Name of the customer"
+          },
+          "billingAddress": {
+            "type": "string",
+            "description": "Address where bills are sent (customer's address)"
+          },
+          "contractNumber": {
+            "type": "string",
+            "description": "Contract number"
+          },
+          "contractStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract start date in YYYY-MM-DD format"
+          },
+          "contractEndDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Contract end date in YYYY-MM-DD format"
+          },
+          "cclRate": {
+            "type": "number",
+            "description": "Climate Change Levy (CCL) rate in pence per kWh"
+          },
+          "isFixedContract": {
+            "type": "boolean",
+            "description": "Whether this is a fixed-rate contract"
+          },
+          "isMarketRates": {
+            "type": "boolean",
+            "description": "Whether this contract uses market rates"
+          },
+          "isMicroBusiness": {
+            "type": "boolean",
+            "description": "Whether the customer is classified as a micro business"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "Payment method (e.g., 'Direct Debit', 'Credit Card')"
+          },
+          "contractTermMonths": {
+            "type": "number",
+            "description": "Contract term in months"
+          },
+          "supplyPoints": {
+            "type": "array",
+            "description": "Array of supply points in the contract",
+            "items": {
+              "type": "object",
+              "properties": {
+                "mpanMprn": {
+                  "type": "string",
+                  "description": "MPAN (electricity) or MPRN (gas) identifier. MPAN must be exactly 13 digits, MPRN must be 6-10 digits"
+                },
+                "supplyType": {
+                  "type": "string",
+                  "enum": [
+                    "electricity",
+                    "gas"
+                  ],
+                  "description": "Type of supply - 'electricity' for MPAN, 'gas' for MPRN"
+                },
+                "meterSerialNumber": {
+                  "type": "string",
+                  "description": "Meter serial number"
+                },
+                "standingCharge": {
+                  "type": "number",
+                  "description": "Standing charge in pence per day (normalized)"
+                },
+                "standingChargeType": {
+                  "type": "string",
+                  "description": "Standing charge type (normalized to 'p/day')"
+                },
+                "unitRate": {
+                  "type": "number",
+                  "description": "Single unit rate in pence per kWh (use for single-rate meters only)"
+                },
+                "dayUnitRate": {
+                  "type": "number",
+                  "description": "Day unit rate in pence per kWh (use for dual-rate meters)"
+                },
+                "nightUnitRate": {
+                  "type": "number",
+                  "description": "Night unit rate in pence per kWh (use for dual-rate meters)"
+                },
+                "estimatedAnnualConsumption": {
+                  "type": "number",
+                  "description": "Estimated annual consumption in kWh"
+                },
+                "maximumImportCapacity": {
+                  "type": "number",
+                  "description": "Maximum import capacity in kVA (electricity only)"
+                },
+                "capacityRate": {
+                  "type": "number",
+                  "description": "Capacity rate in pence per kVA per day (electricity only)"
+                },
+                "siteName": {
+                  "type": "string",
+                  "description": "Name of the site"
+                },
+                "siteAddress": {
+                  "type": "string",
+                  "description": "Address of the site"
+                },
+                "directDebitDiscount": {
+                  "type": "number",
+                  "description": "Direct debit discount percentage"
+                },
+                "brokerName": {
+                  "type": "string",
+                  "description": "Name of the energy broker"
+                },
+                "brokerUplift": {
+                  "type": "number",
+                  "description": "Broker uplift in pence per kWh"
+                },
+                "vatRate": {
+                  "type": "number",
+                  "description": "VAT rate percentage"
+                }
+              },
+              "required": [
+                "mpanMprn",
+                "supplyType"
+              ]
+            }
+          }
+        },
+        "required": [
+          "customerType",
+          "supplyPoints"
+        ]
+      },
+      "SupplyPoint": {
+        "type": "object",
+        "properties": {
+          "mpanMprn": {
+            "type": "string",
+            "description": "For electricity (MPAN), this is the core 13 digits. For gas (MPRN), this is the 6-11 digit number."
+          },
+          "supplyType": {
+            "type": "string",
+            "enum": [
+              "electricity",
+              "gas"
+            ],
+            "description": "Type of utility supply"
+          },
+          "meterSerialNumber": {
+            "type": "string",
+            "description": "Serial number of the meter"
+          },
+          "siteAddress": {
+            "type": "string",
+            "description": "Full address of the supply location"
+          },
+          "standingCharge": {
+            "type": "number",
+            "format": "float",
+            "description": "Standing charge in pence per day"
+          },
+          "standingChargeType": {
+            "type": "string",
+            "description": "Type of standing charge applied"
+          },
+          "consumptionkWh": {
+            "type": "number",
+            "format": "float",
+            "description": "Active energy consumption in kilowatt-hours (kWh)"
+          },
+          "consumptionKvarh": {
+            "type": "number",
+            "format": "float",
+            "description": "Reactive energy consumption in kilovar-hours (kvarh)"
+          },
+          "consumptionKvah": {
+            "type": "number",
+            "format": "float",
+            "description": "Apparent energy consumption in kilovolt-ampere-hours (kVAh)"
+          },
+          "dayConsumption": {
+            "type": "number",
+            "format": "float",
+            "description": "Day/peak consumption in kWh"
+          },
+          "nightConsumption": {
+            "type": "number",
+            "format": "float",
+            "description": "Night/off-peak consumption in kWh"
+          },
+          "unitRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Unit rate in p/kWh (for single-rate tariffs)"
+          },
+          "dayUnitRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Day/peak unit rate in p/kWh (for dual-rate tariffs)"
+          },
+          "nightUnitRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Night/off-peak unit rate in p/kWh (for dual-rate tariffs)"
+          },
+          "correctionFactor": {
+            "type": "number",
+            "format": "float",
+            "description": "Correction factor applied to gas consumption"
+          },
+          "calorificValue": {
+            "type": "number",
+            "format": "float",
+            "description": "Calorific value for gas meters"
+          },
+          "totalUnitCharge": {
+            "type": "number",
+            "format": "float",
+            "description": "Total charge for consumption in £"
+          },
+          "totalStandingCharge": {
+            "type": "number",
+            "format": "float",
+            "description": "Total standing charge in £"
+          },
+          "capacityCharge": {
+            "type": "number",
+            "format": "float",
+            "description": "Capacity charge in £"
+          },
+          "currentMeterReading": {
+            "type": "number",
+            "format": "float",
+            "description": "Current meter reading in kWh"
+          },
+          "previousMeterReading": {
+            "type": "number",
+            "format": "float",
+            "description": "Previous meter reading in kWh"
+          },
+          "readFromDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of the previous meter reading (YYYY-MM-DD)"
+          },
+          "readFromType": {
+            "type": "string",
+            "enum": [
+              "actual",
+              "estimated"
+            ],
+            "description": "Type of previous meter reading"
+          },
+          "readToDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of the current meter reading (YYYY-MM-DD)"
+          },
+          "readToType": {
+            "type": "string",
+            "enum": [
+              "actual",
+              "estimated"
+            ],
+            "description": "Type of current meter reading"
+          }
+        },
+        "required": [
+          "mpanMprn",
+          "supplyType"
+        ]
+      },
+      "ExtractedData": {
+        "type": "object",
+        "description": "Extracted invoice data. Many fields are optional and depend on what can be extracted from the document. Only 'documentType', 'isStatement', and 'items' are always present.",
+        "properties": {
+          "filePath": {
+            "type": "string",
+            "description": "Generated file path for the invoice"
+          },
+          "documentType": {
+            "type": "string",
+            "enum": [
+              "invoice",
+              "statement",
+              "credit_note",
+              "debit_note"
+            ],
+            "description": "Type of document"
+          },
+          "isStatement": {
+            "type": "boolean",
+            "description": "Whether the document is a statement"
+          },
+          "supplierName": {
+            "type": "string",
+            "description": "Name of the supplier"
+          },
+          "supplierCode": {
+            "type": "string",
+            "description": "Supplier code"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Name of the customer"
+          },
+          "billingAddress": {
+            "type": "string",
+            "description": "Billing address"
+          },
+          "items": {
+            "type": "array",
+            "description": "Array of invoice items",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemType": {
+                  "type": "string",
+                  "enum": [
+                    "invoice",
+                    "credit",
+                    "debit"
+                  ],
+                  "description": "Type of invoice item"
+                },
+                "invoiceNumber": {
+                  "type": "string",
+                  "description": "Invoice number"
+                },
+                "invoiceDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "Invoice date in YYYY-MM-DD format"
+                },
+                "dueDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "Due date in YYYY-MM-DD format"
+                },
+                "netAmount": {
+                  "type": "number",
+                  "description": "Net amount (before VAT)"
+                },
+                "vatAmount": {
+                  "type": "number",
+                  "description": "VAT amount"
+                },
+                "totalAmount": {
+                  "type": "number",
+                  "description": "Total amount (including VAT)"
+                },
+                "supplyPoints": {
+                  "type": "array",
+                  "description": "Array of supply points on this invoice",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "mpanMprn": {
+                        "type": "string",
+                        "description": "MPAN (electricity) or MPRN (gas) identifier"
+                      },
+                      "supplyType": {
+                        "type": "string",
+                        "enum": [
+                          "electricity",
+                          "gas"
+                        ],
+                        "description": "Type of supply - 'electricity' for MPAN, 'gas' for MPRN"
+                      },
+                      "siteAddress": {
+                        "type": "string",
+                        "description": "Site address for this supply point"
+                      },
+                      "consumption": {
+                        "type": "object",
+                        "description": "Consumption data",
+                        "properties": {
+                          "total": {
+                            "type": "number",
+                            "nullable": true,
+                            "description": "Total consumption"
+                          },
+                          "unit": {
+                            "type": "string",
+                            "description": "Unit of consumption (e.g., 'kWh')"
+                          },
+                          "day": {
+                            "type": "number",
+                            "nullable": true,
+                            "description": "Day consumption (for dual-rate meters)"
+                          },
+                          "night": {
+                            "type": "number",
+                            "nullable": true,
+                            "description": "Night consumption (for dual-rate meters)"
+                          },
+                          "reactive": {
+                            "type": "number",
+                            "nullable": true,
+                            "description": "Reactive consumption"
+                          },
+                          "apparent": {
+                            "type": "number",
+                            "nullable": true,
+                            "description": "Apparent consumption"
+                          }
+                        },
+                        "required": [
+                          "total",
+                          "unit"
+                        ]
+                      },
+                      "charges": {
+                        "type": "array",
+                        "description": "Array of charges for this supply point",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "category": {
+                              "type": "string",
+                              "enum": [
+                                "energy",
+                                "standing",
+                                "distribution",
+                                "transmission",
+                                "environmental",
+                                "capacity",
+                                "metering",
+                                "adjustment",
+                                "other"
+                              ],
+                              "description": "Category of charge"
+                            },
+                            "description": {
+                              "type": "string",
+                              "description": "Description of the charge"
+                            },
+                            "quantity": {
+                              "type": "number",
+                              "description": "Quantity for this charge"
+                            },
+                            "unit": {
+                              "type": "string",
+                              "description": "Unit of quantity (e.g., 'kWh', 'days')"
+                            },
+                            "rate": {
+                              "type": "string",
+                              "description": "Rate as a string"
+                            },
+                            "rateUnit": {
+                              "type": "string",
+                              "description": "Unit of rate (e.g., 'p/kWh')"
+                            },
+                            "vatRate": {
+                              "type": "number",
+                              "description": "VAT rate percentage"
+                            },
+                            "netAmount": {
+                              "type": "number",
+                              "description": "Net amount for this charge"
+                            }
+                          },
+                          "required": [
+                            "category",
+                            "description",
+                            "quantity",
+                            "unit",
+                            "rate",
+                            "rateUnit",
+                            "vatRate",
+                            "netAmount"
+                          ]
+                        }
+                      },
+                      "meterReadings": {
+                        "type": "array",
+                        "description": "Array of meter readings",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "date": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Reading date in YYYY-MM-DD format"
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "actual",
+                                "estimated",
+                                "customer",
+                                "corrected"
+                              ],
+                              "description": "Type of reading"
+                            },
+                            "reading": {
+                              "type": "string",
+                              "description": "Meter reading value"
+                            },
+                            "register": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Register identifier"
+                            },
+                            "consumption": {
+                              "type": "number",
+                              "nullable": true,
+                              "description": "Consumption since last reading"
+                            },
+                            "unit": {
+                              "type": "string",
+                              "description": "Unit of reading (e.g., 'kWh')"
+                            }
+                          },
+                          "required": [
+                            "date",
+                            "type",
+                            "reading",
+                            "unit"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "mpanMprn",
+                      "supplyType",
+                      "consumption",
+                      "charges",
+                      "meterReadings"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "itemType",
+                "invoiceNumber",
+                "invoiceDate",
+                "netAmount",
+                "vatAmount",
+                "totalAmount",
+                "supplyPoints"
+              ]
+            }
+          }
+        },
+        "required": [
+          "documentType",
+          "isStatement",
+          "items"
+        ]
+      },
+      "EmissionsData": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "Site identifier"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period"
+          },
+          "emissions": {
+            "type": "number",
+            "description": "Carbon emissions in kg CO2e"
+          },
+          "emissionsIntensity": {
+            "type": "number",
+            "description": "Emissions intensity in kg CO2e/kWh"
+          },
+          "emissionsBySource": {
+            "type": "object",
+            "properties": {
+              "electricity": {
+                "type": "number",
+                "description": "Emissions from electricity consumption in kg CO2e"
+              },
+              "gas": {
+                "type": "number",
+                "description": "Emissions from gas consumption in kg CO2e"
+              },
+              "other": {
+                "type": "number",
+                "description": "Emissions from other sources in kg CO2e"
+              }
+            },
+            "description": "Breakdown of emissions by source"
+          },
+          "historicalData": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "period": {
+                  "type": "string",
+                  "description": "Historical period"
+                },
+                "emissions": {
+                  "type": "number",
+                  "description": "Emissions in the period in kg CO2e"
+                }
+              }
+            },
+            "description": "Historical emissions data for comparison"
+          },
+          "carbonSavings": {
+            "type": "number",
+            "description": "Carbon savings compared to baseline in kg CO2e"
+          },
+          "targetReduction": {
+            "type": "number",
+            "description": "Target reduction percentage"
+          }
+        },
+        "required": [
+          "siteId",
+          "emissions"
+        ]
+      },
+      "MarginalCarbonIntensity": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of measurement"
+          },
+          "intensity": {
+            "type": "number",
+            "description": "Current carbon intensity in gCO2/kWh"
+          },
+          "forecast": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Forecast timestamp"
+                },
+                "intensity": {
+                  "type": "number",
+                  "description": "Forecasted carbon intensity in gCO2/kWh"
+                }
+              }
+            },
+            "description": "Carbon intensity forecast"
+          },
+          "lowCarbonWindow": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Start time of low carbon window"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time",
+                "description": "End time of low carbon window"
+              },
+              "intensity": {
+                "type": "number",
+                "description": "Average carbon intensity during window in gCO2/kWh"
+              }
+            },
+            "description": "Upcoming low carbon intensity window"
+          }
+        },
+        "required": [
+          "timestamp",
+          "intensity"
+        ]
+      }
+    }
+  }
+}
