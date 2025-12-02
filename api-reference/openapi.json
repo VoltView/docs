@@ -36,16 +36,16 @@
 		"description": "Multi-site management endpoints"
 	  },
 	  {
+		"name": "Energy Consumption",
+		"description": "Energy consumption data endpoints"
+	  },
+	  {
 		"name": "Specific Site",
 		"description": "Operations for specific sites"
 	  },
 	  {
 		"name": "Meters",
 		"description": "Meter lookup and meter readings management"
-	  },
-	  {
-		"name": "Energy Consumption",
-		"description": "Energy consumption data endpoints"
 	  },
 	  {
 		"name": "Emissions",
