@@ -40,12 +40,20 @@
 		"description": "Operations for specific sites"
 	  },
 	  {
-		"name": "Consumption",
+		"name": "Meters",
+		"description": "Meter lookup and meter readings management"
+	  },
+	  {
+		"name": "Energy Consumption",
 		"description": "Energy consumption data endpoints"
 	  },
 	  {
 		"name": "Emissions",
 		"description": "Carbon emissions data endpoints"
+	  },
+	  {
+		"name": "LOA Management",
+		"description": "Letter of Authority (LOA) management - create, list, view, and update status of LOAs"
 	  },
 	  {
 		"name": "Supplier Integration",
@@ -125,6 +133,144 @@
 		  }
 		}
 	  },
+	  "/v1/listUsers": {
+		"get": {
+		  "tags": [
+			"User"
+		  ],
+		  "summary": "List all users",
+		  "description": "List all users in the organization. Requires admin permissions.",
+		  "operationId": "listUsers",
+		  "responses": {
+			"200": {
+			  "description": "Users retrieved successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "array",
+					"items": {
+					  "$ref": "#/components/schemas/User"
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/createUserSiteAssignments": {
+		"post": {
+		  "tags": [
+			"User"
+		  ],
+		  "summary": "Create user-site assignment",
+		  "description": "Assign a user to a specific site. Requires admin permissions.",
+		  "operationId": "createUserSiteAssignment",
+		  "requestBody": {
+			"required": true,
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"userId": {
+					  "type": "string",
+					  "description": "ID of the user to assign"
+					},
+					"siteId": {
+					  "type": "string",
+					  "description": "ID of the site to assign the user to"
+					}
+				  },
+				  "required": [
+					"userId",
+					"siteId"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "responses": {
+			"200": {
+			  "description": "User-site assignment created successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "object",
+					"properties": {
+					  "success": {
+						"type": "boolean"
+					  },
+					  "message": {
+						"type": "string"
+					  }
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/deleteUserSiteAssignments/{userId}/{siteId}": {
+		"delete": {
+		  "tags": [
+			"User"
+		  ],
+		  "summary": "Delete user-site assignment",
+		  "description": "Remove a user's access to a specific site. Requires admin permissions.",
+		  "operationId": "deleteUserSiteAssignment",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "userId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "ID of the user to remove from site"
+			},
+			{
+			  "in": "path",
+			  "name": "siteId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "ID of the site to remove user from"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "User-site assignment deleted successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "object",
+					"properties": {
+					  "success": {
+						"type": "boolean"
+					  },
+					  "message": {
+						"type": "string"
+					  }
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
 	  "/v1/sites": {
 		"get": {
 		  "tags": [
@@ -143,6 +289,66 @@
 					"items": {
 					  "$ref": "#/components/schemas/Site"
 					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/createSite": {
+		"post": {
+		  "tags": [
+			"Sites"
+		  ],
+		  "summary": "Create a new site",
+		  "description": "Create a new site in the system.",
+		  "operationId": "createSite",
+		  "requestBody": {
+			"required": true,
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"name": {
+					  "type": "string",
+					  "description": "Name of the site"
+					},
+					"address": {
+					  "type": "string",
+					  "description": "Site address"
+					},
+					"postcode": {
+					  "type": "string",
+					  "description": "Site postcode"
+					},
+					"floorArea": {
+					  "type": "number",
+					  "description": "Floor area in square meters"
+					},
+					"buildingType": {
+					  "type": "string",
+					  "description": "Type of building"
+					}
+				  },
+				  "required": [
+					"name"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "responses": {
+			"200": {
+			  "description": "Site created successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/Site"
 				  }
 				}
 			  }
@@ -207,6 +413,561 @@
 					"type": "array",
 					"items": {
 					  "$ref": "#/components/schemas/Address"
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/sites/{siteId}/meters": {
+		"get": {
+		  "tags": [
+			"Meters"
+		  ],
+		  "summary": "Get site meters",
+		  "description": "Retrieve all meters associated with a specific site.",
+		  "operationId": "getSiteMeters",
+		  "parameters": [
+			{
+			  "$ref": "#/components/parameters/siteId"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Meters retrieved successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "array",
+					"items": {
+					  "$ref": "#/components/schemas/Meter"
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/meter/create": {
+		"post": {
+		  "tags": [
+			"Meters"
+		  ],
+		  "summary": "Create meter",
+		  "description": "Create a new meter for a site. Requires admin permissions.",
+		  "operationId": "createMeter",
+		  "requestBody": {
+			"required": true,
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"siteId": {
+					  "type": "integer",
+					  "description": "ID of the site to add the meter to"
+					},
+					"mpxn": {
+					  "type": "string",
+					  "description": "MPAN (13 digits for electricity) or MPRN (6-10 digits for gas)"
+					},
+					"utilityType": {
+					  "type": "string",
+					  "enum": [
+						"ELECTRICITY",
+						"GAS",
+						"BMS"
+					  ],
+					  "description": "Type of utility"
+					}
+				  },
+				  "required": [
+					"siteId",
+					"mpxn",
+					"utilityType"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "responses": {
+			"200": {
+			  "description": "Meter created successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/Meter"
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/meter/delete/{meterId}": {
+		"delete": {
+		  "tags": [
+			"Meters"
+		  ],
+		  "summary": "Delete meter",
+		  "description": "Delete a specific meter. Requires admin permissions. User must have access to the site where the meter is located.",
+		  "operationId": "deleteMeter",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "meterId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "ID of the meter to delete"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Meter deleted successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "object",
+					"properties": {
+					  "success": {
+						"type": "boolean"
+					  },
+					  "message": {
+						"type": "string"
+					  }
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/meter/lookup": {
+		"get": {
+		  "tags": [
+			"Meters"
+		  ],
+		  "summary": "Lookup meters by postcode",
+		  "description": "Search for meters by postcode. Returns a list of addresses with their corresponding addressIds. Requires hasMeterLookup permission.",
+		  "operationId": "lookupMetersByPostcode",
+		  "parameters": [
+			{
+			  "in": "query",
+			  "name": "postcode",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "UK postcode (e.g., W148AA or W14 8AA)"
+			},
+			{
+			  "in": "query",
+			  "name": "fuelType",
+			  "required": true,
+			  "schema": {
+				"type": "string",
+				"enum": [
+				  "electricity",
+				  "gas"
+				]
+			  },
+			  "description": "Fuel type: electricity or gas"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Meter lookup results",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "array",
+					"items": {
+					  "$ref": "#/components/schemas/MeterLookupResult"
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/meter/lookup/{addressId}": {
+		"get": {
+		  "tags": [
+			"Meters"
+		  ],
+		  "summary": "Get meter details by address ID",
+		  "description": "Retrieve full meter details using the addressId from the postcode search. Returns MPAN/MPRN, supplier info, EAC data, and address details. Requires hasMeterLookup permission.",
+		  "operationId": "getMeterDetailsByAddressId",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "addressId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "The addressId from the postcode search results (or direct MPAN/MPRN)"
+			},
+			{
+			  "in": "query",
+			  "name": "fuelType",
+			  "required": true,
+			  "schema": {
+				"type": "string",
+				"enum": [
+				  "electricity",
+				  "gas"
+				]
+			  },
+			  "description": "Fuel type: electricity or gas"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Meter details retrieved successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/MeterDetails"
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/meter/lookup/bulk": {
+		"post": {
+		  "tags": [
+			"Meters"
+		  ],
+		  "summary": "Bulk meter lookup",
+		  "description": "Look up multiple meters at once for a specific customer. Maximum 50 lookups per request. Efficiently uses cache to avoid repeat API calls. Requires hasMeterLookup permission.",
+		  "operationId": "bulkMeterLookup",
+		  "requestBody": {
+			"required": true,
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"customerName": {
+					  "type": "string",
+					  "description": "Name of the customer"
+					},
+					"lookups": {
+					  "type": "array",
+					  "maxItems": 50,
+					  "items": {
+						"type": "object",
+						"properties": {
+						  "addressId": {
+							"type": "string",
+							"description": "Address ID or MPAN/MPRN"
+						  },
+						  "fuelType": {
+							"type": "string",
+							"enum": [
+							  "electricity",
+							  "gas"
+							],
+							"description": "Fuel type"
+						  }
+						},
+						"required": [
+						  "addressId",
+						  "fuelType"
+						]
+					  }
+					}
+				  },
+				  "required": [
+					"customerName",
+					"lookups"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "responses": {
+			"200": {
+			  "description": "Bulk lookup results",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "array",
+					"items": {
+					  "$ref": "#/components/schemas/MeterDetails"
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/meters/{meterId}/reads": {
+		"get": {
+		  "tags": [
+			"Meters"
+		  ],
+		  "summary": "Get meter reads",
+		  "description": "List meter reads for a meter with optional date range filtering and pagination.",
+		  "operationId": "getMeterReads",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "meterId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "UUID of the meter"
+			},
+			{
+			  "in": "query",
+			  "name": "fromDate",
+			  "required": false,
+			  "schema": {
+				"type": "string",
+				"format": "date-time"
+			  },
+			  "description": "Start date filter (ISO date string)"
+			},
+			{
+			  "in": "query",
+			  "name": "toDate",
+			  "required": false,
+			  "schema": {
+				"type": "string",
+				"format": "date-time"
+			  },
+			  "description": "End date filter (ISO date string)"
+			},
+			{
+			  "in": "query",
+			  "name": "registerCode",
+			  "required": false,
+			  "schema": {
+				"type": "string",
+				"enum": [
+				  "TOTAL",
+				  "DAY",
+				  "NIGHT",
+				  "PEAK",
+				  "OFF_PEAK"
+				]
+			  },
+			  "description": "Filter by register code"
+			},
+			{
+			  "in": "query",
+			  "name": "limit",
+			  "required": false,
+			  "schema": {
+				"type": "integer",
+				"default": 100,
+				"maximum": 1000
+			  },
+			  "description": "Number of records to return (max 1000)"
+			},
+			{
+			  "in": "query",
+			  "name": "offset",
+			  "required": false,
+			  "schema": {
+				"type": "integer",
+				"default": 0
+			  },
+			  "description": "Offset for pagination"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Meter reads retrieved successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "array",
+					"items": {
+					  "$ref": "#/components/schemas/MeterRead"
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		},
+		"post": {
+		  "tags": [
+			"Meters"
+		  ],
+		  "summary": "Create meter read",
+		  "description": "Create a new meter read.",
+		  "operationId": "createMeterRead",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "meterId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "UUID of the meter"
+			}
+		  ],
+		  "requestBody": {
+			"required": true,
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"readValue": {
+					  "type": "number",
+					  "description": "Meter reading value"
+					},
+					"readDate": {
+					  "type": "string",
+					  "format": "date-time",
+					  "description": "Date of the reading (ISO 8601)"
+					},
+					"readType": {
+					  "type": "string",
+					  "enum": [
+						"ACTUAL",
+						"ESTIMATED",
+						"CUSTOMER"
+					  ],
+					  "description": "Type of reading"
+					},
+					"registerCode": {
+					  "type": "string",
+					  "enum": [
+						"TOTAL",
+						"DAY",
+						"NIGHT",
+						"PEAK",
+						"OFF_PEAK"
+					  ],
+					  "description": "Register code"
+					},
+					"source": {
+					  "type": "string",
+					  "enum": [
+						"MANUAL",
+						"INVOICE",
+						"SMART_METER",
+						"SUPPLIER_API"
+					  ],
+					  "description": "Source of the reading"
+					},
+					"notes": {
+					  "type": "string",
+					  "description": "Additional notes"
+					}
+				  },
+				  "required": [
+					"readValue",
+					"readDate",
+					"readType",
+					"registerCode",
+					"source"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "responses": {
+			"200": {
+			  "description": "Meter read created successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/MeterRead"
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/meters/{meterId}/reads/{readId}": {
+		"delete": {
+		  "tags": [
+			"Meters"
+		  ],
+		  "summary": "Delete meter read",
+		  "description": "Delete a specific meter read.",
+		  "operationId": "deleteMeterRead",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "meterId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "UUID of the meter"
+			},
+			{
+			  "in": "path",
+			  "name": "readId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "UUID of the meter read to delete"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Meter read deleted successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "object",
+					"properties": {
+					  "success": {
+						"type": "boolean"
+					  },
+					  "message": {
+						"type": "string"
+					  }
 					}
 				  }
 				}
@@ -876,10 +1637,46 @@
 		  }
 		}
 	  },
+	  "/v1/sites/{siteId}/degreeDays": {
+		"get": {
+		  "tags": [
+			"Emissions"
+		  ],
+		  "summary": "Degree days for a specific site",
+		  "description": "Get degree days data for weather normalization analysis.",
+		  "operationId": "getSiteSpecificDegreeDays",
+		  "parameters": [
+			{
+			  "$ref": "#/components/parameters/siteId"
+			},
+			{
+			  "$ref": "#/components/parameters/from"
+			},
+			{
+			  "$ref": "#/components/parameters/to"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Degree days data retrieved successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/DegreeDays"
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
 	  "/v1/sites/loadCurve": {
 		"get": {
 		  "tags": [
-			"Consumption"
+			"Energy Consumption"
 		  ],
 		  "summary": "Load curve for all sites",
 		  "description": "Retrieves load curve data across all sites",
@@ -929,7 +1726,7 @@
 	  "/v1/sites/{siteId}/loadCurve": {
 		"get": {
 		  "tags": [
-			"Consumption"
+			"Energy Consumption"
 		  ],
 		  "summary": "Load curve for a specific site",
 		  "description": "Retrieves load curve data for a specific site",
@@ -992,7 +1789,7 @@
 	  "/v1/sites/timeSeries": {
 		"get": {
 		  "tags": [
-			"Consumption"
+			"Energy Consumption"
 		  ],
 		  "summary": "Time series data for all sites",
 		  "description": "Retrieves time series energy data across all sites",
@@ -1034,7 +1831,7 @@
 	  "/v1/sites/{siteId}/timeSeries": {
 		"get": {
 		  "tags": [
-			"Consumption"
+			"Energy Consumption"
 		  ],
 		  "summary": "Time series data for a specific site",
 		  "description": "Retrieves time series energy data for a specific site",
@@ -1553,6 +2350,45 @@
 		  }
 		}
 	  },
+	  "/v1/suppliers/businesses/{businessId}/accounts": {
+		"get": {
+		  "tags": [
+			"Supplier Integration"
+		  ],
+		  "summary": "Get Supplier Accounts for a Business",
+		  "description": "Get all supplier accounts associated with a business. Alternative path using businessId.",
+		  "operationId": "getBusinessSupplierAccounts",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "businessId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "Business ID"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Accounts retrieved successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "array",
+					"items": {
+					  "$ref": "#/components/schemas/Account"
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
 	  "/v1/suppliers/documents/sign": {
 		"get": {
 		  "tags": [
@@ -1590,6 +2426,370 @@
 					"type": "array",
 					"items": {
 					  "$ref": "#/components/schemas/DocumentSignedURL"
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/requestUtilityIntegration": {
+		"post": {
+		  "tags": [
+			"Supplier Integration"
+		  ],
+		  "summary": "Request utility integration",
+		  "description": "Request integration with a utility supplier.",
+		  "operationId": "requestUtilityIntegration",
+		  "requestBody": {
+			"required": true,
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"supplierName": {
+					  "type": "string",
+					  "description": "Name of the supplier"
+					},
+					"accountNumber": {
+					  "type": "string",
+					  "description": "Account number with the supplier"
+					},
+					"email": {
+					  "type": "string",
+					  "format": "email",
+					  "description": "Contact email"
+					}
+				  },
+				  "required": [
+					"supplierName",
+					"accountNumber",
+					"email"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "responses": {
+			"200": {
+			  "description": "Integration request submitted successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "object",
+					"properties": {
+					  "success": {
+						"type": "boolean"
+					  },
+					  "message": {
+						"type": "string"
+					  }
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/loas/parse": {
+		"post": {
+		  "tags": [
+			"LOA Management"
+		  ],
+		  "summary": "Parse LOA (Preview)",
+		  "description": "Parse a Letter of Authority document without saving. Use this to preview extracted data before committing. Returns customer info, authorized persons, supply points (MPANs/MPRNs), and validity period.",
+		  "operationId": "parseLOA",
+		  "requestBody": {
+			"required": true,
+			"content": {
+			  "multipart/form-data": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"file": {
+					  "type": "string",
+					  "format": "binary",
+					  "description": "LOA document file(s) - supports PDF, JPG, PNG. Upload one PDF or multiple images (up to 10)."
+					}
+				  },
+				  "required": [
+					"file"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "responses": {
+			"200": {
+			  "description": "LOA parsed successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/ParsedLOA"
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/loas": {
+		"get": {
+		  "tags": [
+			"LOA Management"
+		  ],
+		  "summary": "List LOAs",
+		  "description": "List all LOAs for the user's business. Supports filtering by status and pagination. Returns LOA summary with counts of authorized persons and supply points.",
+		  "operationId": "listLOAs",
+		  "parameters": [
+			{
+			  "in": "query",
+			  "name": "status",
+			  "required": false,
+			  "schema": {
+				"type": "string",
+				"enum": [
+				  "PENDING",
+				  "SENT",
+				  "SIGNED",
+				  "EXPIRED",
+				  "REJECTED"
+				]
+			  },
+			  "description": "Filter by LOA status"
+			},
+			{
+			  "in": "query",
+			  "name": "limit",
+			  "required": false,
+			  "schema": {
+				"type": "integer",
+				"default": 50,
+				"maximum": 100
+			  },
+			  "description": "Number of records to return (max 100)"
+			},
+			{
+			  "in": "query",
+			  "name": "offset",
+			  "required": false,
+			  "schema": {
+				"type": "integer",
+				"default": 0
+			  },
+			  "description": "Offset for pagination"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "LOAs retrieved successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "array",
+					"items": {
+					  "$ref": "#/components/schemas/LOASummary"
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		},
+		"post": {
+		  "tags": [
+			"LOA Management"
+		  ],
+		  "summary": "Create LOA",
+		  "description": "Parse and save a Letter of Authority document. Uploads PDF to storage, links supply points to existing meters (if found), and saves to database. Uses content-based deduplication (returns existing LOA if identical file was already uploaded). Triggers background onboarding stages after saving.",
+		  "operationId": "createLOA",
+		  "requestBody": {
+			"required": true,
+			"content": {
+			  "multipart/form-data": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"file": {
+					  "type": "string",
+					  "format": "binary",
+					  "description": "LOA document file(s) - supports PDF, JPG, PNG. Upload one PDF or multiple images (up to 10)."
+					}
+				  },
+				  "required": [
+					"file"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "responses": {
+			"200": {
+			  "description": "LOA created successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/LOA"
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/loas/{loaId}": {
+		"get": {
+		  "tags": [
+			"LOA Management"
+		  ],
+		  "summary": "Get LOA",
+		  "description": "Get full details of a specific LOA including authorized persons, supply points with linked meters, and business information.",
+		  "operationId": "getLOA",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "loaId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "UUID of the LOA"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "LOA retrieved successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/LOA"
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/loas/{loaId}/status": {
+		"put": {
+		  "tags": [
+			"LOA Management"
+		  ],
+		  "summary": "Update LOA status",
+		  "description": "Update the status of an LOA. Valid statuses: PENDING, SENT, SIGNED, EXPIRED, REJECTED.",
+		  "operationId": "updateLOAStatus",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "loaId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "UUID of the LOA"
+			}
+		  ],
+		  "requestBody": {
+			"required": true,
+			"content": {
+			  "application/json": {
+				"schema": {
+				  "type": "object",
+				  "properties": {
+					"status": {
+					  "type": "string",
+					  "enum": [
+						"PENDING",
+						"SENT",
+						"SIGNED",
+						"EXPIRED",
+						"REJECTED"
+					  ],
+					  "description": "New status for the LOA"
+					}
+				  },
+				  "required": [
+					"status"
+				  ]
+				}
+			  }
+			}
+		  },
+		  "responses": {
+			"200": {
+			  "description": "LOA status updated successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"$ref": "#/components/schemas/LOA"
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/loas/{loaId}/document": {
+		"get": {
+		  "tags": [
+			"LOA Management"
+		  ],
+		  "summary": "Get LOA document",
+		  "description": "Get a signed URL to download the LOA PDF document. URL expires after 1 hour.",
+		  "operationId": "getLOADocument",
+		  "parameters": [
+			{
+			  "in": "path",
+			  "name": "loaId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "UUID of the LOA"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Document URL retrieved successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "object",
+					"properties": {
+					  "url": {
+						"type": "string",
+						"format": "uri",
+						"description": "Signed URL to download the LOA document"
+					  },
+					  "expiresAt": {
+						"type": "string",
+						"format": "date-time",
+						"description": "URL expiration time"
+					  }
 					}
 				  }
 				}
@@ -2153,6 +3353,131 @@
 				  }
 				}
 			  }
+			}
+		  }
+		}
+	  },
+	  "/v1/billValidation/deleteInvoice": {
+		"delete": {
+		  "tags": [
+			"Bill Validation"
+		  ],
+		  "summary": "Delete invoice",
+		  "description": "Delete a specific invoice from the system.",
+		  "operationId": "deleteInvoice",
+		  "parameters": [
+			{
+			  "in": "query",
+			  "name": "invoiceId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "ID of the invoice to delete"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Invoice deleted successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "object",
+					"properties": {
+					  "success": {
+						"type": "boolean"
+					  },
+					  "message": {
+						"type": "string"
+					  }
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
+			}
+		  }
+		}
+	  },
+	  "/v1/billValidation/updateStatus": {
+		"put": {
+		  "tags": [
+			"Bill Validation"
+		  ],
+		  "summary": "Update invoice status",
+		  "description": "Update the status of a specific invoice.",
+		  "operationId": "updateInvoiceStatus",
+		  "parameters": [
+			{
+			  "in": "query",
+			  "name": "invoiceId",
+			  "required": true,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "ID of the invoice to update"
+			},
+			{
+			  "in": "query",
+			  "name": "billStatus",
+			  "required": false,
+			  "schema": {
+				"type": "string",
+				"enum": [
+				  "PASSED",
+				  "FAILED",
+				  "PENDING"
+				]
+			  },
+			  "description": "Bill validation status"
+			},
+			{
+			  "in": "query",
+			  "name": "paymentStatus",
+			  "required": false,
+			  "schema": {
+				"type": "string",
+				"enum": [
+				  "PAID",
+				  "UNPAID",
+				  "PENDING"
+				]
+			  },
+			  "description": "Payment status"
+			},
+			{
+			  "in": "query",
+			  "name": "notes",
+			  "required": false,
+			  "schema": {
+				"type": "string"
+			  },
+			  "description": "Additional notes"
+			}
+		  ],
+		  "responses": {
+			"200": {
+			  "description": "Invoice status updated successfully",
+			  "content": {
+				"application/json": {
+				  "schema": {
+					"type": "object",
+					"properties": {
+					  "success": {
+						"type": "boolean"
+					  },
+					  "message": {
+						"type": "string"
+					  }
+					}
+				  }
+				}
+			  }
+			},
+			"4XX": {
+			  "$ref": "#/components/responses/Error4XX"
 			}
 		  }
 		}
@@ -4604,6 +5929,803 @@
 			"timestamp",
 			"intensity"
 		  ]
+		},
+		"Meter": {
+		  "type": "object",
+		  "properties": {
+			"id": {
+			  "type": "string",
+			  "description": "Meter identifier"
+			},
+			"siteId": {
+			  "type": "string",
+			  "description": "Associated site identifier"
+			},
+			"mpxn": {
+			  "type": "string",
+			  "description": "MPAN (13 digits for electricity) or MPRN (6-10 digits for gas)"
+			},
+			"utilityType": {
+			  "type": "string",
+			  "enum": [
+				"ELECTRICITY",
+				"GAS",
+				"BMS"
+			  ],
+			  "description": "Type of utility"
+			},
+			"meterSerialNumber": {
+			  "type": "string",
+			  "description": "Meter serial number"
+			},
+			"supplier": {
+			  "type": "string",
+			  "description": "Energy supplier name"
+			},
+			"status": {
+			  "type": "string",
+			  "enum": [
+				"ACTIVE",
+				"INACTIVE"
+			  ],
+			  "description": "Meter status"
+			},
+			"createdAt": {
+			  "type": "string",
+			  "format": "date-time",
+			  "description": "Creation timestamp"
+			}
+		  },
+		  "required": [
+			"id",
+			"siteId",
+			"mpxn",
+			"utilityType"
+		  ]
+		},
+		"MeterLookupResult": {
+		  "type": "object",
+		  "properties": {
+			"addressId": {
+			  "type": "string",
+			  "description": "Unique address identifier for subsequent lookups"
+			},
+			"address": {
+			  "type": "string",
+			  "description": "Full address"
+			},
+			"postcode": {
+			  "type": "string",
+			  "description": "Postcode"
+			}
+		  },
+		  "required": [
+			"addressId",
+			"address"
+		  ]
+		},
+		"MeterDetails": {
+		  "type": "object",
+		  "properties": {
+			"mpan": {
+			  "type": "string",
+			  "description": "MPAN for electricity meters (13 digits)"
+			},
+			"mprn": {
+			  "type": "string",
+			  "description": "MPRN for gas meters (6-10 digits)"
+			},
+			"address": {
+			  "type": "string",
+			  "description": "Full address"
+			},
+			"postcode": {
+			  "type": "string",
+			  "description": "Postcode"
+			},
+			"supplier": {
+			  "type": "string",
+			  "description": "Current energy supplier"
+			},
+			"meterSerialNumber": {
+			  "type": "string",
+			  "description": "Meter serial number"
+			},
+			"profileClass": {
+			  "type": "string",
+			  "description": "Profile class code"
+			},
+			"eac": {
+			  "type": "number",
+			  "description": "Estimated Annual Consumption in kWh"
+			},
+			"aq": {
+			  "type": "number",
+			  "description": "Annual Quantity for gas meters in kWh"
+			}
+		  }
+		},
+		"MeterRead": {
+		  "type": "object",
+		  "properties": {
+			"id": {
+			  "type": "string",
+			  "description": "Meter read identifier"
+			},
+			"meterId": {
+			  "type": "string",
+			  "description": "Associated meter identifier"
+			},
+			"readValue": {
+			  "type": "number",
+			  "description": "Meter reading value"
+			},
+			"readDate": {
+			  "type": "string",
+			  "format": "date-time",
+			  "description": "Date of the reading"
+			},
+			"readType": {
+			  "type": "string",
+			  "enum": [
+				"ACTUAL",
+				"ESTIMATED",
+				"CUSTOMER"
+			  ],
+			  "description": "Type of reading"
+			},
+			"registerCode": {
+			  "type": "string",
+			  "enum": [
+				"TOTAL",
+				"DAY",
+				"NIGHT",
+				"PEAK",
+				"OFF_PEAK"
+			  ],
+			  "description": "Register code"
+			},
+			"source": {
+			  "type": "string",
+			  "enum": [
+				"MANUAL",
+				"INVOICE",
+				"SMART_METER",
+				"SUPPLIER_API"
+			  ],
+			  "description": "Source of the reading"
+			},
+			"notes": {
+			  "type": "string",
+			  "description": "Additional notes"
+			},
+			"createdAt": {
+			  "type": "string",
+			  "format": "date-time",
+			  "description": "Creation timestamp"
+			}
+		  },
+		  "required": [
+			"id",
+			"meterId",
+			"readValue",
+			"readDate",
+			"readType"
+		  ]
+		},
+		"DegreeDays": {
+		  "type": "object",
+		  "properties": {
+			"siteId": {
+			  "type": "string",
+			  "description": "Site identifier"
+			},
+			"period": {
+			  "type": "object",
+			  "properties": {
+				"from": {
+				  "type": "string",
+				  "format": "date",
+				  "description": "Start date"
+				},
+				"to": {
+				  "type": "string",
+				  "format": "date",
+				  "description": "End date"
+				}
+			  }
+			},
+			"heatingDegreeDays": {
+			  "type": "number",
+			  "description": "Heating degree days"
+			},
+			"coolingDegreeDays": {
+			  "type": "number",
+			  "description": "Cooling degree days"
+			},
+			"data": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "date": {
+					"type": "string",
+					"format": "date"
+				  },
+				  "hdd": {
+					"type": "number",
+					"description": "Heating degree days"
+				  },
+				  "cdd": {
+					"type": "number",
+					"description": "Cooling degree days"
+				  },
+				  "avgTemp": {
+					"type": "number",
+					"description": "Average temperature in °C"
+				  }
+				}
+			  }
+			}
+		  },
+		  "required": [
+			"siteId"
+		  ]
+		},
+		"ParsedLOA": {
+		  "type": "object",
+		  "properties": {
+			"customerName": {
+			  "type": "string",
+			  "description": "Customer/business name"
+			},
+			"customerAddress": {
+			  "type": "string",
+			  "description": "Customer address"
+			},
+			"authorizedPersons": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "name": {
+					"type": "string",
+					"description": "Name of authorized person"
+				  },
+				  "company": {
+					"type": "string",
+					"description": "Company name"
+				  },
+				  "role": {
+					"type": "string",
+					"description": "Role/position"
+				  }
+				}
+			  }
+			},
+			"supplyPoints": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "mpanMprn": {
+					"type": "string",
+					"description": "MPAN or MPRN"
+				  },
+				  "supplyType": {
+					"type": "string",
+					"enum": [
+					  "electricity",
+					  "gas"
+					]
+				  },
+				  "address": {
+					"type": "string",
+					"description": "Supply point address"
+				  }
+				}
+			  }
+			},
+			"validFrom": {
+			  "type": "string",
+			  "format": "date",
+			  "description": "LOA validity start date"
+			},
+			"validTo": {
+			  "type": "string",
+			  "format": "date",
+			  "description": "LOA validity end date"
+			},
+			"signatureDate": {
+			  "type": "string",
+			  "format": "date",
+			  "description": "Date of signature"
+			}
+		  }
+		},
+		"LOASummary": {
+		  "type": "object",
+		  "properties": {
+			"id": {
+			  "type": "string",
+			  "description": "LOA identifier"
+			},
+			"customerName": {
+			  "type": "string",
+			  "description": "Customer/business name"
+			},
+			"status": {
+			  "type": "string",
+			  "enum": [
+				"PENDING",
+				"SENT",
+				"SIGNED",
+				"EXPIRED",
+				"REJECTED"
+			  ],
+			  "description": "LOA status"
+			},
+			"authorizedPersonsCount": {
+			  "type": "integer",
+			  "description": "Number of authorized persons"
+			},
+			"supplyPointsCount": {
+			  "type": "integer",
+			  "description": "Number of supply points"
+			},
+			"validFrom": {
+			  "type": "string",
+			  "format": "date",
+			  "description": "LOA validity start date"
+			},
+			"validTo": {
+			  "type": "string",
+			  "format": "date",
+			  "description": "LOA validity end date"
+			},
+			"createdAt": {
+			  "type": "string",
+			  "format": "date-time",
+			  "description": "Creation timestamp"
+			}
+		  },
+		  "required": [
+			"id",
+			"status"
+		  ]
+		},
+		"LOA": {
+		  "type": "object",
+		  "properties": {
+			"id": {
+			  "type": "string",
+			  "description": "LOA identifier"
+			},
+			"businessId": {
+			  "type": "string",
+			  "description": "Associated business identifier"
+			},
+			"customerName": {
+			  "type": "string",
+			  "description": "Customer/business name"
+			},
+			"customerAddress": {
+			  "type": "string",
+			  "description": "Customer address"
+			},
+			"status": {
+			  "type": "string",
+			  "enum": [
+				"PENDING",
+				"SENT",
+				"SIGNED",
+				"EXPIRED",
+				"REJECTED"
+			  ],
+			  "description": "LOA status"
+			},
+			"filePath": {
+			  "type": "string",
+			  "description": "Path to stored LOA document"
+			},
+			"authorizedPersons": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "id": {
+					"type": "string"
+				  },
+				  "name": {
+					"type": "string"
+				  },
+				  "company": {
+					"type": "string"
+				  },
+				  "role": {
+					"type": "string"
+				  }
+				}
+			  }
+			},
+			"supplyPoints": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "id": {
+					"type": "string"
+				  },
+				  "mpanMprn": {
+					"type": "string"
+				  },
+				  "supplyType": {
+					"type": "string",
+					"enum": [
+					  "electricity",
+					  "gas"
+					]
+				  },
+				  "address": {
+					"type": "string"
+				  },
+				  "meterId": {
+					"type": "string",
+					"description": "Linked meter ID if found"
+				  }
+				}
+			  }
+			},
+			"validFrom": {
+			  "type": "string",
+			  "format": "date"
+			},
+			"validTo": {
+			  "type": "string",
+			  "format": "date"
+			},
+			"signatureDate": {
+			  "type": "string",
+			  "format": "date"
+			},
+			"createdAt": {
+			  "type": "string",
+			  "format": "date-time"
+			},
+			"updatedAt": {
+			  "type": "string",
+			  "format": "date-time"
+			}
+		  },
+		  "required": [
+			"id",
+			"status"
+		  ]
+		},
+		"GeneralInvoice": {
+		  "type": "object",
+		  "properties": {
+			"vendorName": {
+			  "type": "string",
+			  "description": "Name of the vendor/supplier"
+			},
+			"vendorAddress": {
+			  "type": "string",
+			  "description": "Vendor address"
+			},
+			"invoiceNumber": {
+			  "type": "string",
+			  "description": "Invoice number"
+			},
+			"invoiceDate": {
+			  "type": "string",
+			  "format": "date",
+			  "description": "Invoice date"
+			},
+			"dueDate": {
+			  "type": "string",
+			  "format": "date",
+			  "description": "Payment due date"
+			},
+			"customerName": {
+			  "type": "string",
+			  "description": "Customer name"
+			},
+			"customerAddress": {
+			  "type": "string",
+			  "description": "Customer address"
+			},
+			"lineItems": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "description": {
+					"type": "string"
+				  },
+				  "quantity": {
+					"type": "number"
+				  },
+				  "unitPrice": {
+					"type": "number"
+				  },
+				  "amount": {
+					"type": "number"
+				  }
+				}
+			  }
+			},
+			"subtotal": {
+			  "type": "number",
+			  "description": "Subtotal before tax"
+			},
+			"taxAmount": {
+			  "type": "number",
+			  "description": "Tax amount"
+			},
+			"totalAmount": {
+			  "type": "number",
+			  "description": "Total amount including tax"
+			},
+			"currency": {
+			  "type": "string",
+			  "description": "Currency code (e.g., GBP)"
+			}
+		  }
+		},
+		"Receipt": {
+		  "type": "object",
+		  "properties": {
+			"merchantName": {
+			  "type": "string",
+			  "description": "Merchant/store name"
+			},
+			"merchantAddress": {
+			  "type": "string",
+			  "description": "Merchant address"
+			},
+			"transactionDate": {
+			  "type": "string",
+			  "format": "date-time",
+			  "description": "Transaction date and time"
+			},
+			"receiptNumber": {
+			  "type": "string",
+			  "description": "Receipt/transaction number"
+			},
+			"items": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "description": {
+					"type": "string"
+				  },
+				  "quantity": {
+					"type": "number"
+				  },
+				  "price": {
+					"type": "number"
+				  }
+				}
+			  }
+			},
+			"subtotal": {
+			  "type": "number",
+			  "description": "Subtotal before tax"
+			},
+			"taxAmount": {
+			  "type": "number",
+			  "description": "Tax amount"
+			},
+			"totalAmount": {
+			  "type": "number",
+			  "description": "Total amount"
+			},
+			"paymentMethod": {
+			  "type": "string",
+			  "description": "Payment method used"
+			},
+			"currency": {
+			  "type": "string",
+			  "description": "Currency code"
+			}
+		  }
+		},
+		"SiteStats": {
+		  "type": "object",
+		  "properties": {
+			"siteId": {
+			  "type": "string",
+			  "description": "Site identifier"
+			},
+			"siteName": {
+			  "type": "string",
+			  "description": "Site name"
+			},
+			"totalConsumption": {
+			  "type": "number",
+			  "description": "Total energy consumption in kWh"
+			},
+			"totalCost": {
+			  "type": "number",
+			  "description": "Total energy cost in GBP"
+			},
+			"totalEmissions": {
+			  "type": "number",
+			  "description": "Total carbon emissions in kg CO2e"
+			},
+			"meterCount": {
+			  "type": "integer",
+			  "description": "Number of meters at the site"
+			},
+			"period": {
+			  "type": "string",
+			  "description": "Reporting period"
+			}
+		  }
+		},
+		"CostData": {
+		  "type": "object",
+		  "properties": {
+			"siteId": {
+			  "type": "string",
+			  "description": "Site identifier"
+			},
+			"period": {
+			  "type": "string",
+			  "description": "Reporting period"
+			},
+			"totalCost": {
+			  "type": "number",
+			  "description": "Total cost in GBP"
+			},
+			"energyCost": {
+			  "type": "number",
+			  "description": "Energy cost in GBP"
+			},
+			"standingCharges": {
+			  "type": "number",
+			  "description": "Standing charges in GBP"
+			},
+			"data": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "timestamp": {
+					"type": "string",
+					"format": "date-time"
+				  },
+				  "cost": {
+					"type": "number"
+				  },
+				  "consumption": {
+					"type": "number"
+				  }
+				}
+			  }
+			}
+		  }
+		},
+		"LoadCurve": {
+		  "type": "object",
+		  "properties": {
+			"siteId": {
+			  "type": "string",
+			  "description": "Site identifier"
+			},
+			"data": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "timestamp": {
+					"type": "string",
+					"format": "date-time"
+				  },
+				  "value": {
+					"type": "number",
+					"description": "Consumption/demand value"
+				  },
+				  "unit": {
+					"type": "string",
+					"description": "Unit of measurement (kWh or kW)"
+				  }
+				}
+			  }
+			}
+		  }
+		},
+		"TimeSeries": {
+		  "type": "object",
+		  "properties": {
+			"siteId": {
+			  "type": "string",
+			  "description": "Site identifier"
+			},
+			"granularity": {
+			  "type": "string",
+			  "description": "Data granularity"
+			},
+			"data": {
+			  "type": "array",
+			  "items": {
+				"type": "object",
+				"properties": {
+				  "timestamp": {
+					"type": "string",
+					"format": "date-time"
+				  },
+				  "value": {
+					"type": "number"
+				  },
+				  "unit": {
+					"type": "string"
+				  }
+				}
+			  }
+			}
+		  }
+		},
+		"EnergyIntensity": {
+		  "type": "object",
+		  "properties": {
+			"siteId": {
+			  "type": "string",
+			  "description": "Site identifier"
+			},
+			"intensity": {
+			  "type": "number",
+			  "description": "Energy intensity in kWh/m²"
+			},
+			"period": {
+			  "type": "string",
+			  "description": "Reporting period"
+			},
+			"benchmark": {
+			  "type": "number",
+			  "description": "Industry benchmark value"
+			},
+			"rating": {
+			  "type": "string",
+			  "description": "Performance rating"
+			}
+		  }
+		},
+		"EnergyRecommendation": {
+		  "type": "object",
+		  "properties": {
+			"id": {
+			  "type": "string",
+			  "description": "Recommendation identifier"
+			},
+			"title": {
+			  "type": "string",
+			  "description": "Recommendation title"
+			},
+			"description": {
+			  "type": "string",
+			  "description": "Detailed description"
+			},
+			"potentialSavings": {
+			  "type": "number",
+			  "description": "Potential savings in GBP"
+			},
+			"priority": {
+			  "type": "string",
+			  "enum": [
+				"HIGH",
+				"MEDIUM",
+				"LOW"
+			  ],
+			  "description": "Priority level"
+			},
+			"category": {
+			  "type": "string",
+			  "description": "Recommendation category"
+			}
+		  }
 		}
 	  }
 	}
