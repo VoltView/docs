@@ -3996,64 +3996,271 @@
 			"Invoice": {
 				"type": "object",
 				"properties": {
-					"id": {
+					"documentType": {
 						"type": "string",
-						"description": "Invoice identifier"
+						"enum": ["invoice", "statement", "credit_note", "debit_note"],
+						"nullable": true,
+						"description": "Type of document"
 					},
-					"siteId": {
+					"isStatement": {
+						"type": "boolean",
+						"nullable": true,
+						"description": "Whether this document is a statement"
+					},
+					"supplierName": {
 						"type": "string",
-						"description": "Site identifier"
+						"nullable": true,
+						"description": "Name of the supplier"
 					},
-					"utility": {
+					"supplierAccountNumber": {
 						"type": "string",
-						"enum": [
-							"ELECTRICITY",
-							"GAS",
-							"WATER"
-						],
-						"description": "Utility type"
+						"nullable": true,
+						"description": "Supplier account number"
 					},
-					"invoiceNumber": {
+					"customerName": {
 						"type": "string",
-						"description": "Invoice number"
+						"nullable": true,
+						"description": "Name of the customer"
 					},
-					"issueDate": {
+					"billingAddress": {
 						"type": "string",
-						"format": "date",
-						"description": "Issue date"
+						"nullable": true,
+						"description": "Billing address"
 					},
-					"dueDate": {
-						"type": "string",
-						"format": "date",
-						"description": "Due date"
-					},
-					"startDate": {
-						"type": "string",
-						"format": "date",
-						"description": "Service period start date"
-					},
-					"endDate": {
-						"type": "string",
-						"format": "date",
-						"description": "Service period end date"
-					},
-					"amount": {
-						"type": "number",
-						"description": "Invoice amount in GBP"
-					},
-					"status": {
-						"type": "string",
-						"enum": [
-							"PAID",
-							"PENDING",
-							"OVERDUE"
-						],
-						"description": "Invoice status"
-					},
-					"pdfUrl": {
-						"type": "string",
-						"format": "uri",
-						"description": "URL to download invoice PDF"
+					"items": {
+						"type": "array",
+						"nullable": true,
+						"description": "Invoice line items",
+						"items": {
+							"type": "object",
+							"properties": {
+								"itemType": {
+									"type": "string",
+									"enum": ["invoice", "credit", "debit"],
+									"nullable": true,
+									"description": "Type of item"
+								},
+								"invoiceNumber": {
+									"type": "string",
+									"nullable": true,
+									"description": "Invoice number"
+								},
+								"invoiceDate": {
+									"type": "string",
+									"format": "date",
+									"nullable": true,
+									"description": "Invoice date (YYYY-MM-DD)"
+								},
+								"dueDate": {
+									"type": "string",
+									"format": "date",
+									"nullable": true,
+									"description": "Due date (YYYY-MM-DD)"
+								},
+								"chargeStartDate": {
+									"type": "string",
+									"format": "date",
+									"nullable": true,
+									"description": "Charge period start date (YYYY-MM-DD)"
+								},
+								"chargeEndDate": {
+									"type": "string",
+									"format": "date",
+									"nullable": true,
+									"description": "Charge period end date (YYYY-MM-DD)"
+								},
+								"netAmount": {
+									"type": "number",
+									"nullable": true,
+									"description": "Net amount before VAT"
+								},
+								"vatAmount": {
+									"type": "number",
+									"nullable": true,
+									"description": "VAT amount"
+								},
+								"totalAmount": {
+									"type": "number",
+									"nullable": true,
+									"description": "Total amount including VAT"
+								},
+								"previousBalance": {
+									"type": "number",
+									"nullable": true,
+									"description": "Balance on last bill"
+								},
+								"outstandingBalance": {
+									"type": "number",
+									"nullable": true,
+									"description": "Outstanding balance"
+								},
+								"supplyPoints": {
+									"type": "array",
+									"nullable": true,
+									"description": "Supply points associated with this item",
+									"items": {
+										"type": "object",
+										"properties": {
+											"mpanMprn": {
+												"type": "string",
+												"nullable": true,
+												"description": "MPAN (13 digits for electricity) or MPRN (6-10 digits for gas)"
+											},
+											"supplyType": {
+												"type": "string",
+												"enum": ["electricity", "gas"],
+												"nullable": true,
+												"description": "Type of supply"
+											},
+											"meterSerialNumber": {
+												"type": "string",
+												"nullable": true,
+												"description": "Meter serial number"
+											},
+											"consumption": {
+												"type": "object",
+												"nullable": true,
+												"description": "Consumption details",
+												"properties": {
+													"total": {
+														"type": "number",
+														"nullable": true,
+														"description": "Total consumption"
+													},
+													"unit": {
+														"type": "string",
+														"default": "kWh",
+														"description": "Unit of consumption"
+													}
+												}
+											},
+											"charges": {
+												"type": "array",
+												"nullable": true,
+												"description": "Charges for this supply point",
+												"items": {
+													"type": "object",
+													"properties": {
+														"category": {
+															"type": "string",
+															"enum": ["energy", "standing", "distribution", "transmission", "environmental", "capacity", "metering", "adjustment", "other"],
+															"nullable": true,
+															"description": "Charge category"
+														},
+														"description": {
+															"type": "string",
+															"nullable": true,
+															"description": "Charge description"
+														},
+														"chargeStartDate": {
+															"type": "string",
+															"format": "date",
+															"nullable": true,
+															"description": "Charge start date (YYYY-MM-DD)"
+														},
+														"chargeEndDate": {
+															"type": "string",
+															"format": "date",
+															"nullable": true,
+															"description": "Charge end date (YYYY-MM-DD)"
+														},
+														"startReading": {
+															"type": "number",
+															"nullable": true,
+															"description": "Start meter reading"
+														},
+														"endReading": {
+															"type": "number",
+															"nullable": true,
+															"description": "End meter reading"
+														},
+														"readingType": {
+															"type": "string",
+															"enum": ["actual", "estimated"],
+															"nullable": true,
+															"description": "Type of reading"
+														},
+														"quantity": {
+															"type": "number",
+															"nullable": true,
+															"description": "Quantity"
+														},
+														"unit": {
+															"type": "string",
+															"nullable": true,
+															"description": "Unit of quantity"
+														},
+														"rate": {
+															"type": "number",
+															"nullable": true,
+															"description": "Rate"
+														},
+														"rateUnit": {
+															"type": "string",
+															"nullable": true,
+															"description": "Rate unit (e.g., p/kWh, p/day, p/kVA/day)"
+														},
+														"vatRate": {
+															"type": "number",
+															"nullable": true,
+															"description": "VAT rate percentage"
+														},
+														"netAmount": {
+															"type": "number",
+															"nullable": true,
+															"description": "Net amount before VAT"
+														},
+														"totalAmount": {
+															"type": "number",
+															"nullable": true,
+															"description": "Total amount including VAT"
+														}
+													}
+												}
+											},
+											"meterReadings": {
+												"type": "array",
+												"nullable": true,
+												"description": "Meter readings for this supply point",
+												"items": {
+													"type": "object",
+													"properties": {
+														"date": {
+															"type": "string",
+															"format": "date",
+															"nullable": true,
+															"description": "Reading date (YYYY-MM-DD)"
+														},
+														"type": {
+															"type": "string",
+															"enum": ["actual", "estimated"],
+															"nullable": true,
+															"description": "Type of reading"
+														},
+														"reading": {
+															"type": "string",
+															"nullable": true,
+															"description": "Meter reading value"
+														},
+														"unit": {
+															"type": "string",
+															"nullable": true,
+															"description": "Unit of reading (e.g., kWh)"
+														},
+														"register": {
+															"type": "string",
+															"enum": ["day", "night", "peak", "off_peak", "other"],
+															"nullable": true,
+															"description": "Register type"
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			},
