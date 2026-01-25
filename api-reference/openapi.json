@@ -5315,174 +5315,197 @@
 			},
 			"ContractData": {
 				"type": "object",
-				"description": "Extracted contract data. Many fields are optional and depend on what can be extracted from the document. Only 'customerType' and 'supplyPoints' are always present (supplyPoints may be an empty array).",
+				"description": "Extracted contract data. All fields are nullable and depend on what can be extracted from the document.",
 				"properties": {
-					"filePath": {
-						"type": "string",
-						"description": "Generated file path for the contract"
-					},
 					"customerType": {
 						"type": "string",
-						"enum": [
-							"domestic",
-							"non_domestic"
-						],
+						"enum": ["domestic", "non_domestic"],
+						"nullable": true,
 						"description": "Customer classification - residential (domestic) or business (non_domestic)"
 					},
 					"supplierAccountNumber": {
 						"type": "string",
+						"nullable": true,
 						"description": "Supplier account number"
 					},
 					"supplierName": {
 						"type": "string",
+						"nullable": true,
 						"description": "Name of the supplier"
 					},
 					"supplierAddress": {
 						"type": "string",
+						"nullable": true,
 						"description": "Supplier's full address"
-					},
-					"supplierId": {
-						"type": "string",
-						"description": "Internal supplier identifier"
 					},
 					"supplierCode": {
 						"type": "string",
+						"nullable": true,
 						"description": "Supplier code"
 					},
 					"customerName": {
 						"type": "string",
+						"nullable": true,
 						"description": "Name of the customer"
 					},
 					"billingAddress": {
 						"type": "string",
+						"nullable": true,
 						"description": "Address where bills are sent (customer's address)"
 					},
 					"contractNumber": {
 						"type": "string",
+						"nullable": true,
 						"description": "Contract number"
 					},
 					"contractStartDate": {
 						"type": "string",
 						"format": "date",
-						"description": "Contract start date in YYYY-MM-DD format"
+						"nullable": true,
+						"description": "Contract start date (YYYY-MM-DD)"
 					},
 					"contractEndDate": {
 						"type": "string",
 						"format": "date",
-						"description": "Contract end date in YYYY-MM-DD format"
+						"nullable": true,
+						"description": "Contract end date (YYYY-MM-DD)"
 					},
 					"cclRate": {
 						"type": "number",
-						"description": "Climate Change Levy (CCL) rate in pence per kWh (p/kWh). Converted from £/kWh if necessary (e.g., 0.00775 £/kWh becomes 0.775 p/kWh)."
+						"nullable": true,
+						"description": "Climate Change Levy (CCL) rate"
 					},
 					"isFixedContract": {
 						"type": "boolean",
+						"nullable": true,
 						"description": "Whether this is a fixed-rate contract"
 					},
 					"isMarketRates": {
 						"type": "boolean",
+						"nullable": true,
 						"description": "Whether this contract uses market rates"
 					},
 					"isMicroBusiness": {
 						"type": "boolean",
+						"nullable": true,
 						"description": "Whether the customer is classified as a micro business"
 					},
 					"paymentMethod": {
 						"type": "string",
-						"description": "Payment method (e.g., 'Direct Debit', 'Credit Card')"
+						"nullable": true,
+						"description": "Payment method"
 					},
 					"contractTermMonths": {
 						"type": "number",
+						"nullable": true,
 						"description": "Contract term in months"
 					},
 					"supplyPoints": {
 						"type": "array",
+						"nullable": true,
 						"description": "Array of supply points in the contract",
 						"items": {
 							"type": "object",
 							"properties": {
 								"mpanMprn": {
 									"type": "string",
-									"description": "MPAN (electricity) or MPRN (gas) identifier. MPAN must be exactly 13 digits, MPRN must be 6-10 digits"
+									"nullable": true,
+									"description": "MPAN (13 digits for electricity) or MPRN (6-10 digits for gas)"
 								},
 								"supplyType": {
 									"type": "string",
-									"enum": [
-										"electricity",
-										"gas"
-									],
-									"description": "Type of supply - 'electricity' for MPAN, 'gas' for MPRN"
+									"enum": ["electricity", "gas"],
+									"nullable": true,
+									"description": "Type of supply"
 								},
 								"meterSerialNumber": {
 									"type": "string",
+									"nullable": true,
 									"description": "Meter serial number"
 								},
 								"siteName": {
 									"type": "string",
+									"nullable": true,
 									"description": "Name of the site"
 								},
 								"siteAddress": {
 									"type": "string",
+									"nullable": true,
 									"description": "Address of the site"
 								},
 								"tariffName": {
 									"type": "string",
+									"nullable": true,
 									"description": "Full name of the tariff"
 								},
 								"isNonContractedRate": {
 									"type": "boolean",
+									"nullable": true,
 									"description": "True if rates are out of contract or deemed rates"
 								},
 								"standingCharge": {
 									"type": "number",
-									"description": "Standing charge in pence per day (p/day). Always normalised to p/day regardless of how it appears on the contract."
+									"nullable": true,
+									"description": "Standing charge in pence per day (p/day)"
 								},
 								"standingChargeType": {
 									"type": "string",
-									"description": "Standing charge type. Standardised to 'p/day'."
+									"nullable": true,
+									"description": "Standing charge type"
 								},
 								"unitRate": {
 									"type": "number",
-									"description": "Single unit rate in pence per kWh (p/kWh). Always a number (use for single-rate meters only)."
+									"nullable": true,
+									"description": "Single unit rate in pence per kWh (p/kWh)"
 								},
 								"dayUnitRate": {
 									"type": "number",
-									"description": "Day unit rate in pence per kWh (p/kWh). Always a number (use for dual-rate meters)."
+									"nullable": true,
+									"description": "Day unit rate in pence per kWh (p/kWh)"
 								},
 								"nightUnitRate": {
 									"type": "number",
-									"description": "Night unit rate in pence per kWh (p/kWh). Always a number (use for dual-rate meters)."
+									"nullable": true,
+									"description": "Night unit rate in pence per kWh (p/kWh)"
 								},
 								"estimatedAnnualConsumption": {
 									"type": "number",
+									"nullable": true,
 									"description": "Estimated annual consumption in kWh"
 								},
 								"previous12MonthsConsumption": {
 									"type": "number",
+									"nullable": true,
 									"description": "Previous 12 months consumption in kWh"
 								},
 								"maximumImportCapacity": {
 									"type": "number",
-									"description": "Maximum import capacity in kVA (electricity only)"
+									"nullable": true,
+									"description": "Maximum import capacity in kVA"
 								},
 								"capacityRate": {
 									"type": "number",
-									"description": "Capacity charge rate in pence per kVA per day (p/kVA/day). Always a number (electricity only)."
+									"nullable": true,
+									"description": "Capacity charge rate in pence per kVA per day (p/kVA/day)"
 								},
 								"directDebitDiscount": {
 									"type": "number",
+									"nullable": true,
 									"description": "Direct debit discount percentage"
 								},
 								"brokerName": {
 									"type": "string",
+									"nullable": true,
 									"description": "Name of the energy broker"
 								},
 								"brokerUplift": {
 									"type": "number",
-									"description": "Broker uplift in pence per kWh"
+									"nullable": true,
+									"description": "Broker uplift in pence per kWh (p/kWh)"
 								},
 								"vatRate": {
 									"type": "number",
+									"nullable": true,
 									"description": "VAT rate percentage"
 								}
 							}
