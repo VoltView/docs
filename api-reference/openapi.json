@@ -4660,7 +4660,6 @@
 			},
 			"ParsedContract": {
 				"type": "object",
-				"description": "Parsed contract data. All fields are nullable and depend on what can be extracted from the document.",
 				"properties": {
 					"customerType": {
 						"type": "string",
@@ -5058,7 +5057,6 @@
 			},
 			"IntegrationContract": {
 				"type": "object",
-				"description": "Contract data from integration. All fields are nullable.",
 				"properties": {
 					"customerType": {
 						"type": "string",
@@ -5387,7 +5385,6 @@
 			},
 			"ContractData": {
 				"type": "object",
-				"description": "Extracted contract data. All fields are nullable and depend on what can be extracted from the document.",
 				"properties": {
 					"customerType": {
 						"type": "string",
@@ -5722,7 +5719,6 @@
 			},
 			"ExtractedData": {
 				"type": "object",
-				"description": "Extracted invoice data. All fields are nullable and depend on what can be extracted from the document.",
 				"properties": {
 					"documentType": {
 						"type": "string",
