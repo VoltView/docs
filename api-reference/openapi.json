@@ -5729,16 +5729,19 @@
 					"isStatement": {
 						"type": "boolean",
 						"nullable": true,
+						"example": false,
 						"description": "Whether the document is a statement"
 					},
 					"supplierName": {
 						"type": "string",
 						"nullable": true,
+						"example": "British Gas",
 						"description": "Name of the supplier"
 					},
 					"supplierAccountNumber": {
 						"type": "string",
 						"nullable": true,
+						"example": "850012345678",
 						"description": "Supplier account number"
 					},
 					"customerName": {
