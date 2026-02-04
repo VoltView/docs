@@ -3481,6 +3481,150 @@
 					}
 				}
 			}
+		},
+		"/v1/suppliers/accounts/{accountId}/readings": {
+			"post": {
+				"tags": [
+					"Supplier Integration"
+				],
+				"summary": "Submit meter reading",
+				"description": "Submit a meter reading for a specific meter (MPAN/MPRN) through the supplier's API. Currently supports Octopus Energy and E.ON Next accounts. The reading will be submitted directly to the supplier and stored in VoltView for tracking.",
+				"operationId": "submitMeterReading",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "accountId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "VoltView account ID for the supplier integration"
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"mpanMprn": {
+										"type": "string",
+										"description": "The MPAN (13 digits for electricity) or MPRN (6-10 digits for gas) of the meter"
+									},
+									"reading": {
+										"type": "integer",
+										"minimum": 0,
+										"description": "The meter reading value as a positive integer"
+									},
+									"readAt": {
+										"type": "string",
+										"format": "date",
+										"description": "The date when the reading was taken (ISO 8601 format, e.g., 2026-01-22)"
+									}
+								},
+								"required": [
+									"mpanMprn",
+									"reading",
+									"readAt"
+								]
+							},
+							"example": {
+								"mpanMprn": "1234567890123",
+								"reading": 12345,
+								"readAt": "2026-01-22"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Meter reading submitted successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": true
+										},
+										"message": {
+											"type": "string",
+											"example": "Meter reading submitted successfully"
+										},
+										"data": {
+											"type": "object",
+											"description": "Response data from the supplier"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request - validation error or unsupported supplier",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"message": {
+											"type": "string"
+										},
+										"error": {
+											"type": "string"
+										}
+									}
+								},
+								"examples": {
+									"unsupportedSupplier": {
+										"value": {
+											"success": false,
+											"message": "Meter reading submission is only supported for OCTOPUS_ENERGY, E_ON_NEXT accounts"
+										}
+									},
+									"noAccountNumber": {
+										"value": {
+											"success": false,
+											"message": "No supplier account number found. Please scrape the account first."
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Account or meter not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"message": {
+											"type": "string"
+										},
+										"error": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					},
+					"4XX": {
+						"$ref": "#/components/responses/Error4XX"
+					}
+				}
+			}
 		}
 	},
 	"components": {
