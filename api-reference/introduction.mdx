@@ -56,19 +56,29 @@ Register for a VoltView account to receive your API credentials [**__here__**](h
 
 ## Authentication
 
-The VoltView API uses JWT (JSON Web Token) authentication to secure all endpoints.
+The VoltView API supports two authentication methods:
+
+### Supabase Auth (Web and Mobile Users)
+
+Web and mobile applications authenticate via Supabase Auth. After signing in with a magic link or OTP code, include the access token in the Authorization header:
 
 ```json
 {
-  "Authorization": "Bearer your-jwt-token"
+  "Authorization": "Bearer your-supabase-access-token"
 }
 ```
 
-### Token Management
-- Generate a JWT token using your API credentials
-- Include the token in the Authorization header
-- Tokens expire after 24 hours
-- Invalid tokens return a 401 Unauthorized response
+### API Key (Server-to-Server Integrations)
+
+For programmatic access, include your API key directly on every request:
+
+```json
+{
+  "x-api-key": "your-api-key"
+}
+```
+
+No token exchange is required. The API key authenticates directly on every endpoint.
 
 ### Authentication Error Response
 If authentication fails, you will receive an HTTP 401 Unauthorized response with a detailed error message in the JSON response body.
