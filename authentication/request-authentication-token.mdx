@@ -1,3 +1,37 @@
 ---
-openapi: post /v1/requestToken
+title: Authentication
+description: How to authenticate with the VoltView API
 ---
+
+## Authentication Methods
+
+The VoltView API supports two authentication methods:
+
+### 1. Supabase Auth (Web and Mobile Users)
+
+Web and mobile applications authenticate via Supabase Auth using magic links and OTP codes.
+
+After signing in, include the Supabase access token in the `Authorization` header:
+
+```bash
+curl https://api.voltview.co.uk/v1/sites \
+  -H "Authorization: Bearer <supabase_access_token>"
+```
+
+### 2. API Key (Server-to-Server Integrations)
+
+For programmatic access, include your API key in the `x-api-key` header on every request:
+
+```bash
+curl https://api.voltview.co.uk/v1/sites \
+  -H "x-api-key: your_api_key_here"
+```
+
+No token exchange is required. The API key authenticates directly on every endpoint.
+
+## Error Responses
+
+| Status | Description |
+|--------|-------------|
+| `401 Unauthorized` | Missing or invalid authentication token/key |
+| `403 Forbidden` | Authenticated but insufficient permissions |

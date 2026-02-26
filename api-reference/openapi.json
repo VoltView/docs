@@ -2,7 +2,7 @@
 	"openapi": "3.0.3",
 	"info": {
 		"title": "VoltView API",
-		"description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n- Supplier Integration API - Integrate with utility suppliers for automated data collection\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\n### JWT Authentication\n- Generate a JWT token using your API credentials\n- Include the token in the Authorisation header\n- Tokens expire after 24 hours\n- Invalid tokens return a 401 Unauthorised response\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (£)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
+		"description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n- Supplier Integration API - Integrate with utility suppliers for automated data collection\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\nThe VoltView API supports two authentication methods:\n\n### 1. Supabase Auth (Web and Mobile Users)\n- Sign in via magic link or OTP code sent to your email\n- Include the Supabase access token in the Authorization header: `Authorization: Bearer <token>`\n- Access tokens are automatically refreshed by the Supabase SDK\n\n### 2. API Key (Server-to-Server Integrations)\n- Include your API key in the `x-api-key` header on every request\n- No token exchange required — the key authenticates directly\n- API keys do not expire but can be revoked\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (£)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
 		"version": "1.0.0",
 		"contact": {
 			"email": "info@voltview.co.uk"
@@ -20,6 +20,9 @@
 	"security": [
 		{
 			"bearerAuth": []
+		},
+		{
+			"apiKeyAuth": []
 		}
 	],
 	"tags": [
@@ -65,49 +68,7 @@
 		}
 	],
 	"paths": {
-		"/v1/requestToken": {
-			"post": {
-				"tags": [
-					"Authentication"
-				],
-				"summary": "Request authentication token",
-				"description": "Generates a JWT token for API authentication",
-				"operationId": "requestToken",
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "x-api-key",
-						"required": true,
-						"schema": {
-							"type": "string"
-						},
-						"description": "API key for requesting a token"
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Successful token generation",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"properties": {
-										"token": {
-											"type": "string",
-											"description": "JWT token for API authentication"
-										}
-									}
-								}
-							}
-						}
-					},
-					"4XX": {
-						"$ref": "#/components/responses/Error4XX"
-					}
-				}
-			}
-		},
+	
 		"/v1/getUser": {
 			"get": {
 				"tags": [
@@ -3489,7 +3450,13 @@
 				"type": "http",
 				"scheme": "bearer",
 				"bearerFormat": "JWT",
-				"description": "JWT token obtained from /v1/requestToken endpoint"
+				"description": "Supabase Auth JWT access token obtained after signing in via magic link or OTP"
+			},
+			"apiKeyAuth": {
+				"type": "apiKey",
+				"in": "header",
+				"name": "x-api-key",
+				"description": "API key for server-to-server integrations. Pass the key directly in the x-api-key header on every request. No token exchange required."
 			}
 		},
 		"parameters": {
