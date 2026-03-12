@@ -2272,6 +2272,126 @@
 				}
 			}
 		},
+		"/v1/suppliers/accounts/{id}/readings": {
+			"post": {
+				"tags": [
+					"Supplier Integration"
+				],
+				"summary": "Submit meter reading to supplier",
+				"description": "Submit a meter reading to the supplier (Octopus Energy, E.ON Next, British Gas Lite). The reading is saved to Firestore with status PENDING first, then sent to the supplier; the document is updated to SUCCESS or FAILED. Supports single-register (gas or single-rate electricity), day/night (2 registers), or multi-register (e.g. green/amber/red). Get registerIds from the supplier account's meter details (e.g. from account sites). On failure, the response includes readingId so you can retry within the typical 10-day submission window.",
+				"operationId": "submitMeterReadingToSupplier",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "Supplier account ID"
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SubmitMeterReadingToSupplierRequest"
+							},
+							"examples": {
+								"single": {
+									"summary": "Single read (gas or single-rate electricity)",
+									"value": {
+										"mpanMprn": "1234567890123",
+										"readAt": "2026-03-15",
+										"readings": [
+											{ "registerId": "reg-abc-001", "reading": 45231 }
+										]
+									}
+								},
+								"dayNight": {
+									"summary": "Day/night (two registers)",
+									"value": {
+										"mpanMprn": "1234567890123",
+										"readAt": "2026-03-15",
+										"readings": [
+											{ "registerId": "reg-night-001", "reading": 12000 },
+											{ "registerId": "reg-day-002", "reading": 28500 }
+										]
+									}
+								},
+								"multiRegister": {
+									"summary": "Green/amber/red (multi-register)",
+									"value": {
+										"mpanMprn": "1234567890123",
+										"readAt": "2026-03-15",
+										"readings": [
+											{ "registerId": "reg-green-001", "reading": 5000 },
+											{ "registerId": "reg-amber-002", "reading": 15000 },
+											{ "registerId": "reg-red-003", "reading": 22000 }
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Meter reading submitted successfully to supplier",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": { "type": "boolean", "example": true },
+										"message": { "type": "string" },
+										"readingId": { "type": "string", "description": "Unique id for this submission (for retries)" },
+										"data": { "type": "object", "description": "Supplier API response" },
+										"warning": { "type": "string", "description": "Optional e.g. readAt older than 10 days" }
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request - invalid body, meter not found, or supplier rejected",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": { "type": "boolean", "example": false },
+										"message": { "type": "string" },
+										"readingId": { "type": "string", "description": "Reading saved to Firestore; retry within submission window" },
+										"error": { "type": "string" },
+										"warning": { "type": "string" }
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to save reading to Firestore",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": { "type": "boolean", "example": false },
+										"message": { "type": "string" },
+										"readingId": { "type": "string" }
+									}
+								}
+							}
+						}
+					},
+					"4XX": {
+						"$ref": "#/components/responses/Error4XX"
+					}
+				}
+			}
+		},
 		"/v1/suppliers/references/{referenceId}/accounts": {
 			"get": {
 				"tags": [
@@ -3629,6 +3749,40 @@
 											}
 										}
 									}
+								}
+							}
+						}
+				}
+			}
+			},
+			"SubmitMeterReadingToSupplierRequest": {
+				"type": "object",
+				"required": ["mpanMprn", "readAt", "readings"],
+				"properties": {
+					"mpanMprn": {
+						"type": "string",
+						"description": "MPAN (electricity) or MPRN (gas) for the meter"
+					},
+					"readAt": {
+						"type": "string",
+						"description": "Date of the reading (ISO 8601 date e.g. 2026-03-15)"
+					},
+					"readings": {
+						"type": "array",
+						"minItems": 1,
+						"description": "One or more register readings. Get registerIds from the supplier account's meter details.",
+						"items": {
+							"type": "object",
+							"required": ["registerId", "reading"],
+							"properties": {
+								"registerId": {
+									"type": "string",
+									"description": "Register ID from supplier meter details"
+								},
+								"reading": {
+									"type": "number",
+									"minimum": 0,
+									"description": "Cumulative register value (non-negative integer)"
 								}
 							}
 						}
