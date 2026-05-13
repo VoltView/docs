@@ -56,29 +56,13 @@ Register for a VoltView account to receive your API credentials [**__here__**](h
 
 ## Authentication
 
-The VoltView API supports two authentication methods:
-
-### Supabase Auth (Web and Mobile Users)
-
-Web and mobile applications authenticate via Supabase Auth. After signing in with a magic link or OTP code, include the access token in the Authorization header:
-
-```json
-{
-  "Authorization": "Bearer your-supabase-access-token"
-}
-```
-
-### API Key (Server-to-Server Integrations)
-
-For programmatic access, include your API key directly on every request:
+The VoltView API uses a VoltView API key for authentication. Include your API key directly on every request:
 
 ```json
 {
   "x-api-key": "your-api-key"
 }
 ```
-
-No token exchange is required. The API key authenticates directly on every endpoint.
 
 ### Authentication Error Response
 If authentication fails, you will receive an HTTP 401 Unauthorized response with a detailed error message in the JSON response body.
