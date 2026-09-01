@@ -1,0 +1,34 @@
+---
+title: "Batteries"
+description: "State of charge and charge/discharge data from your battery portal."
+---
+
+Battery data follows solar. VoltView reads the inverter or battery portal. We do not charge, discharge, or change a backup reserve.
+
+A battery belongs to a site and is mapped to the same import MPAN as the solar it sits with, if any.
+
+## What you get
+
+| Series | Unit |
+| --- | --- |
+| State of charge | % |
+| Energy remaining | kWh |
+| Charge and discharge power | kW |
+| Charge and discharge energy in the interval | kWh |
+| Status | charging, discharging, idle, or fault |
+
+With solar and the import meter on the same site, you can see whether the battery charged from solar, from the grid, or covered a peak that would otherwise have been imported.
+
+## Connect
+
+Same options as solar: API token, read-only portal user, installer share, or a file export.
+
+Hybrid inverters often expose PV and battery on one portal. One connection can populate both a solar system and a battery. They are still stored as two assets.
+
+## Supported portals
+
+Battery connectors ship after solar. The first targets are the same portals used for PV, including SolarEdge storage, SMA / Sungrow / Fronius hybrids, and GivEnergy or FoxESS where a site uses them.
+
+## Not included
+
+Remote dispatch, tariff-based optimisation on the battery, or flexibility / VPP enrolment.

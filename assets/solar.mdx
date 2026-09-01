@@ -1,0 +1,43 @@
+---
+title: "Solar"
+description: "Generation data from your inverter portal, mapped to the site meter."
+---
+
+A solar system is one array on one site. VoltView reads generation from the OEM or installer monitoring portal. We do not change inverter settings.
+
+## What you get
+
+| Series | Unit |
+| --- | --- |
+| Instantaneous AC power | kW |
+| Energy generated in the interval | kWh |
+| Period and lifetime yield | kWh |
+| Status | online, fault, or offline |
+
+With half-hourly import (and export, if you have it), VoltView also shows self-consumed generation, exported generation, and the solar offset in kWh and £. Those figures are derived and are not a substitute for a settlement meter.
+
+## Connect
+
+1. API token from the monitoring portal (for example a SolarEdge API key).
+2. A read-only user on the portal.
+3. An installer share of the site.
+4. A CSV or Excel export, if there is no live feed.
+
+Map the system to the site, the import MPAN, installed capacity (kWp), and the portal. Add the export MPAN only if the site has an export agreement.
+
+A site can have more than one array.
+
+## Supported portals
+
+| Portal | Availability |
+| --- | --- |
+| SolarEdge monitoring | Available first |
+| SMA Sunny Portal | Coming next |
+| Sungrow iSolarCloud | Coming next |
+| Fronius Solar.web | Later |
+| Huawei FusionSolar | Later |
+| SolisCloud / GoodWe SEMS | Later |
+
+## Not included
+
+Remote control, curtailment, or firmware. Generation is not inferred from the import meter alone.

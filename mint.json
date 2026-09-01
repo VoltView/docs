@@ -41,32 +41,32 @@
       ]
     },
     {
+      "group": "On-site assets",
+      "pages": [
+        "assets/overview",
+        "assets/solar",
+        "assets/batteries"
+      ]
+    },
+    {
       "group": "API Documentation",
       "pages": [
-        "api-reference/introduction",
-        {
-          "group": "On-site assets",
-          "pages": [
-            "api-reference/assets/overview",
-            "api-reference/assets/solar",
-            "api-reference/assets/batteries"
-          ]
-        }
+        "api-reference/introduction"
       ]
     }
   ],
   "redirects": [
     {
-      "source": "/assets/overview",
-      "destination": "/api-reference/assets/overview"
+      "source": "/api-reference/assets/overview",
+      "destination": "/assets/overview"
     },
     {
-      "source": "/assets/solar",
-      "destination": "/api-reference/assets/solar"
+      "source": "/api-reference/assets/solar",
+      "destination": "/assets/solar"
     },
     {
-      "source": "/assets/batteries",
-      "destination": "/api-reference/assets/batteries"
+      "source": "/api-reference/assets/batteries",
+      "destination": "/assets/batteries"
     }
   ],
   "footerSocials": {

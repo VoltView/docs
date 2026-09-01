@@ -1,0 +1,33 @@
+---
+title: "On-site assets"
+description: "Solar and battery data next to your meters."
+---
+
+On-site assets are the generation and storage on a site: rooftop solar, ground-mount arrays, and batteries.
+
+VoltView connects to your inverter or installer monitoring portal and reads that data next to the site's meters. Access is read-only. We do not change inverter settings or dispatch batteries.
+
+<CardGroup cols={2}>
+  <Card title="Solar" icon="sun" href="/assets/solar">
+    Generation, self-consumption, and export, mapped to the site and its import MPAN.
+  </Card>
+  <Card title="Batteries" icon="battery-full" href="/assets/batteries">
+    State of charge and charge/discharge power, once solar is connected.
+  </Card>
+</CardGroup>
+
+## What you can see
+
+Together with half-hourly meter data, on-site assets show how much the array generated, how much was used on site, and how much was exported.
+
+If a third party owns the array, they grant VoltView access to the monitoring portal.
+
+## How it connects
+
+Each asset belongs to an existing site and is mapped to that site's import MPAN (and export MPAN if you have one).
+
+You connect with an API token from the monitoring portal, a read-only portal user, or an installer share. A file export is available if the portal has no live feed.
+
+## Coverage
+
+We add OEM portals as customers need them. The current list is on the [solar](/assets/solar) page. If your portal is not listed yet, we can still take a file export.
