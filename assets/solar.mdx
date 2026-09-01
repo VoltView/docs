@@ -1,0 +1,95 @@
+---
+title: "Solar"
+description: "Pull generation from the inverter portal and map it to the site meter."
+---
+
+A solar system in VoltView is one array on one site: panels plus inverter(s), identified by the OEM or installer monitoring portal.
+
+v1 is generation data only. We do not change inverter settings.
+
+## What you get
+
+Once a system is connected and mapped to a site:
+
+| Series | Unit | Source |
+| --- | --- | --- |
+| Instantaneous AC power | kW | Inverter / portal |
+| Energy generated in the interval | kWh | Inverter / portal |
+| Lifetime / period yield | kWh | Inverter / portal |
+| Status (online, fault, offline) | enum | Inverter / portal |
+
+When the site also has half-hourly **import** (and, if it exists, **export**) meter data, VoltView derives:
+
+| Derived | How |
+| --- | --- |
+| Self-consumed generation | `min(generation, import + generation - export)` on the interval, or the equivalent from import and generation when there is no export MPAN |
+| Exported generation | Export MPAN if present, otherwise `max(0, generation - import)` as an estimate |
+| Solar offset | Import avoided, in kWh and £ at the site's unit rate |
+
+Derived figures are labelled as derived. They are not a substitute for a settlement meter.
+
+## Connect
+
+Preferred order:
+
+1. **OEM API token** from the monitoring portal (SolarEdge API key, SMA developer key, and so on).
+2. **Read-only portal user** that VoltView uses to pull the same series the dashboard shows.
+3. **Installer share** (the installer invites VoltView or the customer to the site in their portal).
+4. **CSV / Excel export** from the portal. This is a one-off or a scheduled dump, not a live feed.
+
+You need the asset owner's permission in every case. A tenant or offtaker login is not enough if a funder owns the array.
+
+## Map to the site
+
+| Field | Required | Notes |
+| --- | --- | --- |
+| Site | Yes | Existing VoltView site |
+| Import MPAN | Yes | The meter the array offsets |
+| Export MPAN | If the site has one | Do not guess. Leave empty if there is no export agreement |
+| Installed capacity | Yes | kWp, from the commissioning sheet |
+| Commissioning date | If known | Used to bound history |
+| Portal / OEM | Yes | Which connector to use |
+| Inverter serials | If the portal exposes them | Helps when one site has more than one inverter |
+
+A site can have more than one array. Each array is its own system, mapped to the same or different MPANs.
+
+## Ownership
+
+| If this is true | Do this |
+| --- | --- |
+| Customer paid for the array and keeps export | Connect their OEM or installer portal |
+| A funder owns the roof under a PPA | Ask the funder for portal access. Generation and export sit with them |
+| Installer still holds the only admin login | Get a read-only invite, not the installer's password |
+
+PPA roofs will often show consumption on the customer's meter and generation in someone else's portal. VoltView can still show import. It cannot show solar until the owner shares the feed.
+
+## Supported in v1
+
+We start with one OEM and add the next when a live site needs it.
+
+| Portal | Status | Typical use |
+| --- | --- | --- |
+| SolarEdge monitoring | First connector | Commercial rooftops already on SolarEdge |
+| SMA Sunny Portal | Next | Common on UK C&I |
+| Sungrow iSolarCloud | Next | Growing C&I share |
+| Fronius Solar.web | Later | Mixed commercial |
+| Huawei FusionSolar | Later | Mixed commercial |
+| SolisCloud / GoodWe SEMS | Later | Smaller commercial |
+
+Enphase is mostly microinverters on smaller roofs. We will not pretend it is a C&I default.
+
+If the inverter brand is unknown, get the installer name and the portal URL before promising a connector. Do not assume SolarEdge.
+
+## What we do not do yet
+
+- Control, curtailment, or firmware.
+- Building a generation figure from the import meter alone.
+- Treating a PPA offtake invoice as generation data.
+- A public "every OEM" coverage list. The table above is the list.
+
+## Checks after first pull
+
+1. Capacity on the asset matches the commissioning sheet (kWp).
+2. First day's generation is in a plausible range for the roof, not zero and not above capacity × daylight hours.
+3. Intervals line up with the import MPAN (same timezone, same settlement clock).
+4. If there is an export MPAN, export ≤ generation on each interval.
