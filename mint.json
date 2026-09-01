@@ -41,17 +41,17 @@
       ]
     },
     {
-      "group": "On-site assets",
-      "pages": [
-        "api-reference/assets/overview",
-        "api-reference/assets/solar",
-        "api-reference/assets/batteries"
-      ]
-    },
-    {
       "group": "API Documentation",
       "pages": [
-        "api-reference/introduction"
+        "api-reference/introduction",
+        {
+          "group": "On-site assets",
+          "pages": [
+            "api-reference/assets/overview",
+            "api-reference/assets/solar",
+            "api-reference/assets/batteries"
+          ]
+        }
       ]
     }
   ],
