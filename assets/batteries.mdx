@@ -1,0 +1,78 @@
+---
+title: "Batteries"
+description: "Read state of charge and charge/discharge power. After solar."
+---
+
+Batteries follow solar. Same rule: VoltView reads the inverter or battery portal. We do not dispatch the battery in v1.
+
+A battery in VoltView is one storage system on one site, mapped to the same site and import MPAN as the solar it sits with (if any).
+
+## When this ships
+
+After the solar connect-and-map path is live on at least one OEM. Do not promise battery data on a site until that path exists.
+
+## What you get
+
+| Series | Unit | Source |
+| --- | --- | --- |
+| State of charge | % | Battery / hybrid inverter portal |
+| Energy remaining | kWh | Derived from usable capacity × SOC, or from the portal if it sends it |
+| Charge power | kW | Portal (positive into the battery) |
+| Discharge power | kW | Portal (positive out of the battery) |
+| Charge / discharge energy in the interval | kWh | Portal |
+| Status | enum | Online, charging, discharging, idle, fault |
+
+With solar and the import meter on the same site, VoltView can then show whether the battery charged from solar, from the grid, or covered a peak that would otherwise have been imported.
+
+Those splits are derived. They need all three feeds (solar, battery, meter) on the same interval.
+
+## Connect
+
+Same preference order as solar:
+
+1. OEM API token.
+2. Read-only portal user.
+3. Installer share.
+4. File export (not a live feed).
+
+Hybrid inverters often expose PV and battery on the **same** portal. In that case one connection can populate both a solar system and a battery on the site. Still store them as two assets so the meter mapping stays explicit.
+
+## Map to the site
+
+| Field | Required | Notes |
+| --- | --- | --- |
+| Site | Yes | Existing VoltView site |
+| Import MPAN | Yes | The meter the battery can offset |
+| Usable capacity | Yes | kWh, not nameplate if they differ |
+| Coupled solar system | If present | Link to the VoltView solar asset |
+| Portal / OEM | Yes | Which connector to use |
+
+## Ownership
+
+Same test as solar. If a funder owns the battery, their portal is the one that matters. Many UK C&I PPA roofs have **no storage**. Do not create a battery asset because the customer is "interested in batteries."
+
+## Supported after solar
+
+No battery connector is in v1 until solar is shipping. The first targets are the portals we will already be in for PV:
+
+| Portal | Notes |
+| --- | --- |
+| SolarEdge Energy Bank / storedge | Same monitoring login as the PV |
+| SMA / Sungrow / Fronius hybrid | Same as the PV portal where the site is hybrid |
+| GivEnergy, FoxESS | Common UK storage; add when a live site uses them |
+
+Residential products (for example Powerwall on a house) are not the C&I default. Add them only for a real site.
+
+## What we do not do yet
+
+- Charge, discharge, or change a backup reserve.
+- Tariff-based optimisation on the battery.
+- Flexibility / VPP enrolment.
+- Sizing or payback as a live control loop. Modelling stays in the account conversation, not in the asset API.
+
+## Checks after first pull
+
+1. Usable kWh matches the commissioning sheet.
+2. SOC stays in 0–100 and moves when charge/discharge power is non-zero.
+3. Interval energy is consistent with average power over the interval.
+4. If linked solar exists, battery charge in daylight is not treated as grid charge without looking at generation.
