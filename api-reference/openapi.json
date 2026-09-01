@@ -3184,12 +3184,12 @@
 												"properties": {
 													"activeImportKwh": {
 														"type": "number",
-														"description": "Active energy imported (main consumption) in kWh",
+														"description": "Active energy imported (main consumption) in kWh. True energy, not a raw register index.",
 														"example": 5223
 													},
 													"activeExportKwh": {
 														"type": "number",
-														"description": "Active energy exported in kWh (for sites with generation)"
+														"description": "Active energy exported in kWh (for sites with generation). Use the export MPAN when one exists."
 													},
 													"dayConsumption": {
 														"type": "number",
@@ -3201,7 +3201,7 @@
 													},
 													"reactiveImportKvarh": {
 														"type": "number",
-														"description": "Reactive energy imported in kvarh (electricity only)"
+														"description": "Reactive energy imported in kvarh (electricity only). Do not infer this from kWh."
 													},
 													"reactiveExportKvarh": {
 														"type": "number",
@@ -3209,7 +3209,7 @@
 													},
 													"apparentKvah": {
 														"type": "number",
-														"description": "Apparent energy consumption in kVAh (electricity only)"
+														"description": "Apparent energy consumption in kVAh (electricity only). On a sine wave, kVAh² ≈ kWh² + kvarh²."
 													}
 												}
 											},
@@ -3933,20 +3933,20 @@
 					},
 					"peak": {
 						"type": "number",
-						"description": "Peak power demand in kW"
+						"description": "Highest average power in a settlement interval (typically 30 minutes), in kW. This is measured maximum demand, not contracted MIC (kVA)."
 					},
 					"timestamp": {
 						"type": "string",
 						"format": "date-time",
-						"description": "Timestamp of peak demand"
+						"description": "Start of the interval that set the peak"
 					},
 					"averageDemand": {
 						"type": "number",
-						"description": "Average power demand in kW"
+						"description": "Mean power over the requested window, in kW"
 					},
 					"loadFactor": {
 						"type": "number",
-						"description": "Load factor as a percentage"
+						"description": "Average demand divided by peak, as a percentage. High values mean the site uses its peak steadily; low values mean a short spike."
 					}
 				}
 			},
@@ -4941,7 +4941,7 @@
 								"maximumImportCapacity": {
 									"type": "number",
 									"nullable": true,
-									"description": "Maximum import capacity in kVA"
+									"description": "Contracted maximum import capacity (MIC) in kVA. Agreed with the DNO/IDNO; not the measured peak demand."
 								},
 								"capacityRate": {
 									"type": "number",
@@ -5338,7 +5338,7 @@
 								"maximumImportCapacity": {
 									"type": "number",
 									"nullable": true,
-									"description": "Maximum import capacity in kVA"
+									"description": "Contracted maximum import capacity (MIC) in kVA. Agreed with the DNO/IDNO; not the measured peak demand."
 								},
 								"capacityRate": {
 									"type": "number",
@@ -5666,7 +5666,7 @@
 								"maximumImportCapacity": {
 									"type": "number",
 									"nullable": true,
-									"description": "Maximum import capacity in kVA"
+									"description": "Contracted maximum import capacity (MIC) in kVA. Agreed with the DNO/IDNO; not the measured peak demand."
 								},
 								"capacityRate": {
 									"type": "number",
@@ -5733,17 +5733,17 @@
 					"consumptionkWh": {
 						"type": "number",
 						"format": "float",
-						"description": "Active energy consumption in kilowatt-hours (kWh)"
+						"description": "Active energy consumption in kilowatt-hours (kWh). On a CT-metered supply this is already multiplied; do not multiply the register index again."
 					},
 					"consumptionKvarh": {
 						"type": "number",
 						"format": "float",
-						"description": "Reactive energy consumption in kilovar-hours (kvarh)"
+						"description": "Reactive energy imported in kilovar-hours (kvarh). Electricity only. Used with kWh to imply power factor; not a gas field."
 					},
 					"consumptionKvah": {
 						"type": "number",
 						"format": "float",
-						"description": "Apparent energy consumption in kilovolt-ampere-hours (kVAh)"
+						"description": "Apparent energy in kilovolt-ampere-hours (kVAh). Electricity only. On a sine wave, kVAh² ≈ kWh² + kvarh²."
 					},
 					"dayConsumption": {
 						"type": "number",
@@ -6891,11 +6891,11 @@
 								},
 								"value": {
 									"type": "number",
-									"description": "Consumption/demand value"
+									"description": "Interval consumption (kWh) or demand (kW). Peak kW in this series is maximum demand, not contracted MIC."
 								},
 								"unit": {
 									"type": "string",
-									"description": "Unit of measurement (kWh or kW)"
+									"description": "kWh for energy, kW for demand. Not kVA."
 								}
 							}
 						}

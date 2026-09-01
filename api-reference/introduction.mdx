@@ -73,8 +73,11 @@ The VoltView API uses the following standardized units across all endpoints:
 
 | Metric | Unit |
 |--------|------|
-| Energy Consumption | kWh |
-| Power Demand | kW |
+| Active energy | kWh |
+| Reactive energy | kvarh |
+| Apparent energy | kVAh |
+| Power demand | kW |
+| Capacity (MIC) | kVA |
 | Carbon Emissions | kg CO2eq |
 | Currency | GBP (£) |
 | Time Series | ISO 8601 format |
@@ -82,3 +85,5 @@ The VoltView API uses the following standardized units across all endpoints:
 | Meter Point Numbers | MPAN/MPRN format |
 | Supplier Read Frequency | Minutes/Hours/Days |
 | Reading Type | Actual/Estimated |
+
+kWh is what the site consumed. kvarh and kVAh appear on electricity invoices and in bill-validation consumption objects when the meter or the supplier provides them. Capacity is contracted in kVA; measured peak demand is returned in kW. See [Energy and power](/metering/energy-and-power) and [Demand and capacity](/metering/demand).

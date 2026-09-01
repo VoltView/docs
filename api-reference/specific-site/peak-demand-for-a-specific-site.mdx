@@ -1,3 +1,7 @@
 ---
 openapi: get /v1/sites/{siteId}/peakDemand
 ---
+
+`peak` is the highest average power in a settlement interval (typically 30 minutes), in kW. `loadFactor` is average demand divided by that peak. Neither field is the contracted MIC, which is in kVA.
+
+See [Demand and capacity](/metering/demand).

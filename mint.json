@@ -41,6 +41,14 @@
       ]
     },
     {
+      "group": "Metering",
+      "pages": [
+        "metering/overview",
+        "metering/energy-and-power",
+        "metering/demand"
+      ]
+    },
+    {
       "group": "On-site assets",
       "pages": [
         "assets/overview",

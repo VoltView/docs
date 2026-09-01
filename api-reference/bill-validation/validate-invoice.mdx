@@ -2,6 +2,8 @@
 openapi: post /v1/billValidation/validateInvoice
 ---
 
+Optional `userConsumptionData` can include active kWh, reactive kvarh, and apparent kVAh. If a register index and billed kWh disagree by a round factor, check the [billing multiplier](/metering/energy-and-power#billing-multiplier) before treating it as a parse error.
+
 
 
 

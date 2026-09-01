@@ -22,7 +22,7 @@ After the solar connect-and-map path is live on at least one OEM. Do not promise
 | Charge / discharge energy in the interval | kWh | Portal |
 | Status | enum | Online, charging, discharging, idle, fault |
 
-With solar and the import meter on the same site, VoltView can then show whether the battery charged from solar, from the grid, or covered a peak that would otherwise have been imported.
+With solar and the import meter on the same site, VoltView can then show whether the battery charged from solar, from the grid, or covered a peak that would otherwise have been imported. "Covered a peak" means the battery discharged in the same settlement interval as the [maximum demand](/metering/demand) — usually a half-hour.
 
 Those splits are derived. They need all three feeds (solar, battery, meter) on the same interval.
 
