@@ -43,9 +43,9 @@
     {
       "group": "On-site assets",
       "pages": [
-        "assets/overview",
-        "assets/solar",
-        "assets/batteries"
+        "api-reference/assets/overview",
+        "api-reference/assets/solar",
+        "api-reference/assets/batteries"
       ]
     },
     {
@@ -53,6 +53,20 @@
       "pages": [
         "api-reference/introduction"
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/assets/overview",
+      "destination": "/api-reference/assets/overview"
+    },
+    {
+      "source": "/assets/solar",
+      "destination": "/api-reference/assets/solar"
+    },
+    {
+      "source": "/assets/batteries",
+      "destination": "/api-reference/assets/batteries"
     }
   ],
   "footerSocials": {
