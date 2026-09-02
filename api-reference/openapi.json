@@ -2,7 +2,7 @@
 	"openapi": "3.0.3",
 	"info": {
 		"title": "VoltView API",
-		"description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n- Supplier Integration API - Integrate with utility suppliers for automated data collection\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\nInclude your VoltView API key in the `x-api-key` header on every request.\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (£)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
+		"description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n- Supplier Integration API - Integrate with utility suppliers for automated data collection\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\nInclude your VoltView API key in the `x-api-key` header on every request.\n\n### Authentication error response\nIf authentication fails, you will receive an HTTP 401 Unauthorised response with a detailed error message in the JSON response body.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (\u00a3)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
 		"version": "1.0.0",
 		"contact": {
 			"email": "info@voltview.co.uk"
@@ -34,6 +34,10 @@
 		{
 			"name": "Sites",
 			"description": "Multi-site management endpoints"
+		},
+		{
+			"name": "On-site assets",
+			"description": "Read-only solar generation and battery data from the inverter or installer portal"
 		},
 		{
 			"name": "Energy Consumption",
@@ -69,7 +73,6 @@
 		}
 	],
 	"paths": {
-	
 		"/v1/getUser": {
 			"get": {
 				"tags": [
@@ -375,6 +378,112 @@
 									"type": "array",
 									"items": {
 										"$ref": "#/components/schemas/Address"
+									}
+								}
+							}
+						}
+					},
+					"4XX": {
+						"$ref": "#/components/responses/Error4XX"
+					}
+				}
+			}
+		},
+		"/v1/assets": {
+			"get": {
+				"tags": [
+					"On-site assets"
+				],
+				"summary": "On-site assets",
+				"description": "List solar systems and batteries mapped to the authenticated user's sites. v1 is read-only: VoltView pulls generation and storage from the inverter or installer portal and does not charge, discharge, or change setpoints.",
+				"operationId": "getOnSiteAssets",
+				"responses": {
+					"200": {
+						"description": "On-site assets retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/OnSiteAsset"
+									}
+								}
+							}
+						}
+					},
+					"4XX": {
+						"$ref": "#/components/responses/Error4XX"
+					}
+				}
+			}
+		},
+		"/v1/assets/solar": {
+			"get": {
+				"tags": [
+					"On-site assets"
+				],
+				"summary": "Solar",
+				"description": "Read-only solar generation for arrays mapped to a site and its import MPAN. Returns instantaneous AC power, interval generation, yield, and status from the inverter portal. Derived self-consumption and export are labelled as derived.",
+				"operationId": "getSolarAssets",
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/granularity"
+					},
+					{
+						"$ref": "#/components/parameters/from"
+					},
+					{
+						"$ref": "#/components/parameters/to"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Solar systems retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/SolarSystem"
+									}
+								}
+							}
+						}
+					},
+					"4XX": {
+						"$ref": "#/components/responses/Error4XX"
+					}
+				}
+			}
+		},
+		"/v1/assets/batteries": {
+			"get": {
+				"tags": [
+					"On-site assets"
+				],
+				"summary": "Batteries",
+				"description": "Read-only battery state of charge and charge/discharge power. A battery is one storage system on a site, mapped to the same import MPAN as the solar it sits with if any. VoltView does not dispatch the battery.",
+				"operationId": "getBatteryAssets",
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/granularity"
+					},
+					{
+						"$ref": "#/components/parameters/from"
+					},
+					{
+						"$ref": "#/components/parameters/to"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Batteries retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/BatterySystem"
 									}
 								}
 							}
@@ -2306,7 +2415,10 @@
 										"mpanMprn": "1234567890123",
 										"readAt": "2026-03-15",
 										"readings": [
-											{ "registerId": "reg-abc-001", "reading": 45231 }
+											{
+												"registerId": "reg-abc-001",
+												"reading": 45231
+											}
 										]
 									}
 								},
@@ -2316,8 +2428,14 @@
 										"mpanMprn": "1234567890123",
 										"readAt": "2026-03-15",
 										"readings": [
-											{ "registerId": "reg-night-001", "reading": 12000 },
-											{ "registerId": "reg-day-002", "reading": 28500 }
+											{
+												"registerId": "reg-night-001",
+												"reading": 12000
+											},
+											{
+												"registerId": "reg-day-002",
+												"reading": 28500
+											}
 										]
 									}
 								},
@@ -2327,9 +2445,18 @@
 										"mpanMprn": "1234567890123",
 										"readAt": "2026-03-15",
 										"readings": [
-											{ "registerId": "reg-green-001", "reading": 5000 },
-											{ "registerId": "reg-amber-002", "reading": 15000 },
-											{ "registerId": "reg-red-003", "reading": 22000 }
+											{
+												"registerId": "reg-green-001",
+												"reading": 5000
+											},
+											{
+												"registerId": "reg-amber-002",
+												"reading": 15000
+											},
+											{
+												"registerId": "reg-red-003",
+												"reading": 22000
+											}
 										]
 									}
 								}
@@ -2345,11 +2472,25 @@
 								"schema": {
 									"type": "object",
 									"properties": {
-										"success": { "type": "boolean", "example": true },
-										"message": { "type": "string" },
-										"readingId": { "type": "string", "description": "Unique id for this submission (for retries)" },
-										"data": { "type": "object", "description": "Supplier API response" },
-										"warning": { "type": "string", "description": "Optional e.g. readAt older than 10 days" }
+										"success": {
+											"type": "boolean",
+											"example": true
+										},
+										"message": {
+											"type": "string"
+										},
+										"readingId": {
+											"type": "string",
+											"description": "Unique id for this submission (for retries)"
+										},
+										"data": {
+											"type": "object",
+											"description": "Supplier API response"
+										},
+										"warning": {
+											"type": "string",
+											"description": "Optional e.g. readAt older than 10 days"
+										}
 									}
 								}
 							}
@@ -2362,11 +2503,23 @@
 								"schema": {
 									"type": "object",
 									"properties": {
-										"success": { "type": "boolean", "example": false },
-										"message": { "type": "string" },
-										"readingId": { "type": "string", "description": "Reading saved to Firestore; retry within submission window" },
-										"error": { "type": "string" },
-										"warning": { "type": "string" }
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"message": {
+											"type": "string"
+										},
+										"readingId": {
+											"type": "string",
+											"description": "Reading saved to Firestore; retry within submission window"
+										},
+										"error": {
+											"type": "string"
+										},
+										"warning": {
+											"type": "string"
+										}
 									}
 								}
 							}
@@ -2379,9 +2532,16 @@
 								"schema": {
 									"type": "object",
 									"properties": {
-										"success": { "type": "boolean", "example": false },
-										"message": { "type": "string" },
-										"readingId": { "type": "string" }
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"message": {
+											"type": "string"
+										},
+										"readingId": {
+											"type": "string"
+										}
 									}
 								}
 							}
@@ -3139,7 +3299,7 @@
 					"Bill Validation"
 				],
 				"summary": "Validate invoice",
-				"description": "Validates an invoice against contract data and optional user-provided consumption data. Performs comprehensive validation including consumption matching, meter reading verification, and check against contract.\n\n**Validation Rules:**\n- Meter Reading Logic: Current reading must be ≥ previous reading\n- Contract Matching: Invoice date must fall within contract period\n- MPAN Matching: At least one MPAN must match between invoice and contract\n\n**Data Sources:**\n- Manual uploads from parseInvoice endpoint\n- Invoices from Supplier Integration system\n- User-provided consumption and meter reading data",
+				"description": "Validates an invoice against contract data and optional user-provided consumption data. Performs comprehensive validation including consumption matching, meter reading verification, and check against contract.\n\n**Validation Rules:**\n- Meter Reading Logic: Current reading must be \u2265 previous reading\n- Contract Matching: Invoice date must fall within contract period\n- MPAN Matching: At least one MPAN must match between invoice and contract\n\n**Data Sources:**\n- Manual uploads from parseInvoice endpoint\n- Invoices from Supplier Integration system\n- User-provided consumption and meter reading data",
 				"operationId": "validateInvoice",
 				"requestBody": {
 					"required": true,
@@ -3209,7 +3369,7 @@
 													},
 													"apparentKvah": {
 														"type": "number",
-														"description": "Apparent energy consumption in kVAh (electricity only). On a sine wave, kVAh² ≈ kWh² + kvarh²."
+														"description": "Apparent energy consumption in kVAh (electricity only). On a sine wave, kVAh\u00b2 \u2248 kWh\u00b2 + kvarh\u00b2."
 													}
 												}
 											},
@@ -3747,12 +3907,16 @@
 								}
 							}
 						}
+					}
 				}
-			}
 			},
 			"SubmitMeterReadingToSupplierRequest": {
 				"type": "object",
-				"required": ["mpanMprn", "readAt", "readings"],
+				"required": [
+					"mpanMprn",
+					"readAt",
+					"readings"
+				],
 				"properties": {
 					"mpanMprn": {
 						"type": "string",
@@ -3768,7 +3932,10 @@
 						"description": "One or more register readings. Get registerIds from the supplier account's meter details.",
 						"items": {
 							"type": "object",
-							"required": ["registerId", "reading"],
+							"required": [
+								"registerId",
+								"reading"
+							],
 							"properties": {
 								"registerId": {
 									"type": "string",
@@ -4114,7 +4281,12 @@
 				"properties": {
 					"documentType": {
 						"type": "string",
-						"enum": ["invoice", "statement", "credit_note", "debit_note"],
+						"enum": [
+							"invoice",
+							"statement",
+							"credit_note",
+							"debit_note"
+						],
 						"nullable": true,
 						"description": "Type of document"
 					},
@@ -4152,7 +4324,11 @@
 							"properties": {
 								"itemType": {
 									"type": "string",
-									"enum": ["invoice", "credit", "debit"],
+									"enum": [
+										"invoice",
+										"credit",
+										"debit"
+									],
 									"nullable": true,
 									"description": "Type of item"
 								},
@@ -4224,7 +4400,10 @@
 											},
 											"supplyType": {
 												"type": "string",
-												"enum": ["electricity", "gas"],
+												"enum": [
+													"electricity",
+													"gas"
+												],
 												"nullable": true,
 												"description": "Type of supply"
 											},
@@ -4259,7 +4438,17 @@
 													"properties": {
 														"category": {
 															"type": "string",
-															"enum": ["energy", "standing", "distribution", "transmission", "environmental", "capacity", "metering", "adjustment", "other"],
+															"enum": [
+																"energy",
+																"standing",
+																"distribution",
+																"transmission",
+																"environmental",
+																"capacity",
+																"metering",
+																"adjustment",
+																"other"
+															],
 															"nullable": true,
 															"description": "Charge category"
 														},
@@ -4292,7 +4481,10 @@
 														},
 														"readingType": {
 															"type": "string",
-															"enum": ["actual", "estimated"],
+															"enum": [
+																"actual",
+																"estimated"
+															],
 															"nullable": true,
 															"description": "Type of reading"
 														},
@@ -4349,7 +4541,10 @@
 														},
 														"type": {
 															"type": "string",
-															"enum": ["actual", "estimated"],
+															"enum": [
+																"actual",
+																"estimated"
+															],
 															"nullable": true,
 															"description": "Type of reading"
 														},
@@ -4365,7 +4560,13 @@
 														},
 														"register": {
 															"type": "string",
-															"enum": ["day", "night", "peak", "off_peak", "other"],
+															"enum": [
+																"day",
+																"night",
+																"peak",
+																"off_peak",
+																"other"
+															],
 															"nullable": true,
 															"description": "Register type"
 														}
@@ -4555,7 +4756,7 @@
 					},
 					"cclRate": {
 						"type": "number",
-						"description": "Climate Change Levy rate in pence per kWh (p/kWh). Converted from £/kWh if necessary (e.g., 0.00775 £/kWh becomes 0.775 p/kWh)."
+						"description": "Climate Change Levy rate in pence per kWh (p/kWh). Converted from \u00a3/kWh if necessary (e.g., 0.00775 \u00a3/kWh becomes 0.775 p/kWh)."
 					},
 					"vatRate": {
 						"type": "number",
@@ -4625,27 +4826,27 @@
 					},
 					"totalUnitCharge": {
 						"type": "number",
-						"description": "Total charge for units consumed in £"
+						"description": "Total charge for units consumed in \u00a3"
 					},
 					"totalStandingCharge": {
 						"type": "number",
-						"description": "Total standing charge amount in £"
+						"description": "Total standing charge amount in \u00a3"
 					},
 					"capacityCharge": {
 						"type": "number",
-						"description": "Total capacity charge in £ (for electricity only)"
+						"description": "Total capacity charge in \u00a3 (for electricity only)"
 					},
 					"amountDueNetOfVat": {
 						"type": "number",
-						"description": "Total amount due before VAT in £"
+						"description": "Total amount due before VAT in \u00a3"
 					},
 					"vat": {
 						"type": "number",
-						"description": "VAT amount in £"
+						"description": "VAT amount in \u00a3"
 					},
 					"totalAmount": {
 						"type": "number",
-						"description": "Total invoice amount including VAT in £"
+						"description": "Total invoice amount including VAT in \u00a3"
 					},
 					"confidence": {
 						"type": "number",
@@ -4779,7 +4980,10 @@
 				"properties": {
 					"customerType": {
 						"type": "string",
-						"enum": ["domestic", "non_domestic"],
+						"enum": [
+							"domestic",
+							"non_domestic"
+						],
 						"nullable": true,
 						"description": "Customer classification - residential (domestic) or business (non_domestic)"
 					},
@@ -4874,7 +5078,10 @@
 								},
 								"supplyType": {
 									"type": "string",
-									"enum": ["electricity", "gas"],
+									"enum": [
+										"electricity",
+										"gas"
+									],
 									"nullable": true,
 									"description": "Type of supply"
 								},
@@ -5058,7 +5265,7 @@
 					},
 					"cclRate": {
 						"type": "number",
-						"description": "Climate Change Levy rate in pence per kWh (p/kWh). Converted from £/kWh if necessary (e.g., 0.00775 £/kWh becomes 0.775 p/kWh)."
+						"description": "Climate Change Levy rate in pence per kWh (p/kWh). Converted from \u00a3/kWh if necessary (e.g., 0.00775 \u00a3/kWh becomes 0.775 p/kWh)."
 					},
 					"vatRate": {
 						"type": "number",
@@ -5128,27 +5335,27 @@
 					},
 					"totalUnitCharge": {
 						"type": "number",
-						"description": "Total charge for units consumed in £"
+						"description": "Total charge for units consumed in \u00a3"
 					},
 					"totalStandingCharge": {
 						"type": "number",
-						"description": "Total standing charge amount in £"
+						"description": "Total standing charge amount in \u00a3"
 					},
 					"capacityCharge": {
 						"type": "number",
-						"description": "Total capacity charge in £ (for electricity only)"
+						"description": "Total capacity charge in \u00a3 (for electricity only)"
 					},
 					"amountDueNetOfVat": {
 						"type": "number",
-						"description": "Total amount due before VAT in £"
+						"description": "Total amount due before VAT in \u00a3"
 					},
 					"vat": {
 						"type": "number",
-						"description": "VAT amount in £"
+						"description": "VAT amount in \u00a3"
 					},
 					"totalAmount": {
 						"type": "number",
-						"description": "Total invoice amount including VAT in £"
+						"description": "Total invoice amount including VAT in \u00a3"
 					},
 					"status": {
 						"type": "string",
@@ -5176,7 +5383,10 @@
 				"properties": {
 					"customerType": {
 						"type": "string",
-						"enum": ["domestic", "non_domestic"],
+						"enum": [
+							"domestic",
+							"non_domestic"
+						],
 						"nullable": true,
 						"description": "Customer classification - residential (domestic) or business (non_domestic)"
 					},
@@ -5271,7 +5481,10 @@
 								},
 								"supplyType": {
 									"type": "string",
-									"enum": ["electricity", "gas"],
+									"enum": [
+										"electricity",
+										"gas"
+									],
 									"nullable": true,
 									"description": "Type of supply"
 								},
@@ -5504,7 +5717,10 @@
 				"properties": {
 					"customerType": {
 						"type": "string",
-						"enum": ["domestic", "non_domestic"],
+						"enum": [
+							"domestic",
+							"non_domestic"
+						],
 						"nullable": true,
 						"description": "Customer classification - residential (domestic) or business (non_domestic)"
 					},
@@ -5599,7 +5815,10 @@
 								},
 								"supplyType": {
 									"type": "string",
-									"enum": ["electricity", "gas"],
+									"enum": [
+										"electricity",
+										"gas"
+									],
 									"nullable": true,
 									"description": "Type of supply"
 								},
@@ -5743,7 +5962,7 @@
 					"consumptionKvah": {
 						"type": "number",
 						"format": "float",
-						"description": "Apparent energy in kilovolt-ampere-hours (kVAh). Electricity only. On a sine wave, kVAh² ≈ kWh² + kvarh²."
+						"description": "Apparent energy in kilovolt-ampere-hours (kVAh). Electricity only. On a sine wave, kVAh\u00b2 \u2248 kWh\u00b2 + kvarh\u00b2."
 					},
 					"dayConsumption": {
 						"type": "number",
@@ -5783,17 +6002,17 @@
 					"totalUnitCharge": {
 						"type": "number",
 						"format": "float",
-						"description": "Total charge for consumption in £"
+						"description": "Total charge for consumption in \u00a3"
 					},
 					"totalStandingCharge": {
 						"type": "number",
 						"format": "float",
-						"description": "Total standing charge in GBP (£)"
+						"description": "Total standing charge in GBP (\u00a3)"
 					},
 					"capacityCharge": {
 						"type": "number",
 						"format": "float",
-						"description": "Total capacity charge in GBP (£) for the billing period (for electricity only). Note: capacity rate per kVA/day is in the charges array with rateUnit 'p/kVA/day'."
+						"description": "Total capacity charge in GBP (\u00a3) for the billing period (for electricity only). Note: capacity rate per kVA/day is in the charges array with rateUnit 'p/kVA/day'."
 					},
 					"currentMeterReading": {
 						"type": "number",
@@ -5838,7 +6057,12 @@
 				"properties": {
 					"documentType": {
 						"type": "string",
-						"enum": ["invoice", "statement", "credit_note", "debit_note"],
+						"enum": [
+							"invoice",
+							"statement",
+							"credit_note",
+							"debit_note"
+						],
 						"nullable": true,
 						"description": "Type of document"
 					},
@@ -5879,7 +6103,11 @@
 							"properties": {
 								"itemType": {
 									"type": "string",
-									"enum": ["invoice", "credit", "debit"],
+									"enum": [
+										"invoice",
+										"credit",
+										"debit"
+									],
 									"nullable": true,
 									"description": "Type of invoice item"
 								},
@@ -5951,7 +6179,10 @@
 											},
 											"supplyType": {
 												"type": "string",
-												"enum": ["electricity", "gas"],
+												"enum": [
+													"electricity",
+													"gas"
+												],
 												"nullable": true,
 												"description": "Type of supply"
 											},
@@ -5986,7 +6217,17 @@
 													"properties": {
 														"category": {
 															"type": "string",
-															"enum": ["energy", "standing", "distribution", "transmission", "environmental", "capacity", "metering", "adjustment", "other"],
+															"enum": [
+																"energy",
+																"standing",
+																"distribution",
+																"transmission",
+																"environmental",
+																"capacity",
+																"metering",
+																"adjustment",
+																"other"
+															],
 															"nullable": true,
 															"description": "Charge category"
 														},
@@ -6019,7 +6260,10 @@
 														},
 														"readingType": {
 															"type": "string",
-															"enum": ["actual", "estimated"],
+															"enum": [
+																"actual",
+																"estimated"
+															],
 															"nullable": true,
 															"description": "Type of reading"
 														},
@@ -6076,7 +6320,10 @@
 														},
 														"type": {
 															"type": "string",
-															"enum": ["actual", "estimated"],
+															"enum": [
+																"actual",
+																"estimated"
+															],
 															"nullable": true,
 															"description": "Type of reading"
 														},
@@ -6092,7 +6339,13 @@
 														},
 														"register": {
 															"type": "string",
-															"enum": ["day", "night", "peak", "off_peak", "other"],
+															"enum": [
+																"day",
+																"night",
+																"peak",
+																"off_peak",
+																"other"
+															],
 															"nullable": true,
 															"description": "Register type"
 														}
@@ -6438,7 +6691,7 @@
 								},
 								"avgTemp": {
 									"type": "number",
-									"description": "Average temperature in °C"
+									"description": "Average temperature in \u00b0C"
 								}
 							}
 						}
@@ -6942,7 +7195,7 @@
 					},
 					"intensity": {
 						"type": "number",
-						"description": "Energy intensity in kWh/m²"
+						"description": "Energy intensity in kWh/m\u00b2"
 					},
 					"period": {
 						"type": "string",
@@ -6989,6 +7242,175 @@
 					"category": {
 						"type": "string",
 						"description": "Recommendation category"
+					}
+				}
+			},
+			"OnSiteAsset": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Asset identifier"
+					},
+					"siteId": {
+						"type": "string",
+						"description": "Site the asset is mapped to"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"SOLAR",
+							"BATTERY"
+						],
+						"description": "Asset type"
+					},
+					"importMpan": {
+						"type": "string",
+						"description": "Import MPAN the asset is mapped to"
+					},
+					"exportMpan": {
+						"type": "string",
+						"description": "Export MPAN if the site has one"
+					},
+					"portal": {
+						"type": "string",
+						"description": "OEM or installer monitoring portal"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"ONLINE",
+							"FAULT",
+							"OFFLINE"
+						],
+						"description": "Asset status from the portal"
+					}
+				}
+			},
+			"SolarSystem": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Solar system identifier"
+					},
+					"siteId": {
+						"type": "string",
+						"description": "Site the array is mapped to"
+					},
+					"importMpan": {
+						"type": "string",
+						"description": "Import MPAN the array offsets"
+					},
+					"exportMpan": {
+						"type": "string",
+						"description": "Export MPAN if the site has one"
+					},
+					"installedCapacityKwp": {
+						"type": "number",
+						"description": "Installed capacity in kWp"
+					},
+					"commissioningDate": {
+						"type": "string",
+						"format": "date",
+						"description": "Commissioning date if known"
+					},
+					"portal": {
+						"type": "string",
+						"description": "OEM or installer monitoring portal"
+					},
+					"acPowerKw": {
+						"type": "number",
+						"description": "Instantaneous AC power in kW"
+					},
+					"generationKwh": {
+						"type": "number",
+						"description": "Energy generated in the interval in kWh"
+					},
+					"lifetimeYieldKwh": {
+						"type": "number",
+						"description": "Lifetime or period yield in kWh"
+					},
+					"selfConsumedKwh": {
+						"type": "number",
+						"description": "Derived self-consumed generation in kWh"
+					},
+					"exportedKwh": {
+						"type": "number",
+						"description": "Derived or metered exported generation in kWh"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"ONLINE",
+							"FAULT",
+							"OFFLINE"
+						],
+						"description": "Inverter / portal status"
+					}
+				}
+			},
+			"BatterySystem": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Battery identifier"
+					},
+					"siteId": {
+						"type": "string",
+						"description": "Site the battery is mapped to"
+					},
+					"importMpan": {
+						"type": "string",
+						"description": "Import MPAN the battery can offset"
+					},
+					"usableCapacityKwh": {
+						"type": "number",
+						"description": "Usable capacity in kWh"
+					},
+					"coupledSolarId": {
+						"type": "string",
+						"description": "Linked solar system if present"
+					},
+					"portal": {
+						"type": "string",
+						"description": "OEM or installer monitoring portal"
+					},
+					"stateOfChargePct": {
+						"type": "number",
+						"description": "State of charge as a percentage"
+					},
+					"energyRemainingKwh": {
+						"type": "number",
+						"description": "Energy remaining in kWh"
+					},
+					"chargePowerKw": {
+						"type": "number",
+						"description": "Charge power in kW, positive into the battery"
+					},
+					"dischargePowerKw": {
+						"type": "number",
+						"description": "Discharge power in kW, positive out of the battery"
+					},
+					"chargeEnergyKwh": {
+						"type": "number",
+						"description": "Charge energy in the interval in kWh"
+					},
+					"dischargeEnergyKwh": {
+						"type": "number",
+						"description": "Discharge energy in the interval in kWh"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"ONLINE",
+							"CHARGING",
+							"DISCHARGING",
+							"IDLE",
+							"FAULT"
+						],
+						"description": "Battery status from the portal"
 					}
 				}
 			}

@@ -48,6 +48,13 @@ Our API suite includes the following core services:
   >
     Validate and audit utility bills for accuracy
   </Card>
+  <Card
+    title="On-site assets"
+    icon="solar-panel"
+    href="/api-reference/on-site-assets/on-site-assets"
+  >
+    Read-only solar generation and battery data from the inverter or installer portal
+  </Card>
 </CardGroup>
 
 ## Getting Started
@@ -85,5 +92,3 @@ The VoltView API uses the following standardized units across all endpoints:
 | Meter Point Numbers | MPAN/MPRN format |
 | Supplier Read Frequency | Minutes/Hours/Days |
 | Reading Type | Actual/Estimated |
-
-kWh is what the site consumed. kvarh and kVAh appear on electricity invoices and in bill-validation consumption objects when the meter or the supplier provides them. Capacity is contracted in kVA; measured peak demand is returned in kW. See [Energy and power](/metering/energy-and-power) and [Demand and capacity](/metering/demand).

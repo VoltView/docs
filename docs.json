@@ -1,0 +1,92 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "VoltView",
+  "colors": {
+    "primary": "#000000",
+    "light": "#FFFFFF",
+    "dark": "#000000"
+  },
+  "favicon": "/favicon.png",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "register"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": {
+          "source": "/api-reference/openapi.json",
+          "directory": "api-reference"
+        },
+        "groups": [
+          {
+            "group": "API Documentation",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/voltview-logo-light.svg",
+    "dark": "/logo/voltview-logo-dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:hi@voltview.co.uk"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://portal.voltview.co.uk"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/VoltViewUK",
+      "github": "https://github.com/VoltView",
+      "linkedin": "https://www.linkedin.com/company/voltview"
+    }
+  },
+  "redirects": [
+    {
+      "source": "/assets/overview",
+      "destination": "/api-reference/on-site-assets/on-site-assets"
+    },
+    {
+      "source": "/api-reference/assets/overview",
+      "destination": "/api-reference/on-site-assets/on-site-assets"
+    },
+    {
+      "source": "/assets/solar",
+      "destination": "/api-reference/on-site-assets/solar"
+    },
+    {
+      "source": "/api-reference/assets/solar",
+      "destination": "/api-reference/on-site-assets/solar"
+    },
+    {
+      "source": "/assets/batteries",
+      "destination": "/api-reference/on-site-assets/batteries"
+    },
+    {
+      "source": "/api-reference/assets/batteries",
+      "destination": "/api-reference/on-site-assets/batteries"
+    }
+  ]
+}
