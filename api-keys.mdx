@@ -1,0 +1,63 @@
+---
+title: API keys
+description: Create and manage personal read-only integration keys
+---
+
+API-key settings are available when enabled for your VoltView deployment. Sign in
+on web or mobile and open **Settings → API keys**. Shared demo accounts cannot
+create keys. Each user manages only their own credentials.
+
+## Create a key
+
+Choose a name, read permissions, sites and expiry. **Never expires** is the default.
+The default site selection is a snapshot of your currently accessible sites.
+Sites assigned later need a replacement key. Removing a site from your account
+removes the key's access on its next request. Moving business revokes scoped keys.
+
+Copy the secret when it is shown. It cannot be displayed again. Save it in your
+integration's secret store; never put it in a URL, analytics event or source file.
+Later views show its masked identifier, permissions, expiry, last use and status.
+Last use may lag by five minutes.
+
+| Permission | Supported REST GET routes |
+| --- | --- |
+| `sites:read` | `/v1/sites` |
+| `meters:read` | `/v1/sites/:siteId/meters` |
+| `consumption:read` | `/v1/sites/timeSeries`, `/v1/sites/:siteId/timeSeries` |
+| `costs:read` | `/v1/sites/cost`, `/v1/sites/:siteId/cost` |
+| `invoices:read` | `/v1/sites/invoices` |
+| `tariffs:read` | `/v1/sites/tariffs`, `/v1/sites/:siteId/tariffs` |
+
+All other routes and all writes are denied for new scoped keys. Permissions are
+also limited by your current site access. The optional **Connect an AI assistant**
+permission (`mcp:connect`) appears only for internal pilot users; see [MCP](/mcp).
+
+## Rotate or revoke
+
+Rotation gives you a new secret with the same permissions and site selection.
+The old key works for up to 24 hours, or until its earlier expiry. Update the
+integration then revoke the old key. You may revoke any owned key immediately;
+its next request will fail, including requests for cached data. Rotation preserves
+a key's existing expiry, including no expiry.
+
+Legacy credentials remain marked **Legacy key** and retain their existing REST
+restrictions until revoked or replaced. They do not automatically gain MCP access.
+Contact VoltView for a staff-managed legacy rotation.
+
+## Management API
+
+These endpoints require your signed-in VoltView **Bearer JWT**, never an API key.
+
+| Endpoint | Response |
+| --- | --- |
+| `GET /v1/api-keys` | Owned metadata, accessible sites and available read permissions |
+| `POST /v1/api-keys` | New metadata and `secret`, shown once |
+| `POST /v1/api-keys/:id/rotate` | Successor metadata, `secret` and predecessor expiry |
+| `POST /v1/api-keys/:id/revoke` | `{ "revoked": true }` |
+
+Create body: `label`, `scopes`, optional `siteIds` and `expiresInDays`.
+Use `null` (or omit) for never; finite choices are `30`, `90`, `365` days.
+Omitting `siteIds` takes a snapshot; passing `[]` grants no site access.
+Owner, internal privileges and custom route grants cannot be set by customers.
+Responses are `Cache-Control: no-store`. Do not retry mutations automatically;
+refresh the list after an interrupted request before deciding what to do.

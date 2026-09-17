@@ -17,7 +17,9 @@
             "group": "Get Started",
             "pages": [
               "introduction",
-              "register"
+              "register",
+              "api-keys",
+              "mcp"
             ]
           }
         ]
