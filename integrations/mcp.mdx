@@ -1,13 +1,13 @@
 ---
 title: VoltView MCP pilot
-description: Connect Codex and Claude Desktop to authorised VoltView data
+description: Connect ChatGPT, Codex and Claude Desktop to authorised VoltView data
 ---
 
 The internal pilot is read-only. It runs at `https://api.voltview.co.uk/mcp` when
 enabled. Your VoltView account must be on the pilot allowlist, and your scoped
 API key must include `mcp:connect` plus the data permissions you want to use.
-Create the key in [Settings → API keys](/api-keys). Public OAuth connections,
-Claude browser connections and write tools are not part of this release.
+Create the key in [Settings → API keys](/api-keys). Access remains limited to
+internal pilot users. Write tools are unavailable.
 
 ## Tools
 
@@ -42,6 +42,24 @@ Rate values are decimal strings: `unitRatePence`, `dayRatePence`, `nightRatePenc
 are pence/kWh and `standingChargePence` is pence/day. `rateSource`, `rateSourceRef`
 and `rateIsEstimated` distinguish evidenced from inferred rates. Reading estimate
 labels describe consumption quality and do not establish the quality of the rate.
+
+## ChatGPT website
+
+1. In VoltView **Settings → API keys**, select **New key**. Name it **ChatGPT**,
+   enable **AI assistant**, and choose read permissions and sites.
+2. In ChatGPT web, enable developer mode and create an MCP app. Use
+   `https://api.voltview.co.uk/mcp`, **OAuth**, and dynamic client registration.
+   Leave optional client ID and secret fields empty.
+3. Enter the key on the **VoltView** connection page. Review access and select
+   **Connect**. Never paste the key into a ChatGPT message or a URL.
+4. Select VoltView in a conversation and ask: “List my sites.”
+
+Revoke the key in VoltView to disconnect immediately. After rotating a key,
+reconnect using its replacement before the old key expires. Connections need
+reauthorization after 30 days, or sooner if the key expires. This connection
+requires the separate ChatGPT pilot switch to be enabled.
+
+See [ChatGPT developer mode](https://developers.openai.com/api/docs/guides/developer-mode).
 
 ## Codex
 

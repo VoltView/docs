@@ -9,7 +9,7 @@ create keys. Each user manages only their own credentials.
 
 ## Create a key
 
-Choose a name, read permissions, sites and expiry. **Never expires** is the default.
+Select **New key**, then choose a name, read permissions, sites and expiry. **Never** is the default.
 The default site selection is a snapshot of your currently accessible sites.
 Sites assigned later need a replacement key. Removing a site from your account
 removes the key's access on its next request. Moving business revokes scoped keys.
@@ -29,7 +29,7 @@ Last use may lag by five minutes.
 | `tariffs:read` | `/v1/sites/tariffs`, `/v1/sites/:siteId/tariffs` |
 
 All other routes and all writes are denied for new scoped keys. Permissions are
-also limited by your current site access. The optional **Connect an AI assistant**
+also limited by your current site access. The optional **AI assistant**
 permission (`mcp:connect`) appears only for internal pilot users; see [MCP](/integrations/mcp).
 
 ## Rotate or revoke
