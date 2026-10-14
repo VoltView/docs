@@ -33,7 +33,7 @@ The Supplier Integration API provides the following endpoints:
 
 ## Authentication
 
-All Supplier Integration API endpoints require authentication using a JWT bearer token. Obtain a token using the [Authentication](/api-reference/authentication/request-token) endpoint.
+Supplier Integration API endpoints require a signed-in VoltView session token in the `Authorization: Bearer <token>` header. They do not accept API keys. See [Authentication](/api-reference/authentication/request-authentication-token).
 
 ## Data Access
 
