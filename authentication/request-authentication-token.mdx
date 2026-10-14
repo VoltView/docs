@@ -3,20 +3,51 @@ title: Authentication
 description: How to authenticate with the VoltView API
 ---
 
-## Authentication
+## Two kinds of credential
 
-The VoltView API uses a VoltView API key for authentication.
+| Credential | Header | Works on |
+|---|---|---|
+| Session token (from signing in to VoltView) | `Authorization: Bearer <token>` | Every endpoint |
+| API key (`vv_...`, created in Settings → API keys) | `x-api-key: <key>` | Endpoints marked **API key**, within the key's scopes |
 
-Include your VoltView API key in the `x-api-key` header on every request:
+Send an API key only in `x-api-key`. An API key sent as `Authorization: Bearer` returns `401 Unauthorized`, and sending both headers together is rejected.
 
 ```bash
 curl https://api.voltview.co.uk/v1/sites \
   -H "x-api-key: your_api_key_here"
 ```
 
-## Error Responses
+There is no token exchange step: use the API key directly on each request.
 
-| Status | Description |
+## How API keys are scoped
+
+An API key acts as the person who created it, so it can never do more than their own account. When you create a key you also choose:
+
+- **Scopes**, which decide the endpoints it can call. You can only pick scopes your account holds.
+- **Sites**, which limit the data it can see to the sites you select.
+
+| Scope | Lets the key |
+|---|---|
+| `sites:read` | List sites, site details, statistics and EPCs |
+| `meters:read` | List meters and read meter readings |
+| `meters:write` | Submit meter readings and delete meters (admins only) |
+| `meters:lookup` | Look up meters by MPAN, MPRN or address (needs meter lookup on your account) |
+| `consumption:read` | Time series, load curves, peak demand, annual consumption and degree days |
+| `costs:read` | Modelled and invoiced costs, CSV exports and annual spend |
+| `emissions:read` | Emissions, energy intensity and carbon intensity |
+| `invoices:read` | Supplier invoices for your sites |
+| `tariffs:read` | Site tariffs and tariff search |
+| `billing:read` | Your VoltView invoices (needs billing access on your account) |
+| `users:read` | Your own profile |
+
+Site and user management, LOAs, bill validation and supplier integration endpoints need a signed-in session and do not accept API keys. API key management always needs a signed-in session.
+
+Keys do not expire unless you set a lifetime when creating them. Revoke a key to stop it working immediately.
+
+## Error responses
+
+| Status | Meaning |
 |--------|-------------|
-| `401 Unauthorized` | Missing or invalid API key |
-| `403 Forbidden` | Authenticated but insufficient permissions |
+| `401 Unauthorized` | Missing, invalid, expired or revoked credential |
+| `403 Forbidden`: `This key does not permit this operation` | The key lacks the scope for this endpoint, or the endpoint does not accept API keys |
+| `403 Forbidden` (other message) | Your account lacks the permission, or the key cannot access the requested site |

@@ -63,16 +63,14 @@ Register for a VoltView account to receive your API credentials [**__here__**](h
 
 ## Authentication
 
-The VoltView API uses a VoltView API key for authentication. Include your API key directly on every request:
+Every endpoint accepts a signed-in VoltView session token. Many read endpoints, plus meter lookups and meter reads, also accept a VoltView API key sent in the `x-api-key` header:
 
-```json
-{
-  "x-api-key": "your-api-key"
-}
+```bash
+curl https://api.voltview.co.uk/v1/sites \
+  -H "x-api-key: your_api_key_here"
 ```
 
-### Authentication Error Response
-If authentication fails, you will receive an HTTP 401 Unauthorized response with a detailed error message in the JSON response body.
+Each endpoint page says whether it accepts an API key and which scope the key needs. See [Authentication](/api-reference/authentication/request-authentication-token) for how keys are scoped.
 
 ## Data Units
 
