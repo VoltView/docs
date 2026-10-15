@@ -1,0 +1,76 @@
+---
+title: Connect VoltView to Claude
+description: Ask Claude about your business energy use, costs, bills and tariffs.
+---
+
+Connect your VoltView account to Claude to ask questions about the sites you manage. Sign in to VoltView, review the access summary and select **Connect to Claude**. You do not need to create or copy an API key.
+
+<Note>
+The connector is being introduced to approved accounts first. If it is not available for your account, contact [support@voltview.co.uk](mailto:support@voltview.co.uk). Directory availability depends on Anthropic's review.
+</Note>
+
+## Connect
+
+You need a VoltView account with at least one accessible site and a Claude account that supports connectors. Your organisation may require an owner or administrator to enable it.
+
+1. In Claude, open **Settings → Connectors**. Select VoltView when it is available in the directory. For a pilot custom connector, use `https://api.voltview.co.uk/mcp`.
+2. Select **Connect**. VoltView opens in your browser.
+3. If you are signed out, use your usual VoltView email link or six-digit code. You return to the connection automatically. Keep the link in the same browser; if it opens on another device, request a new code in the original browser and enter it there.
+4. Check the service name, email, business, sites and read permissions, then select **Connect to Claude**. Choose **Use another account** if the details are wrong, or **Cancel** to stop.
+5. Return to Claude and ask it to list your VoltView sites.
+
+Your web browser remembers your VoltView sign-in across tabs and restarts until you sign out. Sign out on shared computers. Native app sessions are unchanged.
+
+## What Claude can access
+
+Access is read-only and limited to the sites shown when you connect. Removing your access to a site takes effect on the next request. To include sites added later, disconnect and reconnect.
+
+| Tool | What it returns |
+| --- | --- |
+| `list_sites` | Accessible sites, their IDs, names, postcodes and recent data quality. |
+| `get_site_meters` | The meters at a selected site, their utility and supplier details. |
+| `get_consumption` | Stored consumption in kWh for a chosen period, with measured and estimated readings identified. |
+| `get_modelled_costs` | Calculated costs in GBP including VAT. These are estimates from stored readings and rates, not supplier invoice totals. |
+| `list_invoices` | Supplier bill summaries, dates and amounts. No PDFs, download links or document contents. |
+| `get_tariffs` | Stored rates, contract dates and the source of each rate. |
+
+The connector cannot change data, start collection, link supplier accounts, request quotes or make purchases. A bill covering sites you cannot access is omitted in full.
+
+## Try these prompts
+
+- “List my VoltView sites, then show the meters at the first site.”
+- “How much electricity did this site use last month? Separate measured and estimated consumption.”
+- “Compare this site's calculated energy costs for the last two complete months. Explain any gaps in the data.”
+- “Show the latest supplier invoice summaries for this site. Keep invoiced amounts separate from calculated costs.”
+- “Which electricity tariff is this site on? Show the rates, their units and where they came from.”
+
+Start with a site name. Claude can use `list_sites` to find its ID before calling the other tools.
+
+## Disconnect
+
+In VoltView, open **Settings → API keys**, find **Claude connector**, and select **Disconnect**. The next data request is denied, including requests using previously issued tokens. Remove the connector in Claude as well if you no longer want it displayed there.
+
+Disconnection does not remove answers already returned to Claude. Their storage and use are governed by your Claude account settings and Anthropic's terms. See the [VoltView privacy policy](https://www.voltview.co.uk/privacy-policy).
+
+## Troubleshooting
+
+| Message or symptom | What to do |
+| --- | --- |
+| Connection expired or opened in another browser | Start a new connection from Claude in the browser where you will sign in. |
+| Account cannot connect | Check you used the right account and that it has sites. Contact support if access is still unavailable. |
+| Email link opened on another device | Return to the original browser, request a new code and enter it there. No connection is approved on the other device. |
+| Account or sites changed during consent | Reload, review the new details and approve again. |
+| A newly added site is missing | Disconnect and reconnect to approve the updated site list. |
+| No readings or costs | Try a period covered by the site's stored data. Missing consumption is not a measured zero. |
+| Too many requests | Wait a minute and retry. |
+| Connection stopped working | Reconnect from Claude. If that fails, contact support with the time and message shown, never a token, code or API key. |
+
+## Technical limits
+
+The remote connector uses Streamable HTTP and OAuth with PKCE. The existing desktop extension remains supported; this release is for the remote connector.
+
+Lists return up to 100 records per page (50 by default). Follow `nextOffset` until it is null. Periods are limited to three years and 1,000 returned buckets. Choose a shorter period or coarser granularity if needed.
+
+Use ISO timestamps with a timezone. Consumption uses a start-inclusive, end-exclusive period. Daily and monthly costs include the UTC days touched by the period; hourly costs include the end timestamp. Use midnight UTC boundaries for full-day reports. Tariff rates are decimal strings in pence per kWh, and standing charges are pence per day.
+
+For help, email [support@voltview.co.uk](mailto:support@voltview.co.uk).

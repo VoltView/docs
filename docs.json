@@ -19,6 +19,12 @@
               "introduction",
               "register"
             ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/mcp"
+            ]
           }
         ]
       },
