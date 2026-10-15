@@ -2,7 +2,7 @@
 	"openapi": "3.0.3",
 	"info": {
 		"title": "VoltView API",
-		"description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n- Supplier Integration API - Integrate with utility suppliers for automated data collection\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\nEvery endpoint accepts a signed-in VoltView session token in the `Authorization: Bearer <token>` header.\n\nEndpoints marked **API key** also accept a VoltView API key in the `x-api-key` header. Create keys in Settings \u2192 API keys. A key acts as you, so it can never do more than your own account, and it is further limited to the scopes and sites you choose when creating it. Keys do not expire unless you set a lifetime; revoke a key to stop it working.\n\nSend an API key only in `x-api-key`. Sending it as `Authorization: Bearer` returns 401, and sending both headers together is rejected.\n\n### Authentication errors\n- `401 Unauthorized`: missing, invalid, expired or revoked credential.\n- `403 Forbidden` with `This key does not permit this operation`: the key is valid but lacks the scope for this endpoint, or the endpoint does not accept API keys.\n- `403 Forbidden` from the endpoint itself: your account lacks the permission (for example meter lookup or admin) or access to the requested site.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (\u00a3)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
+		"description": "The VoltView API provides comprehensive energy monitoring and management capabilities for multi-site businesses, enabling real-time tracking of energy consumption, cost analysis, and environmental impact metrics.\n\nOur API suite includes:\n- Site Management API - Manage and monitor multiple site locations\n- Energy Consumption API - Access detailed energy usage data\n- Cost Analysis API - Track and analyse energy costs\n- Environmental Metrics API - Monitor carbon emissions and energy efficiency\n- Bill Validation API - Validate and audit utility bills for accuracy\n- Supplier Integration API - Integrate with utility suppliers for automated data collection\n\n## Getting started guide\n\nTo start using the VoltView API, you need to:\n\n- Sign up for a VoltView account to receive your API credentials\n- Review our data granularity options (hourly/daily/monthly)\n- Ensure your requests are sent via HTTPS\n- All responses are returned in JSON format\n\n## Authentication\n\nSend a session token as `Authorization: Bearer <token>`, or an API key as `x-api-key: <key>` on endpoints marked **API key**.\n\n- `401`: missing or invalid credential.\n- `403`: the key lacks the scope, or your account lacks access.\n\n## Data Units\n- Energy Consumption: kWh\n- Power Demand: kW\n- Carbon Emissions: kg CO2e/tonnes CO2e\n- Currency: GBP (\u00a3)\n- Time Series: ISO 8601 format\n- Numeric Values: Rounded to 2 decimal places",
 		"version": "1.0.0",
 		"contact": {
 			"email": "info@voltview.co.uk"
@@ -83,7 +83,7 @@
 					"User"
 				],
 				"summary": "Fetch user profile",
-				"description": "Retrieves the authenticated user's profile information\n\n**API key:** requires the `users:read` scope.",
+				"description": "Retrieves the authenticated user's profile information\n\n**API key:** `users:read`",
 				"operationId": "getUser",
 				"responses": {
 					"200": {
@@ -255,7 +255,7 @@
 					"Sites"
 				],
 				"summary": "List all sites",
-				"description": "Retrieves all sites associated with the authenticated user\n\nScoped API keys require `sites:read` and effective site access.\n\n**API key:** requires the `sites:read` scope.",
+				"description": "Retrieves all sites associated with the authenticated user\n\nScoped API keys require `sites:read` and effective site access.\n\n**API key:** `sites:read`",
 				"operationId": "getSites",
 				"responses": {
 					"200": {
@@ -523,7 +523,7 @@
 					"Meters"
 				],
 				"summary": "Get site meters",
-				"description": "Retrieve all meters associated with a specific site.\n\nScoped API keys require `meters:read` and effective site access.\n\n**API key:** requires the `meters:read` scope.",
+				"description": "Retrieve all meters associated with a specific site.\n\nScoped API keys require `meters:read` and effective site access.\n\n**API key:** `meters:read`",
 				"operationId": "getSiteMeters",
 				"parameters": [
 					{
@@ -624,7 +624,7 @@
 					"Meters"
 				],
 				"summary": "Delete meter",
-				"description": "Delete a specific meter. Requires admin permissions. User must have access to the site where the meter is located.\n\n**API key:** requires the `meters:write` scope. Your account must be an admin.",
+				"description": "Delete a specific meter. Requires admin permissions. User must have access to the site where the meter is located.\n\n**API key:** `meters:write`. Admins only.",
 				"operationId": "deleteMeter",
 				"parameters": [
 					{
@@ -677,7 +677,7 @@
 					"Meters"
 				],
 				"summary": "Lookup meters by postcode",
-				"description": "Search for meters by postcode. Returns a list of addresses with their corresponding addressIds. Requires hasMeterLookup permission.\n\n**API key:** requires the `meters:lookup` scope. Your account must have meter lookup enabled.",
+				"description": "Search for meters by postcode. Returns a list of addresses with their corresponding addressIds. Requires hasMeterLookup permission.\n\n**API key:** `meters:lookup`. Needs meter lookup.",
 				"operationId": "lookupMetersByPostcode",
 				"parameters": [
 					{
@@ -738,7 +738,7 @@
 					"Meters"
 				],
 				"summary": "Get meter details by address ID",
-				"description": "Retrieve full meter details using the addressId from the postcode search. Returns MPAN/MPRN, supplier info, EAC data, and address details. Requires hasMeterLookup permission.\n\n**API key:** requires the `meters:lookup` scope. Your account must have meter lookup enabled.",
+				"description": "Retrieve full meter details using the addressId from the postcode search. Returns MPAN/MPRN, supplier info, EAC data, and address details. Requires hasMeterLookup permission.\n\n**API key:** `meters:lookup`. Needs meter lookup.",
 				"operationId": "getMeterDetailsByAddressId",
 				"parameters": [
 					{
@@ -796,7 +796,7 @@
 					"Meters"
 				],
 				"summary": "Bulk meter lookup",
-				"description": "Look up multiple meters at once for a specific customer. Maximum 50 lookups per request. Efficiently uses cache to avoid repeat API calls. Requires hasMeterLookup permission.\n\n**API key:** requires the `meters:lookup` scope. Your account must have meter lookup enabled.",
+				"description": "Look up multiple meters at once for a specific customer. Maximum 50 lookups per request. Efficiently uses cache to avoid repeat API calls. Requires hasMeterLookup permission.\n\n**API key:** `meters:lookup`. Needs meter lookup.",
 				"operationId": "bulkMeterLookup",
 				"requestBody": {
 					"required": true,
@@ -878,7 +878,7 @@
 					"Meters"
 				],
 				"summary": "Get meter reads",
-				"description": "List meter reads for a meter with optional date range filtering and pagination.\n\n**API key:** requires the `meters:read` scope.",
+				"description": "List meter reads for a meter with optional date range filtering and pagination.\n\n**API key:** `meters:read`",
 				"operationId": "getMeterReads",
 				"parameters": [
 					{
@@ -981,7 +981,7 @@
 					"Meters"
 				],
 				"summary": "Create meter read",
-				"description": "Create a new meter read.\n\n**API key:** requires the `meters:write` scope.",
+				"description": "Create a new meter read.\n\n**API key:** `meters:write`",
 				"operationId": "createMeterRead",
 				"parameters": [
 					{
@@ -1141,7 +1141,7 @@
 					"Sites"
 				],
 				"summary": "Peak demand for all sites",
-				"description": "Retrieves peak power demand data across all sites\n\n**API key:** requires the `consumption:read` scope.",
+				"description": "Retrieves peak power demand data across all sites\n\n**API key:** `consumption:read`",
 				"operationId": "getSitesPeakDemand",
 				"responses": {
 					"200": {
@@ -1179,7 +1179,7 @@
 					"Emissions"
 				],
 				"summary": "Annual consumption and emissions for all sites",
-				"description": "Retrieves annual energy consumption and emissions data across all sites\n\n**API key:** requires the `consumption:read` scope.",
+				"description": "Retrieves annual energy consumption and emissions data across all sites\n\n**API key:** `consumption:read`",
 				"operationId": "getSitesAnnualConsumptionAndEmissions",
 				"responses": {
 					"200": {
@@ -1216,7 +1216,7 @@
 					"Sites"
 				],
 				"summary": "Annual spend and savings for all sites",
-				"description": "Retrieves annual energy spending and cost savings data across all sites\n\n**API key:** requires the `costs:read` scope.",
+				"description": "Retrieves annual energy spending and cost savings data across all sites\n\n**API key:** `costs:read`",
 				"operationId": "getSitesAnnualSpendAndSavings",
 				"responses": {
 					"200": {
@@ -1253,7 +1253,7 @@
 					"Sites"
 				],
 				"summary": "Tariffs for all sites",
-				"description": "Retrieves energy tariff information across all sites\n\nScoped API keys require `tariffs:read` and effective site access.\n\n**API key:** requires the `tariffs:read` scope.",
+				"description": "Retrieves energy tariff information across all sites\n\nScoped API keys require `tariffs:read` and effective site access.\n\n**API key:** `tariffs:read`",
 				"operationId": "getSitesTariffs",
 				"responses": {
 					"200": {
@@ -1290,7 +1290,7 @@
 					"Sites"
 				],
 				"summary": "Invoices for all sites",
-				"description": "Retrieves invoice information across all sites\n\nScoped API keys require `invoices:read` and effective site access.\n\n**API key:** requires the `invoices:read` scope.",
+				"description": "Retrieves invoice information across all sites\n\nScoped API keys require `invoices:read` and effective site access.\n\n**API key:** `invoices:read`",
 				"operationId": "getSitesInvoices",
 				"responses": {
 					"200": {
@@ -1327,7 +1327,7 @@
 					"Sites"
 				],
 				"summary": "Energy cost data for all sites",
-				"description": "Retrieves energy cost data across all sites\n\nScoped API keys require `costs:read` and effective site access.\n\n**API key:** requires the `costs:read` scope.",
+				"description": "Retrieves energy cost data across all sites\n\nScoped API keys require `costs:read` and effective site access.\n\n**API key:** `costs:read`",
 				"operationId": "getSitesCost",
 				"parameters": [
 					{
@@ -1378,7 +1378,7 @@
 					"Emissions"
 				],
 				"summary": "Emissions data for all sites",
-				"description": "Retrieves carbon emissions data across all sites\n\n**API key:** requires the `emissions:read` scope.",
+				"description": "Retrieves carbon emissions data across all sites\n\n**API key:** `emissions:read`",
 				"operationId": "getSitesEmissions",
 				"parameters": [
 					{
@@ -1420,7 +1420,7 @@
 					"Sites"
 				],
 				"summary": "Energy intensity for all sites",
-				"description": "Retrieves energy intensity metrics across all sites\n\n**API key:** requires the `emissions:read` scope.",
+				"description": "Retrieves energy intensity metrics across all sites\n\n**API key:** `emissions:read`",
 				"operationId": "getSitesEnergyIntensity",
 				"responses": {
 					"200": {
@@ -1457,7 +1457,7 @@
 					"Sites"
 				],
 				"summary": "Statistics for all sites",
-				"description": "Retrieves statistical data across all sites\n\n**API key:** requires the `sites:read` scope.",
+				"description": "Retrieves statistical data across all sites\n\n**API key:** `sites:read`",
 				"operationId": "getSitesStats",
 				"responses": {
 					"200": {
@@ -1494,7 +1494,7 @@
 					"Emissions"
 				],
 				"summary": "Marginal carbon intensity",
-				"description": "Retrieves marginal carbon intensity data\n\n**API key:** requires the `emissions:read` scope.",
+				"description": "Retrieves marginal carbon intensity data\n\n**API key:** `emissions:read`",
 				"operationId": "getMarginalCarbonIntensity",
 				"responses": {
 					"200": {
@@ -1528,7 +1528,7 @@
 					"Sites"
 				],
 				"summary": "Energy recommendations",
-				"description": "Retrieves energy efficiency recommendations\n\n**API key:** requires the `emissions:read` scope.",
+				"description": "Retrieves energy efficiency recommendations\n\n**API key:** `emissions:read`",
 				"operationId": "getEnergyRecommendation",
 				"responses": {
 					"200": {
@@ -1566,7 +1566,7 @@
 					"Emissions"
 				],
 				"summary": "Annual consumption and emissions for a specific site",
-				"description": "Retrieves annual energy consumption and emissions data for a specific site\n\n**API key:** requires the `consumption:read` scope.",
+				"description": "Retrieves annual energy consumption and emissions data for a specific site\n\n**API key:** `consumption:read`",
 				"operationId": "getSiteSpecificAnnualConsumptionAndEmissions",
 				"parameters": [
 					{
@@ -1605,7 +1605,7 @@
 					"Specific Site"
 				],
 				"summary": "Annual spend and savings for a specific site",
-				"description": "Retrieves annual energy spending and savings data for a specific site\n\n**API key:** requires the `costs:read` scope.",
+				"description": "Retrieves annual energy spending and savings data for a specific site\n\n**API key:** `costs:read`",
 				"operationId": "getSiteSpecificAnnualSpendAndSavings",
 				"parameters": [
 					{
@@ -1644,7 +1644,7 @@
 					"Specific Site"
 				],
 				"summary": "Peak demand for a specific site",
-				"description": "Retrieves peak power demand data for a specific site\n\n**API key:** requires the `consumption:read` scope.",
+				"description": "Retrieves peak power demand data for a specific site\n\n**API key:** `consumption:read`",
 				"operationId": "getSiteSpecificPeakDemand",
 				"parameters": [
 					{
@@ -1683,7 +1683,7 @@
 					"Specific Site"
 				],
 				"summary": "Tariffs for a specific site",
-				"description": "Retrieves energy tariff information for a specific site\n\nScoped API keys require `tariffs:read` and effective site access.\n\n**API key:** requires the `tariffs:read` scope.",
+				"description": "Retrieves energy tariff information for a specific site\n\nScoped API keys require `tariffs:read` and effective site access.\n\n**API key:** `tariffs:read`",
 				"operationId": "getSiteSpecificTariffs",
 				"parameters": [
 					{
@@ -1738,7 +1738,7 @@
 					"Specific Site"
 				],
 				"summary": "Statistics for a specific site",
-				"description": "Retrieves statistical data for a specific site\n\n**API key:** requires the `sites:read` scope.",
+				"description": "Retrieves statistical data for a specific site\n\n**API key:** `sites:read`",
 				"operationId": "getSiteSpecificStats",
 				"parameters": [
 					{
@@ -1777,7 +1777,7 @@
 					"Specific Site"
 				],
 				"summary": "Energy intensity for a specific site",
-				"description": "Retrieves energy intensity metrics for a specific site\n\n**API key:** requires the `emissions:read` scope.",
+				"description": "Retrieves energy intensity metrics for a specific site\n\n**API key:** `emissions:read`",
 				"operationId": "getSiteSpecificEnergyIntensity",
 				"parameters": [
 					{
@@ -1816,7 +1816,7 @@
 					"Specific Site"
 				],
 				"summary": "Energy cost data for a specific site",
-				"description": "Retrieves energy cost data for a specific site\n\nScoped API keys require `costs:read` and effective site access.\n\n**API key:** requires the `costs:read` scope.",
+				"description": "Retrieves energy cost data for a specific site\n\nScoped API keys require `costs:read` and effective site access.\n\n**API key:** `costs:read`",
 				"operationId": "getSiteSpecificCost",
 				"parameters": [
 					{
@@ -1867,7 +1867,7 @@
 					"Emissions"
 				],
 				"summary": "Emissions data for a specific site",
-				"description": "Retrieves carbon emissions data for a specific site\n\n**API key:** requires the `emissions:read` scope.",
+				"description": "Retrieves carbon emissions data for a specific site\n\n**API key:** `emissions:read`",
 				"operationId": "getSiteSpecificEmissions",
 				"parameters": [
 					{
@@ -1909,7 +1909,7 @@
 					"Emissions"
 				],
 				"summary": "Degree days for a specific site",
-				"description": "Get degree days data for weather normalization analysis.\n\n**API key:** requires the `consumption:read` scope.",
+				"description": "Get degree days data for weather normalization analysis.\n\n**API key:** `consumption:read`",
 				"operationId": "getSiteSpecificDegreeDays",
 				"parameters": [
 					{
@@ -1954,7 +1954,7 @@
 					"Energy Consumption"
 				],
 				"summary": "Load curve for all sites",
-				"description": "Retrieves load curve data across all sites\n\n**API key:** requires the `consumption:read` scope.",
+				"description": "Retrieves load curve data across all sites\n\n**API key:** `consumption:read`",
 				"operationId": "getSitesLoadCurve",
 				"parameters": [
 					{
@@ -2013,7 +2013,7 @@
 					"Energy Consumption"
 				],
 				"summary": "Load curve for a specific site",
-				"description": "Retrieves load curve data for a specific site\n\n**API key:** requires the `consumption:read` scope.",
+				"description": "Retrieves load curve data for a specific site\n\n**API key:** `consumption:read`",
 				"operationId": "getSiteSpecificLoadCurve",
 				"parameters": [
 					{
@@ -2085,7 +2085,7 @@
 					"Energy Consumption"
 				],
 				"summary": "Time series data for all sites",
-				"description": "Retrieves time series energy data across all sites\n\nScoped API keys require `consumption:read` and effective site access.\n\n**API key:** requires the `consumption:read` scope.",
+				"description": "Retrieves time series energy data across all sites\n\nScoped API keys require `consumption:read` and effective site access.\n\n**API key:** `consumption:read`",
 				"operationId": "getSitesTimeSeries",
 				"parameters": [
 					{
@@ -2136,7 +2136,7 @@
 					"Energy Consumption"
 				],
 				"summary": "Time series data for a specific site",
-				"description": "Retrieves time series energy data for a specific site\n\nScoped API keys require `consumption:read` and effective site access.\n\n**API key:** requires the `consumption:read` scope.",
+				"description": "Retrieves time series energy data for a specific site\n\nScoped API keys require `consumption:read` and effective site access.\n\n**API key:** `consumption:read`",
 				"operationId": "getSiteSpecificTimeSeries",
 				"parameters": [
 					{
@@ -4263,13 +4263,13 @@
 				"type": "apiKey",
 				"in": "header",
 				"name": "x-api-key",
-				"description": "VoltView API key. Acts as its owner, limited to the key's scopes and sites. Each endpoint lists the scope it needs."
+				"description": "VoltView API key."
 			},
 			"sessionJwt": {
 				"type": "http",
 				"scheme": "bearer",
 				"bearerFormat": "JWT",
-				"description": "Signed-in VoltView session token. API key management always requires a session."
+				"description": "VoltView session token."
 			}
 		},
 		"parameters": {
